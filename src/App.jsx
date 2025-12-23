@@ -108,8 +108,18 @@ function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authTimeout, setAuthTimeout] = useState(false);
 
   useEffect(() => {
+    // Timeout after 10 seconds to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('Auth check timed out');
+        setAuthTimeout(true);
+        setLoading(false);
+      }
+    }, 10000);
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -118,6 +128,9 @@ function AuthProvider({ children }) {
       } else {
         setLoading(false);
       }
+    }).catch((err) => {
+      console.error('Auth session error:', err);
+      setLoading(false);
     });
 
     // Listen for auth changes
@@ -131,7 +144,10 @@ function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchProfile = async (userId) => {
@@ -164,7 +180,7 @@ function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, authTimeout, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );
@@ -768,7 +784,7 @@ function LoginScreen() {
 // ============================================
 function TripSelectionScreen() {
   const { trips, loading, createTrip, joinTrip, selectTrip } = useTrip();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, authTimeout, user } = useAuth();
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
   const [newTripName, setNewTripName] = useState('');
@@ -801,8 +817,33 @@ function TripSelectionScreen() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: theme.bg.primary }}>
+      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: theme.bg.primary }}>
+        <h1 className="text-2xl font-bold mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <span className="text-white">Hit</span>
+          <span style={{ color: theme.accent }}>Seeker</span>
+        </h1>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: theme.accent }} />
+      </div>
+    );
+  }
+
+  // Show error if auth timed out
+  if (authTimeout && !user) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-6" style={{ background: theme.bg.primary }}>
+        <h1 className="text-2xl font-bold mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <span className="text-white">Hit</span>
+          <span style={{ color: theme.accent }}>Seeker</span>
+        </h1>
+        <p className="text-white mb-2">Connection timed out</p>
+        <p className="text-gray-400 text-sm mb-6 text-center">Having trouble connecting. Please try again.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 rounded-lg font-semibold"
+          style={{ background: theme.accent, color: '#000' }}
+        >
+          Retry
+        </button>
       </div>
     );
   }

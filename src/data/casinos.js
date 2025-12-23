@@ -116,5 +116,6 @@ const vegasCasinos = [
 ];
 
 // Legacy reference (keep for backward compatibility)
+const caesarsProperties = vegasCasinos.filter(c => c.owner === 'Caesars');
 
 export { vegasCasinos, caesarsProperties };

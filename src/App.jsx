@@ -1404,7 +1404,10 @@ function BloodyToast({ message, type = 'success', onClose }) {
   }, [onClose]);
   
   return (
-    <div className={`fixed top-4 right-4 z-50 animate-slide-in-right`}>
+    <div
+      className="fixed right-4 z-50 animate-slide-in-right"
+      style={{ top: 'calc(var(--sat, 0px) + 16px)' }}
+    >
       <div className={`rounded-lg px-4 py-3 shadow-lg flex items-center gap-3 ${
         type === 'success' ? 'bg-emerald-900/90 border border-emerald-700' :
         type === 'badge' ? 'bg-purple-900/90 border border-purple-700' :

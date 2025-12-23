@@ -6,7 +6,10 @@ export function TripHeader({ onOpenSettings, onLocationClick, myCheckIn }) {
   const { currentTrip, tripMembers } = useTrip();
 
   return (
-    <div className="bg-[#161616] border-b border-[#333] px-4 py-3">
+    <div
+      className="bg-[#161616] border-b border-[#333] px-4 pb-3"
+      style={{ paddingTop: 'calc(var(--sat, 0px) + 12px)' }}
+    >
       <div className="flex items-center justify-between">
         <button onClick={onOpenSettings} className="flex items-center gap-2">
           <span className="font-bold" style={{ fontFamily: 'Outfit, sans-serif' }}>

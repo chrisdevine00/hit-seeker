@@ -71,7 +71,10 @@ export function TripSelectionScreen() {
   }
 
   return (
-    <div className="min-h-screen p-6" style={{ background: theme.bg.primary }}>
+    <div
+      className="min-h-screen px-6 pb-6"
+      style={{ background: theme.bg.primary, paddingTop: 'calc(var(--sat, 0px) + 24px)' }}
+    >
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

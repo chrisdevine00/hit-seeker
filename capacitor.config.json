@@ -1,0 +1,11 @@
+{
+  "appId": "com.hitseeker.app",
+  "appName": "Hit Seeker",
+  "webDir": "dist",
+  "ios": {
+    "minVersion": "15.0"
+  },
+  "server": {
+    "iosScheme": "capacitor"
+  }
+}

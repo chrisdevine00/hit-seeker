@@ -1,5 +1,38 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem } from 'lucide-react';
+import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem, GlassWater, Flame, Trophy, Sparkles, Star, Beer, Dices, Droplet, Rocket, Zap, Compass, MapPinned, ThumbsDown, Hand, Shield, Sunrise, Moon, Calendar, Lock, Rainbow, Milk } from 'lucide-react';
+
+// Custom text-based badge icons
+const HashIcon = ({ size, className }) => <span className={`font-bold ${className}`} style={{ fontSize: size * 0.7 }}>10</span>;
+const ThreeIcon = ({ size, className }) => <span className={`font-bold ${className}`} style={{ fontSize: size * 0.7 }}>3</span>;
+
+// Icon map for badge icons (replaces emojis)
+const BADGE_ICONS = {
+  'droplet': Droplet,
+  'rocket': Rocket,
+  'hash': HashIcon,
+  'zap': Zap,
+  'three': ThreeIcon,
+  'hand': Hand,
+  'home': Home,
+  'compass': Compass,
+  'map-pinned': MapPinned,
+  'dices': Dices,
+  'star': Star,
+  'thumbs-down': ThumbsDown,
+  'flame': Flame,
+  'pepper': Flame, // Using flame for pepper/spice
+  'milk': Milk,
+  'rainbow': Rainbow,
+  'shield': Shield,
+  'sunrise': Sunrise,
+  'moon': Moon,
+  'beer': Beer,
+  'calendar': Calendar,
+  'lock': Lock,
+  'wine': GlassWater,
+  'trophy': Trophy,
+  'sparkles': Sparkles,
+};
 
 // Lib imports
 import { supabase } from './lib/supabase';
@@ -1088,8 +1121,8 @@ function VideoPokerTab({ onSpot }) {
                 <div className="flex items-center justify-center gap-2 mb-1">
                   <p className="text-[#d4a855] font-semibold text-lg">{recommendation.name}</p>
                   {recommendation.source && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-500/30 font-medium">
-                      WoO ✓
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/30 text-emerald-400 border border-emerald-500/30 font-medium inline-flex items-center gap-0.5">
+                      WoO <Check size={10} />
                     </span>
                   )}
                 </div>
@@ -1199,35 +1232,35 @@ function VideoPokerTab({ onSpot }) {
 // BLOODIES TAB - Bloody Mary Tracker
 // ============================================
 
-// Badge definitions with criteria
+// Badge definitions with criteria (icon keys reference BADGE_ICONS map)
 const BLOODY_BADGES = [
   // Milestones
-  { id: 'first-blood', name: 'First Blood', description: 'Log your first bloody', category: 'milestone', icon: '🩸', color: 'red', effect: 'confetti' },
-  { id: 'getting-started', name: 'Getting Started', description: 'Log 5 bloodies', category: 'milestone', icon: '🚀', color: 'blue', effect: 'confetti' },
-  { id: 'double-digits', name: 'Double Digits', description: 'Log 10 bloodies', category: 'milestone', icon: '🔟', color: 'purple', effect: 'explode' },
+  { id: 'first-blood', name: 'First Blood', description: 'Log your first bloody', category: 'milestone', icon: 'droplet', color: 'red', effect: 'confetti' },
+  { id: 'getting-started', name: 'Getting Started', description: 'Log 5 bloodies', category: 'milestone', icon: 'rocket', color: 'blue', effect: 'confetti' },
+  { id: 'double-digits', name: 'Double Digits', description: 'Log 10 bloodies', category: 'milestone', icon: 'hash', color: 'purple', effect: 'explode' },
   // Daily Frequency
-  { id: 'back-to-back', name: 'Back to Back', description: '2 bloodies within 30 minutes', category: 'frequency', icon: '⚡', color: 'yellow', effect: 'confetti' },
-  { id: 'triple-threat', name: 'Triple Threat', description: '3 bloodies in one day', category: 'frequency', icon: '3️⃣', color: 'orange', effect: 'confetti' },
-  { id: 'high-five', name: 'High Five', description: '5 bloodies in one day', category: 'frequency', icon: '🖐️', color: 'pink', effect: 'explode' },
+  { id: 'back-to-back', name: 'Back to Back', description: '2 bloodies within 30 minutes', category: 'frequency', icon: 'zap', color: 'yellow', effect: 'confetti' },
+  { id: 'triple-threat', name: 'Triple Threat', description: '3 bloodies in one day', category: 'frequency', icon: 'three', color: 'orange', effect: 'confetti' },
+  { id: 'high-five', name: 'High Five', description: '5 bloodies in one day', category: 'frequency', icon: 'hand', color: 'pink', effect: 'explode' },
   // Location
-  { id: 'regular', name: 'Regular', description: 'Same location 3+ times', category: 'location', icon: '🏠', color: 'teal', effect: 'confetti' },
-  { id: 'explorer', name: 'Explorer', description: '5 different locations', category: 'location', icon: '🧭', color: 'green', effect: 'confetti' },
-  { id: 'wanderer', name: 'Wanderer', description: '10 different locations', category: 'location', icon: '🗺️', color: 'emerald', effect: 'explode' },
-  { id: 'strip-crawler', name: 'Strip Crawler', description: '5 different Strip casinos', category: 'location', icon: '🎰', color: 'gold', effect: 'explode' },
+  { id: 'regular', name: 'Regular', description: 'Same location 3+ times', category: 'location', icon: 'home', color: 'teal', effect: 'confetti' },
+  { id: 'explorer', name: 'Explorer', description: '5 different locations', category: 'location', icon: 'compass', color: 'green', effect: 'confetti' },
+  { id: 'wanderer', name: 'Wanderer', description: '10 different locations', category: 'location', icon: 'map-pinned', color: 'emerald', effect: 'explode' },
+  { id: 'strip-crawler', name: 'Strip Crawler', description: '5 different Strip casinos', category: 'location', icon: 'dices', color: 'gold', effect: 'explode' },
   // Rating
-  { id: 'five-star-find', name: 'Five Star Find', description: 'Log a 5-star bloody', category: 'rating', icon: '⭐', color: 'yellow', effect: 'confetti' },
-  { id: 'tough-crowd', name: 'Tough Crowd', description: 'Log a 1-star bloody', category: 'rating', icon: '👎', color: 'gray', effect: 'none' },
+  { id: 'five-star-find', name: 'Five Star Find', description: 'Log a 5-star bloody', category: 'rating', icon: 'star', color: 'yellow', effect: 'confetti' },
+  { id: 'tough-crowd', name: 'Tough Crowd', description: 'Log a 1-star bloody', category: 'rating', icon: 'thumbs-down', color: 'gray', effect: 'none' },
   // Spice - these get fire effects!
-  { id: 'cough-cough', name: 'Cough, Cough', description: 'Log a 5-fire spice rating', category: 'spice', icon: '🔥', color: 'red', effect: 'fire' },
-  { id: 'heat-seeker', name: 'Heat Seeker', description: 'Log five 5-fire bloodies', category: 'spice', icon: '🌶️', color: 'orange', effect: 'explode' },
-  { id: 'mild-mannered', name: 'Mild Mannered', description: 'Log a 1-fire bloody', category: 'spice', icon: '🥛', color: 'blue', effect: 'none' },
-  { id: 'spice-spectrum', name: 'Spice Spectrum', description: 'Log all 5 spice levels', category: 'spice', icon: '🌈', color: 'purple', effect: 'explode' },
-  { id: 'playing-it-safe', name: 'Playing It Safe', description: '5 in a row at 1-2 spice', category: 'spice', icon: '🛡️', color: 'teal', effect: 'fire' },
+  { id: 'cough-cough', name: 'Cough, Cough', description: 'Log a 5-fire spice rating', category: 'spice', icon: 'flame', color: 'red', effect: 'fire' },
+  { id: 'heat-seeker', name: 'Heat Seeker', description: 'Log five 5-fire bloodies', category: 'spice', icon: 'pepper', color: 'orange', effect: 'explode' },
+  { id: 'mild-mannered', name: 'Mild Mannered', description: 'Log a 1-fire bloody', category: 'spice', icon: 'milk', color: 'blue', effect: 'none' },
+  { id: 'spice-spectrum', name: 'Spice Spectrum', description: 'Log all 5 spice levels', category: 'spice', icon: 'rainbow', color: 'purple', effect: 'explode' },
+  { id: 'playing-it-safe', name: 'Playing It Safe', description: '5 in a row at 1-2 spice', category: 'spice', icon: 'shield', color: 'teal', effect: 'fire' },
   // Time
-  { id: 'hair-of-the-dog', name: 'Hair of the Dog', description: 'First bloody before 9am', category: 'time', icon: '🌅', color: 'amber', effect: 'confetti' },
-  { id: 'night-owl', name: 'Night Owl', description: 'Bloody after midnight', category: 'time', icon: '🦉', color: 'indigo', effect: 'confetti' },
-  { id: 'happy-hour', name: 'Happy Hour', description: 'Bloody between 4-6pm', category: 'time', icon: '🍻', color: 'yellow', effect: 'confetti' },
-  { id: 'weekend-warrior', name: 'Weekend Warrior', description: 'Log on both Sat & Sun', category: 'time', icon: '🗓️', color: 'green', effect: 'explode' },
+  { id: 'hair-of-the-dog', name: 'Hair of the Dog', description: 'First bloody before 9am', category: 'time', icon: 'sunrise', color: 'amber', effect: 'confetti' },
+  { id: 'night-owl', name: 'Night Owl', description: 'Bloody after midnight', category: 'time', icon: 'moon', color: 'indigo', effect: 'confetti' },
+  { id: 'happy-hour', name: 'Happy Hour', description: 'Bloody between 4-6pm', category: 'time', icon: 'beer', color: 'yellow', effect: 'confetti' },
+  { id: 'weekend-warrior', name: 'Weekend Warrior', description: 'Log on both Sat & Sun', category: 'time', icon: 'calendar', color: 'green', effect: 'explode' },
 ];
 
 // Strip casino IDs for Strip Crawler badge
@@ -1362,30 +1395,33 @@ function checkBadges(bloodies) {
 // Hexagon Badge Component
 function HexBadge({ badge, earned, size = 'medium', onClick }) {
   const sizes = {
-    small: { outer: 'w-16 h-[70px]', inner: 'w-12 h-[53px]', icon: 'text-xl' },
-    medium: { outer: 'w-20 h-[88px]', inner: 'w-16 h-[70px]', icon: 'text-2xl' },
-    large: { outer: 'w-28 h-[123px]', inner: 'w-24 h-[105px]', icon: 'text-4xl' },
+    small: { outer: 'w-16 h-[70px]', inner: 'w-12 h-[53px]', iconSize: 20 },
+    medium: { outer: 'w-20 h-[88px]', inner: 'w-16 h-[70px]', iconSize: 28 },
+    large: { outer: 'w-28 h-[123px]', inner: 'w-24 h-[105px]', iconSize: 40 },
   };
-  
+
   const s = sizes[size];
   const colors = earned ? BADGE_COLORS[badge.color] : { outline: 'from-gray-600 to-gray-800', fill: 'from-gray-800/50 to-gray-900/50' };
-  
+
+  // Get the icon component from the map
+  const IconComponent = BADGE_ICONS[badge.icon];
+
   return (
     <div className="flex flex-col items-center cursor-pointer" onClick={onClick}>
       {/* Outer hexagon (border) */}
-      <div 
+      <div
         className={`${s.outer} bg-gradient-to-b ${colors.outline} flex items-center justify-center transition-all ${earned ? 'opacity-100' : 'opacity-40'}`}
         style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
       >
         {/* Inner hexagon (fill) */}
-        <div 
+        <div
           className={`${s.inner} bg-gradient-to-b ${colors.fill} flex items-center justify-center`}
           style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
         >
           {earned ? (
-            <span className={s.icon}>{badge.icon}</span>
+            IconComponent ? <IconComponent size={s.iconSize} className="text-white" /> : <span className="text-white">{badge.icon}</span>
           ) : (
-            <span className="text-gray-600 text-lg">🔒</span>
+            <Lock size={s.iconSize - 4} className="text-gray-600" />
           )}
         </div>
       </div>
@@ -1413,7 +1449,7 @@ function BloodyToast({ message, type = 'success', onClose }) {
         type === 'badge' ? 'bg-purple-900/90 border border-purple-700' :
         'bg-[#242424] border border-[#444]'
       }`}>
-        <span className="text-2xl">{type === 'badge' ? '🏆' : '🍅'}</span>
+        {type === 'badge' ? <Trophy size={24} className="text-yellow-400" /> : <GlassWater size={24} className="text-red-400" />}
         <div>
           <p className="text-white font-semibold">{message}</p>
         </div>
@@ -1460,7 +1496,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h3 className="text-white font-bold text-xl">Log a Bloody 🍅</h3>
+          <h3 className="text-white font-bold text-xl flex items-center gap-2">Log a Bloody <GlassWater size={20} className="text-red-400" /></h3>
           <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">&times;</button>
         </div>
         
@@ -1515,11 +1551,11 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
               <button
                 key={fire}
                 onClick={() => setSpice(spice === fire ? 0 : fire)}
-                className={`text-3xl transition-all hover:scale-110 ${
-                  fire <= spice ? 'grayscale-0' : 'grayscale opacity-40'
+                className={`transition-all hover:scale-110 ${
+                  fire <= spice ? 'text-orange-500' : 'text-gray-600 opacity-40'
                 }`}
               >
-                🔥
+                <Flame size={28} />
               </button>
             ))}
           </div>
@@ -1543,7 +1579,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
           disabled={!location || (location === 'custom' && !customLocation)}
           className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg text-white font-bold text-lg transition-colors"
         >
-          Log It! 🍅
+          <span className="flex items-center justify-center gap-2">Log It! <GlassWater size={20} /></span>
         </button>
       </div>
     </div>
@@ -1564,14 +1600,17 @@ function BadgeDetailModal({ badge, earned, onClose }) {
           className={`w-32 h-[140px] bg-gradient-to-b ${colors.outline} flex items-center justify-center mx-auto mb-4 ${earned ? '' : 'opacity-40'}`}
           style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
         >
-          <div 
+          <div
             className={`w-28 h-[123px] bg-gradient-to-b ${colors.fill} flex items-center justify-center`}
             style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
           >
             {earned ? (
-              <span className="text-5xl">{badge.icon}</span>
+              (() => {
+                const IconComponent = BADGE_ICONS[badge.icon];
+                return IconComponent ? <IconComponent size={48} className="text-white" /> : null;
+              })()
             ) : (
-              <span className="text-gray-600 text-3xl">🔒</span>
+              <Lock size={32} className="text-gray-600" />
             )}
           </div>
         </div>
@@ -1582,10 +1621,10 @@ function BadgeDetailModal({ badge, earned, onClose }) {
         <p className={`${earned ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
           {badge.description}
         </p>
-        <span className={`inline-block px-3 py-1 rounded-full text-xs ${
+        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs ${
           earned ? 'bg-emerald-900/50 text-emerald-400 border border-emerald-700' : 'bg-gray-800 text-gray-500 border border-gray-700'
         }`}>
-          {earned ? '✓ Unlocked' : 'Locked'}
+          {earned ? <><Check size={12} /> Unlocked</> : 'Locked'}
         </span>
         
         <button
@@ -1775,8 +1814,8 @@ function BloodiesTab() {
             transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
           }}
         >
-          <div className="mb-2 text-yellow-400 text-sm font-semibold uppercase tracking-wider">
-            🎉 Badge Unlocked! 🎉
+          <div className="mb-2 text-yellow-400 text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2">
+            <Sparkles size={16} /> Badge Unlocked! <Sparkles size={16} />
           </div>
           
           {/* Badge with fire effect behind it */}
@@ -1817,11 +1856,14 @@ function BloodiesTab() {
                              'none'
                 }}
               >
-                <div 
+                <div
                   className={`w-28 h-[123px] bg-gradient-to-b ${colors.fill} flex items-center justify-center`}
                   style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
                 >
-                  <span className="text-5xl">{badge.icon}</span>
+                  {(() => {
+                    const IconComponent = BADGE_ICONS[badge.icon];
+                    return IconComponent ? <IconComponent size={48} className="text-white" /> : null;
+                  })()}
                 </div>
               </div>
             </div>
@@ -1834,7 +1876,7 @@ function BloodiesTab() {
             onClick={handleDismiss}
             className="px-8 py-3 bg-[#d4a855] hover:bg-[#c49745] rounded-lg text-black font-bold transition-colors"
           >
-            {newBadges.length > 1 ? 'Next Badge →' : 'Awesome! 🍅'}
+            {newBadges.length > 1 ? 'Next Badge →' : 'Awesome!'}
           </button>
         </div>
         
@@ -1865,7 +1907,7 @@ function BloodiesTab() {
     <div className="pb-24">
       {/* Header */}
       <div className="p-4 border-b border-[#333]">
-        <h1 className="text-2xl font-bold text-white mb-1">Bloodies 🍅</h1>
+        <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">Bloodies <GlassWater size={24} className="text-red-400" /></h1>
         <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
       </div>
       
@@ -1887,7 +1929,7 @@ function BloodiesTab() {
           onClick={() => setShowLogModal(true)}
           className="w-full py-4 bg-red-600 hover:bg-red-500 rounded-xl text-white font-bold text-lg transition-colors flex items-center justify-center gap-2"
         >
-          <span className="text-2xl">🍅</span>
+          <GlassWater size={24} />
           Log a Bloody
         </button>
       </div>
@@ -1932,7 +1974,9 @@ function BloodiesTab() {
                       <span className="text-yellow-400 text-sm">{'★'.repeat(bloody.rating)}</span>
                     )}
                     {bloody.spice > 0 && (
-                      <span className="text-sm">{'🔥'.repeat(bloody.spice)}</span>
+                      <span className="flex text-orange-500">
+                        {[...Array(bloody.spice)].map((_, i) => <Flame key={i} size={14} />)}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -3953,7 +3997,7 @@ function MainApp() {
           {[
             { id: 'hunt', icon: Gem, label: 'Slots' },
             { id: 'vp', icon: Spade, label: 'Video Poker' },
-            { id: 'bloodies', icon: null, label: 'Bloodies', emoji: '🍅' },
+            { id: 'bloodies', icon: GlassWater, label: 'Bloodies' },
             { id: 'trip', icon: Map, label: 'Trip' }
           ].map(tab => (
             <button
@@ -3961,11 +4005,7 @@ function MainApp() {
               onClick={() => { setActiveTab(tab.id); setSelectedMachine(null); setSelectedCasino(null); }}
               className={`flex flex-col items-center py-2 px-3 ${activeTab === tab.id ? 'text-[#d4a855]' : 'text-[#aaaaaa]'}`}
             >
-              {tab.emoji ? (
-                <span className="text-xl">{tab.emoji}</span>
-              ) : (
-                <tab.icon size={22} />
-              )}
+              <tab.icon size={22} />
               <span className="text-xs mt-1 font-medium">{tab.label}</span>
             </button>
           ))}

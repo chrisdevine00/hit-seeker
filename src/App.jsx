@@ -439,18 +439,18 @@ function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhoto
           <h3 className="text-white font-semibold">{machineName}</h3>
           {photo.casino && <p className="text-[#bbbbbb] text-sm">{photo.casino}</p>}
         </div>
-        <button onClick={onClose} className="text-white p-2"><X size={24} /></button>
+        <button onClick={onClose} className="no-animate text-white p-2"><X size={24} /></button>
       </div>
-      
+
       <div className="flex-1 flex items-center justify-center relative">
         {hasPrev && (
-          <button onClick={() => onNavigate(allPhotos[currentIndex - 1])} className="absolute left-2 bg-black/50 p-2 rounded-full text-white">
+          <button onClick={() => onNavigate(allPhotos[currentIndex - 1])} className="no-animate absolute left-2 bg-black/50 p-2 rounded-full text-white">
             <ChevronLeft size={24} />
           </button>
         )}
         <img src={photoUrl} alt={machineName} className="max-h-full max-w-full object-contain" />
         {hasNext && (
-          <button onClick={() => onNavigate(allPhotos[currentIndex + 1])} className="absolute right-2 bg-black/50 p-2 rounded-full text-white">
+          <button onClick={() => onNavigate(allPhotos[currentIndex + 1])} className="no-animate absolute right-2 bg-black/50 p-2 rounded-full text-white">
             <ChevronRight size={24} />
           </button>
         )}
@@ -507,9 +507,9 @@ function MachineCarousel({ machines, tierColors, onSelect, tier, getLatestPhoto,
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => goTo(currentIndex - 1)} className="p-1 text-[#bbbbbb] hover:text-white"><ChevronLeft size={20} /></button>
+            <button onClick={() => goTo(currentIndex - 1)} className="no-animate p-1 text-[#bbbbbb] hover:text-white"><ChevronLeft size={20} /></button>
             <span className="text-xs text-[#aaaaaa]">{currentIndex + 1}/{tierMachines.length}</span>
-            <button onClick={() => goTo(currentIndex + 1)} className="p-1 text-[#bbbbbb] hover:text-white"><ChevronRight size={20} /></button>
+            <button onClick={() => goTo(currentIndex + 1)} className="no-animate p-1 text-[#bbbbbb] hover:text-white"><ChevronRight size={20} /></button>
           </div>
         </div>
         
@@ -823,7 +823,7 @@ function VideoPokerTab({ onSpot }) {
         <div className="bg-[#161616] border-t border-[#333] rounded-t-2xl w-full max-w-md p-4 max-h-[70vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-white font-semibold text-lg">Select Card</h3>
-            <button onClick={onClose} className="text-[#aaa] hover:text-white p-1">
+            <button onClick={onClose} className="no-animate text-[#aaa] hover:text-white p-1">
               <X size={24} />
             </button>
           </div>
@@ -1505,7 +1505,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
       >
         <div className="flex justify-between items-center mb-5">
           <h3 className="text-white font-bold text-xl flex items-center gap-2">Log a Bloody <GlassWater size={20} className="text-red-400" /></h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">&times;</button>
+          <button onClick={onClose} className="no-animate text-gray-400 hover:text-white text-2xl">&times;</button>
         </div>
         
         {/* Location */}
@@ -2323,7 +2323,7 @@ function MainApp() {
     return (
       <div className="min-h-screen bg-[#0d0d0d] p-6">
         <div className="max-w-md mx-auto">
-          <button onClick={() => setShowTripSettings(false)} className="flex items-center gap-2 text-[#d4a855] mb-6">
+          <button onClick={() => setShowTripSettings(false)} className="no-animate flex items-center gap-2 text-[#d4a855] mb-6">
             <ChevronLeft size={20} /> Back
           </button>
           
@@ -3857,7 +3857,7 @@ function MainApp() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-white">Scouting Notes</h2>
                   <div className="flex items-center gap-2">
-                    <button onClick={refreshNotes} className="p-2 text-[#bbbbbb] hover:text-white">
+                    <button onClick={refreshNotes} className="no-animate p-2 text-[#bbbbbb] hover:text-white">
                       <RefreshCw size={18} />
                     </button>
                     <AnimatedButton onClick={() => setShowNoteForm(true)} className="bg-[#d4a855] hover:bg-[#a67c3d] text-white px-4 py-2 rounded text-sm font-semibold">
@@ -3917,7 +3917,7 @@ function MainApp() {
         {/* Casino Detail */}
         {activeTab === 'trip' && selectedCasino && (
           <div className="space-y-4">
-            <button onClick={() => setSelectedCasino(null)} className="flex items-center gap-2 text-[#d4a855]">
+            <button onClick={() => setSelectedCasino(null)} className="no-animate flex items-center gap-2 text-[#d4a855]">
               <ChevronLeft size={20} /> Back
             </button>
             

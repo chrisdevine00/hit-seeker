@@ -24,7 +24,7 @@ export function StrategyValidator({ onClose }) {
             <h2 className="text-xl font-bold text-white">Strategy Validator</h2>
             <p className="text-[#888] text-sm">Testing optimal play recommendations</p>
           </div>
-          <button onClick={onClose} className="text-[#888] hover:text-white p-2">
+          <button onClick={onClose} className="no-animate text-[#888] hover:text-white p-2">
             <X size={24} />
           </button>
         </div>

@@ -16,15 +16,21 @@ html, body, #root {
 }
 
 /* Button press + bounce animation */
-@keyframes pressBouncе {
+@keyframes pressBounce {
   0% { filter: brightness(1); transform: scale(1); }
   30% { filter: brightness(1.2); transform: scale(0.95); }
   60% { filter: brightness(1.1); transform: scale(1.03); }
   100% { filter: brightness(1); transform: scale(1); }
 }
 
+/* Global button animation - applies to ALL buttons */
+button:not(.no-animate):active {
+  animation: pressBounce 0.3s ease forwards;
+}
+
+/* Class-triggered animation (for programmatic use) */
 .animate-flash-pop {
-  animation: pressBouncе 0.3s ease forwards;
+  animation: pressBounce 0.3s ease forwards;
 }
 
 /* Header pin animations */

@@ -1048,13 +1048,14 @@ function VideoPokerTab({ onSpot }) {
       
       {/* Spot Button - when pay table selected */}
       {selectedPayTable && onSpot && (
-        <AnimatedButton
+        <Button
           onClick={() => onSpot(game, selectedPayTable)}
-          className="w-full bg-[#d4a855] hover:bg-[#c49745] text-black py-3 rounded font-semibold flex items-center justify-center gap-2"
+          variant="primary"
+          className="w-full flex items-center justify-center gap-2"
         >
           <FilledMapPin size={18} holeColor="#d4a855" />
           Spot This Pay Table
-        </AnimatedButton>
+        </Button>
       )}
 
       {/* Hand Entry */}
@@ -1515,7 +1516,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
-          <h3 className="text-white font-bold text-xl flex items-center gap-2">Log a Bloody <GlassWater size={20} className="text-red-400" /></h3>
+          <h3 className="text-white font-bold text-xl">Log a Bloody</h3>
           <button onClick={onClose} className="no-animate text-gray-400 hover:text-white text-2xl">&times;</button>
         </div>
         
@@ -1597,9 +1598,10 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
           onClick={handleSubmit}
           disabled={!location || (location === 'custom' && !customLocation)}
           variant="danger"
-          className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg text-white font-bold text-lg"
+          size="lg"
+          className="w-full disabled:bg-gray-700 disabled:text-gray-500"
         >
-          <span className="flex items-center justify-center gap-2">Log It! <GlassWater size={20} /></span>
+          Log It!
         </Button>
       </div>
     </div>
@@ -1647,12 +1649,13 @@ function BadgeDetailModal({ badge, earned, onClose }) {
           {earned ? <><Check size={12} /> Unlocked</> : 'Locked'}
         </span>
         
-        <button
+        <Button
           onClick={onClose}
-          className="block mx-auto mt-6 px-6 py-2 bg-[#333] hover:bg-[#444] rounded-lg text-white transition-colors"
+          variant="secondary"
+          className="mx-auto mt-6"
         >
           Close
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -1892,12 +1895,14 @@ function BloodiesTab() {
           <h2 className="text-white text-2xl font-bold mb-2">{badge.name}</h2>
           <p className="text-gray-400 mb-6">{badge.description}</p>
           
-          <AnimatedButton
+          <Button
             onClick={handleDismiss}
-            className="px-8 py-3 bg-[#d4a855] hover:bg-[#c49745] rounded-lg text-black font-bold transition-colors"
+            variant="primary"
+            size="lg"
+            className="px-8"
           >
             {newBadges.length > 1 ? 'Next Badge →' : 'Awesome!'}
-          </AnimatedButton>
+          </Button>
         </div>
         
         {/* Confetti effect using canvas-confetti (simple CSS fallback) */}
@@ -1927,7 +1932,7 @@ function BloodiesTab() {
     <div className="pb-24">
       {/* Header */}
       <div className="p-4 border-b border-[#333]">
-        <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">Bloodies <GlassWater size={24} className="text-red-400" /></h1>
+        <h1 className="text-2xl font-bold text-white mb-1">Bloodies</h1>
         <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
       </div>
       
@@ -1948,7 +1953,8 @@ function BloodiesTab() {
         <Button
           onClick={() => setShowLogModal(true)}
           variant="danger"
-          className="w-full py-4 bg-red-600 hover:bg-red-500 rounded-xl text-white font-bold text-lg flex items-center justify-center gap-2"
+          size="xl"
+          className="w-full flex items-center justify-center gap-2"
         >
           <GlassWater size={24} />
           Log a Bloody

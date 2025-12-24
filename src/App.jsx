@@ -74,7 +74,7 @@ import { LoginScreen, TripSelectionScreen } from './screens';
 // Component imports
 import { TripHeader, DesktopSidebar } from './components/layout';
 import { StrategyValidator } from './components/features';
-import { ConfirmDialog, FilledMapPin, AnimatedButton, Button } from './components/ui';
+import { ConfirmDialog, FilledMapPin, Button } from './components/ui';
 
 // Initialize global styles
 injectGlobalStyles();
@@ -329,19 +329,21 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       
       {/* Actions */}
       <div className="space-y-2">
-        <AnimatedButton
+        <Button
           onClick={handleSubmit}
           disabled={isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine}
-          className="w-full bg-[#d4a855] hover:bg-[#c49745] disabled:opacity-50 text-black py-3 rounded font-semibold"
+          variant="primary"
+          className="w-full disabled:opacity-50"
         >
           Save Spot
-        </AnimatedButton>
-        <button 
-          onClick={onCancel} 
-          className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium"
+        </Button>
+        <Button
+          onClick={onCancel}
+          variant="secondary"
+          className="w-full"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -593,8 +595,8 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
             <h3 className="text-lg font-semibold text-white mb-2">Replace Photo?</h3>
             <p className="text-[#bbbbbb] mb-6">The existing photo will be deleted and replaced with the new one.</p>
             <div className="space-y-2">
-              <AnimatedButton onClick={handleReplaceConfirm} className="w-full bg-[#d4a855] hover:bg-[#c49745] text-black py-3 rounded font-semibold">Replace</AnimatedButton>
-              <button onClick={handleReplaceCancel} className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium">Cancel</button>
+              <Button onClick={handleReplaceConfirm} variant="primary" className="w-full">Replace</Button>
+              <Button onClick={handleReplaceCancel} variant="secondary" className="w-full">Cancel</Button>
             </div>
           </div>
         </div>
@@ -690,9 +692,9 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
         </div>
       )}
 
-      <AnimatedButton onClick={() => onAddNote(machine.name)} className="w-full bg-[#d4a855] hover:bg-[#a67c3d] text-white font-semibold py-4 rounded flex items-center justify-center gap-2">
+      <Button onClick={() => onAddNote(machine.name)} variant="primary" size="lg" className="w-full flex items-center justify-center gap-2">
         <StickyNote size={18} /> Add Note for {machine.shortName}
-      </AnimatedButton>
+      </Button>
     </div>
   );
 }
@@ -2828,18 +2830,20 @@ function MainApp() {
             </div>
             
             <div className="space-y-2">
-              <AnimatedButton
+              <Button
                 onClick={confirmCheckIn}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded font-semibold"
+                variant="success"
+                className="w-full"
               >
                 {myCheckIn ? `Switch to ${pendingCheckIn.name}` : 'Check In'}
-              </AnimatedButton>
-              <button 
+              </Button>
+              <Button
                 onClick={cancelCheckIn}
-                className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium"
+                variant="secondary"
+                className="w-full"
               >
                 Choose Different Casino
-              </button>
+              </Button>
               <button 
                 onClick={() => setPendingCheckIn(null)}
                 className="w-full text-[#666] hover:text-[#aaa] py-2 text-sm"
@@ -3359,13 +3363,14 @@ function MainApp() {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3">
-              <AnimatedButton
+              <Button
                 onClick={() => openSlotSpotter(selectedMachine.name)}
-                className="bg-[#d4a855] hover:bg-[#c49745] text-black rounded p-3 flex items-center justify-center gap-2 font-semibold"
+                variant="primary"
+                className="flex items-center justify-center gap-2"
               >
                 <FilledMapPin size={18} holeColor="#d4a855" />
                 Spot It
-              </AnimatedButton>
+              </Button>
               <button
                 onClick={() => document.getElementById('photo-input-hunt')?.click()}
                 disabled={photoUploading}
@@ -3877,9 +3882,9 @@ function MainApp() {
                     <button onClick={refreshNotes} className="no-animate p-2 text-[#bbbbbb] hover:text-white">
                       <RefreshCw size={18} />
                     </button>
-                    <AnimatedButton onClick={() => setShowNoteForm(true)} className="bg-[#d4a855] hover:bg-[#a67c3d] text-white px-4 py-2 rounded text-sm font-semibold">
+                    <Button onClick={() => setShowNoteForm(true)} variant="primary" size="sm">
                       + Add
-                    </AnimatedButton>
+                    </Button>
                   </div>
                 </div>
 
@@ -3905,13 +3910,15 @@ function MainApp() {
                     <p className="text-[#aaa] text-sm mb-4 max-w-xs mx-auto">
                       Spot a good machine? Add a note to remember it or share with your team.
                     </p>
-                    <AnimatedButton
+                    <Button
                       onClick={() => setShowNoteForm(true)}
-                      className="bg-[#d4a855] hover:bg-[#c49745] text-black font-semibold px-4 py-2 rounded text-sm inline-flex items-center gap-2"
+                      variant="primary"
+                      size="sm"
+                      className="inline-flex items-center gap-2"
                     >
                       <StickyNote size={16} />
                       Add Your First Note
-                    </AnimatedButton>
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -3962,12 +3969,13 @@ function MainApp() {
                   </button>
                 </div>
               ) : (
-                <AnimatedButton
+                <Button
                   onClick={() => handleCheckIn(selectedCasino)}
-                  className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded font-semibold"
+                  variant="success"
+                  className="w-full mt-4"
                 >
                   Check In Here
-                </AnimatedButton>
+                </Button>
               )}
             </div>
 

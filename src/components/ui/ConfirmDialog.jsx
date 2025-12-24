@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from './Button';
 
 export function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }) {
   if (!isOpen) return null;
@@ -8,8 +9,8 @@ export function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }) {
         <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
         <p className="text-[#bbbbbb] mb-6">{message}</p>
         <div className="space-y-2">
-          <button onClick={onConfirm} className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded font-semibold">Delete</button>
-          <button onClick={onCancel} className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium">Cancel</button>
+          <Button onClick={onConfirm} variant="danger" size="lg" className="w-full bg-red-600 hover:bg-red-700 text-white">Delete</Button>
+          <Button onClick={onCancel} variant="secondary" size="lg" className="w-full">Cancel</Button>
         </div>
       </div>
     </div>

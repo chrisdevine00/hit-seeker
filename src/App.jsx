@@ -74,7 +74,7 @@ import { LoginScreen, TripSelectionScreen } from './screens';
 // Component imports
 import { TripHeader, DesktopSidebar } from './components/layout';
 import { StrategyValidator } from './components/features';
-import { ConfirmDialog, FilledMapPin, AnimatedButton } from './components/ui';
+import { ConfirmDialog, FilledMapPin, AnimatedButton, Button } from './components/ui';
 
 // Initialize global styles
 injectGlobalStyles();
@@ -410,12 +410,12 @@ function NoteCard({ note, onEdit, onDelete, isOwn }) {
           {note.state && <p className="text-sm text-[#ccc] mb-3"><span className="text-[#888]">{isVP ? 'Notes:' : 'State:'}</span> {note.state}</p>}
           {isOwn && (
             <div className="flex gap-2">
-              <button onClick={() => onEdit(note)} className="flex-1 bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-2 rounded text-sm flex items-center justify-center gap-1">
+              <Button onClick={() => onEdit(note)} variant="secondary" size="sm" className="flex-1 flex items-center justify-center gap-1">
                 <Edit3 size={14} /> Edit
-              </button>
-              <button onClick={() => onDelete(note.id)} className="bg-red-600/20 hover:bg-red-600/30 text-red-400 py-2 px-4 rounded text-sm flex items-center gap-1">
+              </Button>
+              <Button onClick={() => onDelete(note.id)} variant="danger" size="sm" className="flex items-center gap-1">
                 <Trash2 size={14} /> Delete
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -461,9 +461,9 @@ function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhoto
           <p className="text-[#bbbbbb] text-sm">{currentIndex + 1} of {allPhotos.length}</p>
           <p className="text-[#aaaaaa] text-xs">{new Date(photo.created_at).toLocaleDateString()}</p>
         </div>
-        <button onClick={() => onDelete(photo.id)} className="bg-red-600/20 text-red-400 px-4 py-2 rounded text-sm flex items-center gap-2">
+        <Button onClick={() => onDelete(photo.id)} variant="danger" size="sm" className="flex items-center gap-2">
           <Trash2 size={16} /> Delete
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -1582,13 +1582,14 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
         </div>
         
         {/* Submit */}
-        <button
+        <Button
           onClick={handleSubmit}
           disabled={!location || (location === 'custom' && !customLocation)}
-          className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg text-white font-bold text-lg transition-colors"
+          variant="danger"
+          className="w-full py-4 bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:text-gray-500 rounded-lg text-white font-bold text-lg"
         >
           <span className="flex items-center justify-center gap-2">Log It! <GlassWater size={20} /></span>
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -1933,13 +1934,14 @@ function BloodiesTab() {
       
       {/* Log Button */}
       <div className="px-4 mb-6">
-        <button
+        <Button
           onClick={() => setShowLogModal(true)}
-          className="w-full py-4 bg-red-600 hover:bg-red-500 rounded-xl text-white font-bold text-lg transition-colors flex items-center justify-center gap-2"
+          variant="danger"
+          className="w-full py-4 bg-red-600 hover:bg-red-500 rounded-xl text-white font-bold text-lg flex items-center justify-center gap-2"
         >
           <GlassWater size={24} />
           Log a Bloody
-        </button>
+        </Button>
       </div>
       
       {/* Badges Section */}
@@ -2358,16 +2360,17 @@ function MainApp() {
             </div>
           </div>
 
-          <button
+          <Button
             onClick={() => { clearTrip(); setShowTripSettings(false); }}
-            className="w-full bg-[#161616] hover:bg-gray-700 text-white py-3 rounded border border-[#333] flex items-center justify-center gap-2 mb-3"
+            variant="secondary"
+            className="w-full py-3 flex items-center justify-center gap-2 mb-3 text-white"
           >
             <ChevronLeft size={18} /> Switch Trip
-          </button>
+          </Button>
 
-          <button onClick={signOut} className="w-full bg-[#161616] hover:bg-gray-700 text-gray-300 py-3 rounded border border-[#333] flex items-center justify-center gap-2">
+          <Button onClick={signOut} variant="secondary" className="w-full py-3 flex items-center justify-center gap-2">
             <LogOut size={18} /> Sign Out
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -2682,23 +2685,25 @@ function MainApp() {
               )}
               
               {onboardingStep < 6 ? (
-                <button
+                <Button
                   onClick={() => setOnboardingStep(onboardingStep + 1)}
-                  className="flex-1 bg-[#d4a855] hover:bg-[#c49745] text-black font-bold py-3 rounded transition-colors"
+                  variant="primary"
+                  className="flex-1 py-3 font-bold"
                 >
                   Next
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
                   onClick={() => {
                     localStorage.setItem('hitseeker_onboarded', 'true');
                     setShowOnboarding(false);
                     setOnboardingStep(1);
                   }}
-                  className="flex-1 bg-[#d4a855] hover:bg-[#c49745] text-black font-bold py-3 rounded transition-colors"
+                  variant="primary"
+                  className="flex-1 py-3 font-bold"
                 >
                   Start Hunting
-                </button>
+                </Button>
               )}
             </div>
 

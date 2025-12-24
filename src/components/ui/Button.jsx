@@ -14,7 +14,7 @@ const sizes = {
   sm: 'px-3 py-1.5 text-sm rounded',
   md: 'px-4 py-2 rounded',
   lg: 'px-6 py-3 rounded text-base',
-  xl: 'px-8 py-4 rounded-lg text-lg',
+  xl: 'px-8 py-4 rounded text-lg',
 };
 
 // Variants that should have the press+bounce animation

@@ -832,7 +832,7 @@ function VideoPokerTab({ onSpot }) {
           key={cardKey}
           disabled={isExcluded}
           onClick={() => onSelect({ rank, suit: suit.symbol, color: suit.color })}
-          className={`aspect-[2.5/3.5] rounded-lg border-2 flex flex-col items-center justify-center font-bold transition-colors ${
+          className={`aspect-[2.5/3.5] rounded border-2 flex flex-col items-center justify-center font-bold transition-colors ${
             isExcluded
               ? 'bg-[#0d0d0d] border-[#1a1a1a] text-[#333] cursor-not-allowed'
               : 'bg-[#1a1a1a] border-[#333] hover:border-[#d4a855] hover:bg-[#222] ' + suit.pickerColor
@@ -861,7 +861,7 @@ function VideoPokerTab({ onSpot }) {
             <button
               disabled={jokerExcluded}
               onClick={() => onSelect({ rank: 'JOKER', suit: '★', color: 'text-purple-500', isJoker: true })}
-              className={`py-2 rounded-lg font-bold transition-colors mb-1 ${
+              className={`py-2 rounded font-bold transition-colors mb-1 ${
                 jokerExcluded
                   ? 'bg-[#0d0d0d] border border-[#222] text-[#333] cursor-not-allowed'
                   : 'bg-[#2a1a2a] border border-purple-500/50 hover:bg-[#3a2a3a] text-purple-400'
@@ -1091,7 +1091,7 @@ function VideoPokerTab({ onSpot }) {
                   <div key={index} className="text-center">
                     <button
                       onClick={() => setShowCardPicker(index)}
-                      className={`w-14 h-20 sm:w-24 sm:h-32 rounded sm:rounded-lg border-2 flex flex-col items-center justify-center transition-all active:scale-95 ${
+                      className={`w-14 h-20 sm:w-24 sm:h-32 rounded sm:rounded border-2 flex flex-col items-center justify-center transition-all active:scale-95 ${
                         card
                           ? isComplete
                             ? shouldHold
@@ -1466,7 +1466,7 @@ function BloodyToast({ message, type = 'success', onClose }) {
       className="fixed right-4 z-50 animate-slide-in-right"
       style={{ top: 'calc(var(--sat, 0px) + 16px)' }}
     >
-      <div className={`rounded-lg px-4 py-3 shadow-lg flex items-center gap-3 ${
+      <div className={`rounded px-4 py-3 shadow-lg flex items-center gap-3 ${
         type === 'success' ? 'bg-emerald-900/90 border border-emerald-700' :
         type === 'badge' ? 'bg-purple-900/90 border border-purple-700' :
         'bg-[#242424] border border-[#444]'
@@ -1514,7 +1514,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-end justify-center" onClick={onClose}>
       <div 
-        className="bg-[#1a1a1a] border-t border-[#333] rounded-t-xl w-full max-w-md p-5 animate-slide-up"
+        className="bg-[#1a1a1a] border-t border-[#333] rounded-t w-full max-w-md p-5 animate-slide-up"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
@@ -1528,7 +1528,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
           <select 
             value={location}
             onChange={e => setLocation(e.target.value)}
-            className="w-full bg-[#242424] border border-[#444] rounded-lg px-4 py-3 text-white"
+            className="w-full bg-[#242424] border border-[#444] rounded px-4 py-3 text-white"
           >
             <option value="">Select location...</option>
             {casinos.map(c => (
@@ -1542,7 +1542,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
               value={customLocation}
               onChange={e => setCustomLocation(e.target.value)}
               placeholder="Enter location name..."
-              className="w-full mt-2 bg-[#242424] border border-[#444] rounded-lg px-4 py-3 text-white placeholder-gray-600"
+              className="w-full mt-2 bg-[#242424] border border-[#444] rounded px-4 py-3 text-white placeholder-gray-600"
             />
           )}
         </div>
@@ -1591,7 +1591,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
             value={notes}
             onChange={e => setNotes(e.target.value)}
             placeholder="Extra spicy, weak pour, great garnish..."
-            className="w-full bg-[#242424] border border-[#444] rounded-lg px-4 py-3 text-white placeholder-gray-600"
+            className="w-full bg-[#242424] border border-[#444] rounded px-4 py-3 text-white placeholder-gray-600"
           />
         </div>
         
@@ -1940,11 +1940,11 @@ function BloodiesTab() {
       
       {/* Stats Cards */}
       <div className="p-4 grid grid-cols-2 gap-3">
-        <div className="bg-[#1a1a1a] rounded-lg p-4 text-center border border-[#333]">
+        <div className="bg-[#1a1a1a] rounded p-4 text-center border border-[#333]">
           <div className="text-4xl font-bold text-white">{bloodies.length}</div>
           <div className="text-gray-500 text-sm">Lifetime</div>
         </div>
-        <div className="bg-[#1a1a1a] rounded-lg p-4 text-center border border-[#333]">
+        <div className="bg-[#1a1a1a] rounded p-4 text-center border border-[#333]">
           <div className="text-4xl font-bold text-[#d4a855]">{todayCount}</div>
           <div className="text-gray-500 text-sm">Today</div>
         </div>
@@ -1990,7 +1990,7 @@ function BloodiesTab() {
           <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
           <div className="space-y-2">
             {bloodies.slice(-5).reverse().map(bloody => (
-              <div key={bloody.id} className="bg-[#1a1a1a] rounded-lg p-3 border border-[#333]">
+              <div key={bloody.id} className="bg-[#1a1a1a] rounded p-3 border border-[#333]">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-white font-medium">{bloody.location}</div>

@@ -1080,7 +1080,7 @@ function VideoPokerTab({ onSpot }) {
             </div>
             
             {/* Card Display */}
-            <div className="flex gap-1 sm:gap-2 justify-center mb-3">
+            <div className={`flex gap-1 sm:gap-2 justify-center mb-3 ${isComplete ? 'animate-hand-complete' : ''}`} key={isComplete ? 'complete' : 'incomplete'}>
               {selectedHand.map((card, index) => {
                 const shouldHold = recommendation?.hold?.includes(index);
                 const isJoker = card?.rank === 'JOKER' || card?.isJoker;
@@ -1092,8 +1092,8 @@ function VideoPokerTab({ onSpot }) {
                         card
                           ? isComplete
                             ? shouldHold
-                              ? 'bg-emerald-600 border-emerald-500 animate-hold-pulse'
-                              : 'bg-[#2a2a2a] border-[#444]'
+                              ? 'bg-[#1a1a1a] border-[#444] card-hold'
+                              : 'bg-[#1a1a1a] border-[#333] card-draw'
                             : isJoker
                               ? 'bg-purple-900 border-purple-500'
                               : 'bg-white border-white'
@@ -1103,8 +1103,8 @@ function VideoPokerTab({ onSpot }) {
                       {card ? (
                         isJoker ? (
                           <>
-                            <span className={`text-xl sm:text-3xl font-bold ${isComplete ? 'text-purple-300' : 'text-purple-400'}`}>★</span>
-                            <span className={`text-[8px] sm:text-xs font-bold ${isComplete ? 'text-purple-300' : 'text-purple-400'}`}>JOKER</span>
+                            <span className={`text-xl sm:text-3xl font-bold ${isComplete && !shouldHold ? 'text-purple-300/50' : 'text-purple-400'}`}>★</span>
+                            <span className={`text-[8px] sm:text-xs font-bold ${isComplete && !shouldHold ? 'text-purple-300/50' : 'text-purple-400'}`}>JOKER</span>
                           </>
                         ) : (
                           <>
@@ -1125,7 +1125,7 @@ function VideoPokerTab({ onSpot }) {
                       )}
                     </button>
                     {isComplete && (
-                      <p className={`text-xs sm:text-sm mt-1 sm:mt-1.5 font-bold ${shouldHold ? 'text-emerald-400' : 'text-[#666]'}`}>
+                      <p className={`text-xs sm:text-sm mt-1 sm:mt-1.5 font-bold ${shouldHold ? 'text-[#d4a855]' : 'text-[#666]'}`}>
                         {shouldHold ? 'HOLD' : 'DRAW'}
                       </p>
                     )}

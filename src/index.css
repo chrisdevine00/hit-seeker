@@ -6,14 +6,30 @@ html, body, #root {
 }
 
 /* Card animations for hand checker */
-@keyframes holdPulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.7); }
+
+/* HOLD card - gold glow */
+.card-hold {
+  border-color: #d4a855 !important;
+  box-shadow: 0 0 12px rgba(212, 168, 85, 0.4);
 }
 
-.animate-hold-pulse {
-  animation: holdPulse 1.5s ease-in-out infinite;
+/* DRAW card - faded */
+.card-draw {
+  opacity: 0.5;
 }
+
+/* Hand complete shimmer effect */
+@keyframes handComplete {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.6); }
+  100% { filter: brightness(1); }
+}
+
+.animate-hand-complete > *:nth-child(1) { animation: handComplete 0.4s ease 0s forwards; }
+.animate-hand-complete > *:nth-child(2) { animation: handComplete 0.4s ease 0.08s forwards; }
+.animate-hand-complete > *:nth-child(3) { animation: handComplete 0.4s ease 0.16s forwards; }
+.animate-hand-complete > *:nth-child(4) { animation: handComplete 0.4s ease 0.24s forwards; }
+.animate-hand-complete > *:nth-child(5) { animation: handComplete 0.4s ease 0.32s forwards; }
 
 /* Button press + bounce animation */
 @keyframes pressBounce {

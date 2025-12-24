@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HOLD/DRAW Card Styling Options</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0d0d;
+      color: white;
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 20px;
+    }
+    h1 { font-size: 18px; margin-bottom: 20px; color: #d4a855; }
+    h2 { font-size: 14px; margin: 30px 0 15px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .hand {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .card {
+      width: 56px;
+      height: 78px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      position: relative;
+    }
+    .card .rank { font-size: 18px; }
+    .card .suit { font-size: 20px; }
+    .card .label {
+      position: absolute;
+      bottom: -20px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+    .description {
+      color: #666;
+      font-size: 12px;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    /* Current Style */
+    .current .hold {
+      background: #065f46;
+      border: 2px solid #10b981;
+      animation: holdPulse 1.5s ease-in-out infinite;
+    }
+    .current .hold .label { color: #10b981; }
+    .current .draw {
+      background: #1a1a1a;
+      border: 2px solid #333;
+    }
+    .current .draw .label { color: #888; }
+    @keyframes holdPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.7); }
+    }
+
+    /* Option 1: Gold Accent */
+    .option1 .hold {
+      background: #1a1a1a;
+      border: 3px solid #d4a855;
+      box-shadow: 0 0 12px rgba(212, 168, 85, 0.4);
+    }
+    .option1 .hold .label { color: #d4a855; }
+    .option1 .draw {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      opacity: 0.5;
+    }
+    .option1 .draw .label { color: #666; }
+
+    /* Option 2: Icons + Borders */
+    .option2 .hold {
+      background: #1a1a1a;
+      border: 3px solid #fff;
+    }
+    .option2 .hold::after {
+      content: "✓";
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #fff;
+      color: #000;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .option2 .hold .label { color: #fff; }
+    .option2 .draw {
+      background: #1a1a1a;
+      border: 2px dashed #444;
+      opacity: 0.6;
+    }
+    .option2 .draw .label { color: #666; }
+
+    /* Option 3: Scale + Position */
+    .option3 .hold {
+      background: #1a1a1a;
+      border: 2px solid #d4a855;
+      transform: translateY(-8px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+    .option3 .hold .label { color: #d4a855; bottom: -28px; }
+    .option3 .draw {
+      background: #0d0d0d;
+      border: 2px solid #222;
+      opacity: 0.4;
+      filter: grayscale(0.5);
+    }
+    .option3 .draw .label { color: #444; }
+
+    /* Option 4: Text + Icon Only (No Glow) */
+    .option4 .hold {
+      background: #1a1a1a;
+      border: 2px solid #555;
+    }
+    .option4 .hold .label {
+      color: #fff;
+      background: #333;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .option4 .hold .label::before { content: "✓ "; }
+    .option4 .draw {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      opacity: 0.5;
+    }
+    .option4 .draw .label {
+      color: #666;
+    }
+    .option4 .draw .label::before { content: "✗ "; }
+
+    /* Option 5: Underline indicator */
+    .option5 .hold {
+      background: #1a1a1a;
+      border: 2px solid #444;
+      border-bottom: 4px solid #d4a855;
+    }
+    .option5 .hold .label { color: #d4a855; }
+    .option5 .draw {
+      background: #1a1a1a;
+      border: 2px solid #333;
+      opacity: 0.5;
+    }
+    .option5 .draw .label { color: #666; }
+
+    /* Card colors */
+    .red { color: #ef4444; }
+    .black { color: #fff; }
+  </style>
+</head>
+<body>
+  <h1>HOLD/DRAW Card Styling Options</h1>
+  <p style="color: #888; font-size: 13px; margin-bottom: 30px;">Example hand: Pair of Jacks (hold the Jacks, draw the rest)</p>
+
+  <h2>Current Style (Green Glow)</h2>
+  <p class="description">Pulsing green glow on HOLD cards. Red/green accessibility issue.</p>
+  <div class="hand current">
+    <div class="card hold black"><span class="rank">J</span><span class="suit">♠</span><span class="label">HOLD</span></div>
+    <div class="card draw red"><span class="rank">7</span><span class="suit">♥</span><span class="label">DRAW</span></div>
+    <div class="card draw black"><span class="rank">3</span><span class="suit">♣</span><span class="label">DRAW</span></div>
+    <div class="card hold red"><span class="rank">J</span><span class="suit">♦</span><span class="label">HOLD</span></div>
+    <div class="card draw black"><span class="rank">9</span><span class="suit">♠</span><span class="label">DRAW</span></div>
+  </div>
+
+  <h2>Option 1: Gold Accent</h2>
+  <p class="description">HOLD = gold border + subtle glow. DRAW = faded/dimmed.</p>
+  <div class="hand option1">
+    <div class="card hold black"><span class="rank">J</span><span class="suit">♠</span><span class="label">HOLD</span></div>
+    <div class="card draw red"><span class="rank">7</span><span class="suit">♥</span><span class="label">DRAW</span></div>
+    <div class="card draw black"><span class="rank">3</span><span class="suit">♣</span><span class="label">DRAW</span></div>
+    <div class="card hold red"><span class="rank">J</span><span class="suit">♦</span><span class="label">HOLD</span></div>
+    <div class="card draw black"><span class="rank">9</span><span class="suit">♠</span><span class="label">DRAW</span></div>
+  </div>
+
+  <h2>Option 2: Icons + Borders</h2>
+  <p class="description">HOLD = solid white border + checkmark badge. DRAW = dashed border + dimmed.</p>
+  <div class="hand option2">
+    <div class="card hold black"><span class="rank">J</span><span class="suit">♠</span><span class="label">HOLD</span></div>
+    <div class="card draw red"><span class="rank">7</span><span class="suit">♥</span><span class="label">DRAW</span></div>
+    <div class="card draw black"><span class="rank">3</span><span class="suit">♣</span><span class="label">DRAW</span></div>
+    <div class="card hold red"><span class="rank">J</span><span class="suit">♦</span><span class="label">HOLD</span></div>
+    <div class="card draw black"><span class="rank">9</span><span class="suit">♠</span><span class="label">DRAW</span></div>
+  </div>
+
+  <h2>Option 3: Scale + Position</h2>
+  <p class="description">HOLD = raised up + slightly larger + shadow. DRAW = small + very faded.</p>
+  <div class="hand option3" style="padding-top: 15px; padding-bottom: 10px;">
+    <div class="card hold black"><span class="rank">J</span><span class="suit">♠</span><span class="label">HOLD</span></div>
+    <div class="card draw red"><span class="rank">7</span><span class="suit">♥</span><span class="label">DRAW</span></div>
+    <div class="card draw black"><span class="rank">3</span><span class="suit">♣</span><span class="label">DRAW</span></div>
+    <div class="card hold red"><span class="rank">J</span><span class="suit">♦</span><span class="label">HOLD</span></div>
+    <div class="card draw black"><span class="rank">9</span><span class="suit">♠</span><span class="label">DRAW</span></div>
+  </div>
+
+  <h2>Option 4: Text + Icon Only</h2>
+  <p class="description">No glow/color. Just clear labels with ✓ and ✗ icons. DRAW slightly faded.</p>
+  <div class="hand option4">
+    <div class="card hold black"><span class="rank">J</span><span class="suit">♠</span><span class="label">HOLD</span></div>
+    <div class="card draw red"><span class="rank">7</span><span class="suit">♥</span><span class="label">DRAW</span></div>
+    <div class="card draw black"><span class="rank">3</span><span class="suit">♣</span><span class="label">DRAW</span></div>
+    <div class="card hold red"><span class="rank">J</span><span class="suit">♦</span><span class="label">HOLD</span></div>
+    <div class="card draw black"><span class="rank">9</span><span class="suit">♠</span><span class="label">DRAW</span></div>
+  </div>
+
+  <h2>Option 5: Bottom Accent Bar</h2>
+  <p class="description">HOLD = gold bottom border. DRAW = faded. Simple and clean.</p>
+  <div class="hand option5">
+    <div class="card hold black"><span class="rank">J</span><span class="suit">♠</span><span class="label">HOLD</span></div>
+    <div class="card draw red"><span class="rank">7</span><span class="suit">♥</span><span class="label">DRAW</span></div>
+    <div class="card draw black"><span class="rank">3</span><span class="suit">♣</span><span class="label">DRAW</span></div>
+    <div class="card hold red"><span class="rank">J</span><span class="suit">♦</span><span class="label">HOLD</span></div>
+    <div class="card draw black"><span class="rank">9</span><span class="suit">♠</span><span class="label">DRAW</span></div>
+  </div>
+
+</body>
+</html>

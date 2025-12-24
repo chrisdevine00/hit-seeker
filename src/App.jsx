@@ -891,7 +891,14 @@ function VideoPokerTab({ onSpot }) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="pb-24">
+      {/* Header */}
+      <div className="p-4 border-b border-[#333] -mx-4 mb-4">
+        <h1 className="text-2xl font-bold text-white mb-1">Video Poker</h1>
+        <p className="text-gray-500 text-sm">Find the best pay tables</p>
+      </div>
+
+      <div className="space-y-4">
       {/* Game & Pay Table Selector - Collapsible */}
       {selectedPayTable && !selectorExpanded ? (
         /* Collapsed Summary Bar - resembles slot machine list item */
@@ -1246,6 +1253,7 @@ function VideoPokerTab({ onSpot }) {
           excludeCards={selectedHand}
         />
       )}
+      </div>
     </div>
   );
 }
@@ -2934,7 +2942,13 @@ function MainApp() {
       <div className="p-4">
         {/* HUNT TAB - Merged with Catalog */}
         {activeTab === 'hunt' && !selectedMachine && (
-          <div className="space-y-4">
+          <div className="pb-24">
+            {/* Header */}
+            <div className="p-4 border-b border-[#333] -mx-4 mb-4">
+              <h1 className="text-2xl font-bold text-white mb-1">Slots</h1>
+              <p className="text-gray-500 text-sm">Find advantage play opportunities</p>
+            </div>
+
             {/* Search and View Toggle Row */}
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -3186,7 +3200,7 @@ function MainApp() {
 
         {/* Machine Detail (Hunt) - with context-aware calculator */}
         {activeTab === 'hunt' && selectedMachine && (
-          <div className="space-y-4">
+          <div className="pb-24 space-y-4">
             {/* Back Button */}
             <button 
               onClick={() => {
@@ -3436,7 +3450,14 @@ function MainApp() {
 
         {/* TRIP TAB */}
         {activeTab === 'trip' && !selectedCasino && (
-          <div className="space-y-4">
+          <div className="pb-24">
+            {/* Header */}
+            <div className="p-4 border-b border-[#333] -mx-4 mb-4">
+              <h1 className="text-2xl font-bold text-white mb-1">Trip</h1>
+              <p className="text-gray-500 text-sm">Manage your scouting trip</p>
+            </div>
+
+            <div className="space-y-4">
             {/* Sub-tab navigation */}
             <div className="flex gap-2 overflow-x-auto pb-1">
               {[
@@ -3935,18 +3956,19 @@ function MainApp() {
                 )}
               </>
             )}
+            </div>
           </div>
         )}
 
         {/* Casino Detail */}
         {activeTab === 'trip' && selectedCasino && (
-          <div className="space-y-4">
+          <div className="pb-24 space-y-4">
             <button onClick={() => setSelectedCasino(null)} className="no-animate flex items-center gap-2 text-[#d4a855]">
               <ChevronLeft size={20} /> Back
             </button>
             
             <div className="bg-[#161616] border border-[#333] rounded p-4">
-              <h2 className="text-xl font-bold text-white mb-1">{selectedCasino.name}</h2>
+              <h2 className="text-2xl font-bold text-white mb-1">{selectedCasino.name}</h2>
               <p className="text-[#bbb]">{selectedCasino.owner} • {selectedCasino.area}</p>
               <p className="text-[#888] text-sm mt-1">{selectedCasino.size} • {selectedCasino.slots} slots</p>
               

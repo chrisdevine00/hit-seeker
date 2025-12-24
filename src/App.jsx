@@ -72,12 +72,20 @@ import { SUITS, RANKS, RANK_VALUES, HIGH_CARDS, evaluateHand, analyzeDraws } fro
 import { LoginScreen, TripSelectionScreen } from './screens';
 
 // Component imports
-import { TripHeader } from './components/layout';
+import { TripHeader, DesktopSidebar } from './components/layout';
 import { StrategyValidator } from './components/features';
 import { ConfirmDialog } from './components/ui';
 
 // Initialize global styles
 injectGlobalStyles();
+
+// Tab navigation configuration (shared between mobile and desktop nav)
+const NAV_TABS = [
+  { id: 'hunt', icon: Gem, label: 'Slots' },
+  { id: 'vp', icon: Spade, label: 'Video Poker' },
+  { id: 'bloodies', icon: GlassWater, label: 'Bloodies' },
+  { id: 'trip', icon: Map, label: 'Trip' }
+];
 
 // ============================================
 // SPOTTER FORM - Unified for Slots and VP
@@ -2380,9 +2388,14 @@ function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] pb-20">
-      <TripHeader 
-        onOpenSettings={() => setShowTripSettings(true)} 
+    <div className="min-h-screen bg-[#0d0d0d] pb-20 md:pb-0 md:pl-16">
+      <DesktopSidebar
+        tabs={NAV_TABS}
+        activeTab={activeTab}
+        onTabChange={(id) => { setActiveTab(id); setSelectedMachine(null); setSelectedCasino(null); }}
+      />
+      <TripHeader
+        onOpenSettings={() => setShowTripSettings(true)}
         onLocationClick={handleHeaderCheckIn}
         myCheckIn={myCheckIn}
       />
@@ -3991,15 +4004,10 @@ function MainApp() {
         )}
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2">
+      {/* Bottom Navigation - Mobile Only */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2 md:hidden">
         <div className="flex justify-around max-w-md mx-auto">
-          {[
-            { id: 'hunt', icon: Gem, label: 'Slots' },
-            { id: 'vp', icon: Spade, label: 'Video Poker' },
-            { id: 'bloodies', icon: GlassWater, label: 'Bloodies' },
-            { id: 'trip', icon: Map, label: 'Trip' }
-          ].map(tab => (
+          {NAV_TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => { setActiveTab(tab.id); setSelectedMachine(null); setSelectedCasino(null); }}

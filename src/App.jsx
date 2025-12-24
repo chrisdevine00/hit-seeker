@@ -1512,7 +1512,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-end justify-center" onClick={onClose}>
       <div 
-        className="bg-[#1a1a1a] border-t border-[#333] rounded-t-2xl w-full max-w-md p-5 animate-slide-up"
+        className="bg-[#1a1a1a] border-t border-[#333] rounded-t-xl w-full max-w-md p-5 animate-slide-up"
         onClick={e => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-5">
@@ -1938,11 +1938,11 @@ function BloodiesTab() {
       
       {/* Stats Cards */}
       <div className="p-4 grid grid-cols-2 gap-3">
-        <div className="bg-[#1a1a1a] rounded-xl p-4 text-center border border-[#333]">
+        <div className="bg-[#1a1a1a] rounded-lg p-4 text-center border border-[#333]">
           <div className="text-4xl font-bold text-white">{bloodies.length}</div>
           <div className="text-gray-500 text-sm">Lifetime</div>
         </div>
-        <div className="bg-[#1a1a1a] rounded-xl p-4 text-center border border-[#333]">
+        <div className="bg-[#1a1a1a] rounded-lg p-4 text-center border border-[#333]">
           <div className="text-4xl font-bold text-[#d4a855]">{todayCount}</div>
           <div className="text-gray-500 text-sm">Today</div>
         </div>

@@ -413,7 +413,7 @@ function NoteCard({ note, onEdit, onDelete, isOwn }) {
               <Button onClick={() => onEdit(note)} variant="secondary" size="sm" className="flex-1 flex items-center justify-center gap-1">
                 <Edit3 size={14} /> Edit
               </Button>
-              <Button onClick={() => onDelete(note.id)} variant="danger" size="sm" className="flex items-center gap-1">
+              <Button onClick={() => onDelete(note.id)} variant="danger-subtle" size="sm" className="flex items-center gap-1">
                 <Trash2 size={14} /> Delete
               </Button>
             </div>
@@ -461,7 +461,7 @@ function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhoto
           <p className="text-[#bbbbbb] text-sm">{currentIndex + 1} of {allPhotos.length}</p>
           <p className="text-[#aaaaaa] text-xs">{new Date(photo.created_at).toLocaleDateString()}</p>
         </div>
-        <Button onClick={() => onDelete(photo.id)} variant="danger" size="sm" className="flex items-center gap-2">
+        <Button onClick={() => onDelete(photo.id)} variant="danger-subtle" size="sm" className="flex items-center gap-2">
           <Trash2 size={16} /> Delete
         </Button>
       </div>

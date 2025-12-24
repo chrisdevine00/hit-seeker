@@ -4,7 +4,8 @@ const variants = {
   primary: 'bg-[#d4a855] hover:bg-[#c49745] text-black font-semibold',
   secondary: 'bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] border border-[#333]',
   success: 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold',
-  danger: 'bg-red-600/20 hover:bg-red-600/30 text-red-400',
+  danger: 'bg-red-600 hover:bg-red-500 text-white font-semibold',
+  'danger-subtle': 'bg-red-600/20 hover:bg-red-600/30 text-red-400',
   ghost: 'text-[#aaa] hover:text-white hover:bg-[#1a1a1a]',
   link: 'text-[#d4a855] hover:text-[#c49745]',
 };
@@ -17,7 +18,7 @@ const sizes = {
 };
 
 // Variants that should have the press+bounce animation
-const animatedVariants = ['primary', 'success', 'danger'];
+const animatedVariants = ['primary', 'success', 'danger', 'danger-subtle'];
 
 export function Button({
   variant = 'primary',

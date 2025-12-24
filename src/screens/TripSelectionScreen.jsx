@@ -3,6 +3,7 @@ import { ChevronRight, LogOut, Loader2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTrip } from '../context/TripContext';
 import { theme } from '../lib/theme';
+import { AnimatedButton } from '../components/ui';
 
 export function TripSelectionScreen() {
   const { trips, loading, createTrip, joinTrip, selectTrip } = useTrip();
@@ -59,13 +60,13 @@ export function TripSelectionScreen() {
         </h1>
         <p className="text-white mb-2">Connection timed out</p>
         <p className="text-gray-400 text-sm mb-6 text-center">Having trouble connecting. Please try again.</p>
-        <button
+        <AnimatedButton
           onClick={() => window.location.reload()}
           className="px-6 py-3 rounded-lg font-semibold"
           style={{ background: theme.accent, color: '#000' }}
         >
           Retry
-        </button>
+        </AnimatedButton>
       </div>
     );
   }
@@ -125,13 +126,13 @@ export function TripSelectionScreen() {
         <div className="space-y-3">
           {!showCreate && !showJoin && (
             <>
-              <button
+              <AnimatedButton
                 onClick={() => setShowCreate(true)}
                 className="w-full font-semibold py-4 rounded transition-colors"
                 style={{ background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accentDim} 100%)`, color: '#000' }}
               >
                 Create New Trip
-              </button>
+              </AnimatedButton>
               <button
                 onClick={() => setShowJoin(true)}
                 className="w-full font-semibold py-4 rounded transition-colors"
@@ -161,14 +162,14 @@ export function TripSelectionScreen() {
                 >
                   Cancel
                 </button>
-                <button
+                <AnimatedButton
                   onClick={handleCreate}
                   disabled={!newTripName.trim() || creating}
                   className="flex-1 bg-[#d4a855] hover:bg-[#a67c3d] disabled:opacity-50 text-white py-2 rounded flex items-center justify-center gap-2"
                 >
                   {creating && <Loader2 className="w-4 h-4 animate-spin" />}
                   Create
-                </button>
+                </AnimatedButton>
               </div>
             </div>
           )}
@@ -193,14 +194,14 @@ export function TripSelectionScreen() {
                 >
                   Cancel
                 </button>
-                <button
+                <AnimatedButton
                   onClick={handleJoin}
                   disabled={!joinCode.trim() || creating}
                   className="flex-1 bg-[#d4a855] hover:bg-[#a67c3d] disabled:opacity-50 text-white py-2 rounded flex items-center justify-center gap-2"
                 >
                   {creating && <Loader2 className="w-4 h-4 animate-spin" />}
                   Join
-                </button>
+                </AnimatedButton>
               </div>
             </div>
           )}

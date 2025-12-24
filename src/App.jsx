@@ -329,13 +329,13 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       
       {/* Actions */}
       <div className="space-y-2">
-        <button 
-          onClick={handleSubmit} 
-          disabled={isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine} 
+        <AnimatedButton
+          onClick={handleSubmit}
+          disabled={isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine}
           className="w-full bg-[#d4a855] hover:bg-[#c49745] disabled:opacity-50 text-black py-3 rounded font-semibold"
         >
           Save Spot
-        </button>
+        </AnimatedButton>
         <button 
           onClick={onCancel} 
           className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium"
@@ -593,7 +593,7 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
             <h3 className="text-lg font-semibold text-white mb-2">Replace Photo?</h3>
             <p className="text-[#bbbbbb] mb-6">The existing photo will be deleted and replaced with the new one.</p>
             <div className="space-y-2">
-              <button onClick={handleReplaceConfirm} className="w-full bg-[#d4a855] hover:bg-[#c49745] text-black py-3 rounded font-semibold">Replace</button>
+              <AnimatedButton onClick={handleReplaceConfirm} className="w-full bg-[#d4a855] hover:bg-[#c49745] text-black py-3 rounded font-semibold">Replace</AnimatedButton>
               <button onClick={handleReplaceCancel} className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium">Cancel</button>
             </div>
           </div>
@@ -690,9 +690,9 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
         </div>
       )}
 
-      <button onClick={() => onAddNote(machine.name)} className="w-full bg-[#d4a855] hover:bg-[#a67c3d] text-white font-semibold py-4 rounded flex items-center justify-center gap-2">
+      <AnimatedButton onClick={() => onAddNote(machine.name)} className="w-full bg-[#d4a855] hover:bg-[#a67c3d] text-white font-semibold py-4 rounded flex items-center justify-center gap-2">
         <StickyNote size={18} /> Add Note for {machine.shortName}
-      </button>
+      </AnimatedButton>
     </div>
   );
 }
@@ -1880,12 +1880,12 @@ function BloodiesTab() {
           <h2 className="text-white text-2xl font-bold mb-2">{badge.name}</h2>
           <p className="text-gray-400 mb-6">{badge.description}</p>
           
-          <button
+          <AnimatedButton
             onClick={handleDismiss}
             className="px-8 py-3 bg-[#d4a855] hover:bg-[#c49745] rounded-lg text-black font-bold transition-colors"
           >
             {newBadges.length > 1 ? 'Next Badge →' : 'Awesome!'}
-          </button>
+          </AnimatedButton>
         </div>
         
         {/* Confetti effect using canvas-confetti (simple CSS fallback) */}
@@ -2032,7 +2032,7 @@ function BloodiesTab() {
 // ============================================
 function MainApp() {
   const { user, profile, signOut } = useAuth();
-  const { currentTrip, tripMembers } = useTrip();
+  const { currentTrip, tripMembers, clearTrip } = useTrip();
   const { notes, loading: notesLoading, addNote, updateNote, deleteNote, refresh: refreshNotes } = useNotes();
   const { photos, addPhoto, deletePhoto, getPhotoUrl, getMachinePhotos, getLatestPhoto } = usePhotos();
   const { myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
@@ -2357,6 +2357,13 @@ function MainApp() {
               ))}
             </div>
           </div>
+
+          <button
+            onClick={() => { clearTrip(); setShowTripSettings(false); }}
+            className="w-full bg-[#161616] hover:bg-gray-700 text-white py-3 rounded border border-[#333] flex items-center justify-center gap-2 mb-3"
+          >
+            <ChevronLeft size={18} /> Switch Trip
+          </button>
 
           <button onClick={signOut} className="w-full bg-[#161616] hover:bg-gray-700 text-gray-300 py-3 rounded border border-[#333] flex items-center justify-center gap-2">
             <LogOut size={18} /> Sign Out
@@ -3848,9 +3855,9 @@ function MainApp() {
                     <button onClick={refreshNotes} className="p-2 text-[#bbbbbb] hover:text-white">
                       <RefreshCw size={18} />
                     </button>
-                    <button onClick={() => setShowNoteForm(true)} className="bg-[#d4a855] hover:bg-[#a67c3d] text-white px-4 py-2 rounded text-sm font-semibold">
+                    <AnimatedButton onClick={() => setShowNoteForm(true)} className="bg-[#d4a855] hover:bg-[#a67c3d] text-white px-4 py-2 rounded text-sm font-semibold">
                       + Add
-                    </button>
+                    </AnimatedButton>
                   </div>
                 </div>
 
@@ -3876,13 +3883,13 @@ function MainApp() {
                     <p className="text-[#aaa] text-sm mb-4 max-w-xs mx-auto">
                       Spot a good machine? Add a note to remember it or share with your team.
                     </p>
-                    <button
+                    <AnimatedButton
                       onClick={() => setShowNoteForm(true)}
                       className="bg-[#d4a855] hover:bg-[#c49745] text-black font-semibold px-4 py-2 rounded text-sm inline-flex items-center gap-2"
                     >
                       <StickyNote size={16} />
                       Add Your First Note
-                    </button>
+                    </AnimatedButton>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -3933,12 +3940,12 @@ function MainApp() {
                   </button>
                 </div>
               ) : (
-                <button
+                <AnimatedButton
                   onClick={() => handleCheckIn(selectedCasino)}
                   className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded font-semibold"
                 >
                   Check In Here
-                </button>
+                </AnimatedButton>
               )}
             </div>
 

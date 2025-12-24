@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hit Seeker - Animation Mockups</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0d0d0d;
+      color: white;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    h1 { color: #d4a855; margin-bottom: 8px; font-size: 24px; }
+    h2 { color: #888; margin: 32px 0 16px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+    p.note { color: #666; font-size: 12px; margin-bottom: 16px; }
+
+    .section {
+      background: #161616;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      color: #d4a855;
+      font-size: 16px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    /* ========== NAV TABS ========== */
+    .nav-demo {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      background: #0d0d0d;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px 16px;
+      background: none;
+      border: none;
+      color: #888;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: color 0.2s;
+    }
+
+    .nav-btn svg {
+      width: 24px;
+      height: 24px;
+      margin-bottom: 4px;
+    }
+
+    .nav-btn span {
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .nav-btn.active { color: #d4a855; }
+
+    /* Style 1: Big Bounce + Background */
+    .nav-demo.bounce .nav-btn.active {
+      background: rgba(212, 168, 85, 0.15);
+    }
+    .nav-demo.bounce .nav-btn.active svg {
+      animation: bigBounce 0.5s ease;
+    }
+
+    @keyframes bigBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      25% { transform: translateY(-10px) scale(1.1); }
+      50% { transform: translateY(-5px) scale(1.05); }
+      75% { transform: translateY(-2px) scale(1.02); }
+    }
+
+    /* Style 2: Pop + Glow */
+    .nav-demo.scale .nav-btn.active {
+      background: rgba(212, 168, 85, 0.2);
+      box-shadow: 0 0 16px rgba(212, 168, 85, 0.4);
+    }
+    .nav-demo.scale .nav-btn.active svg {
+      animation: popGlow 0.4s ease;
+    }
+
+    @keyframes popGlow {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.4); }
+      100% { transform: scale(1.1); }
+    }
+
+    /* Style 3: Slide Up + Fill Background */
+    .nav-demo.fill .nav-btn {
+      transition: all 0.25s ease;
+    }
+    .nav-demo.fill .nav-btn svg {
+      opacity: 0.5;
+      transition: all 0.25s ease;
+      transform: translateY(0);
+    }
+    .nav-demo.fill .nav-btn.active {
+      background: rgba(212, 168, 85, 0.2);
+      border-radius: 8px;
+    }
+    .nav-demo.fill .nav-btn.active svg {
+      opacity: 1;
+      transform: translateY(-4px) scale(1.15);
+    }
+
+    /* Style 4: Pop without indicator */
+    .nav-demo.morph .nav-btn {
+      position: relative;
+      transition: background 0.2s;
+    }
+    .nav-demo.morph .nav-btn.active {
+      background: rgba(212, 168, 85, 0.15);
+    }
+    .nav-demo.morph .nav-btn.active svg {
+      animation: morphPop 0.35s ease forwards;
+    }
+
+    @keyframes morphPop {
+      0% { transform: scale(1) rotate(0deg); }
+      30% { transform: scale(1.25) rotate(-5deg); }
+      60% { transform: scale(1.15) rotate(3deg); }
+      100% { transform: scale(1.1) rotate(0deg); }
+    }
+
+    /* ========== BUTTONS ========== */
+    .button-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .action-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .btn-gold {
+      background: #d4a855;
+      color: black;
+    }
+
+    .btn-green {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #888;
+      color: #888;
+    }
+
+    /* Button animations - triggered via JS class, complete on tap */
+
+    /* Style 1: Press + Pop */
+    .btn-press-pop {
+      transition: transform 0.1s;
+    }
+    .btn-press-pop.animating {
+      animation: pressPop 0.3s ease forwards;
+    }
+    @keyframes pressPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(0.92); }
+      100% { transform: scale(1); }
+    }
+
+    /* Style 2: Bounce */
+    .btn-bounce.animating {
+      animation: btnBounce 0.4s ease forwards;
+    }
+    @keyframes btnBounce {
+      0% { transform: scale(1); }
+      30% { transform: scale(0.95); }
+      60% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    /* Style 3: Pop with icon bounce */
+    .btn-icon-pop.animating svg {
+      animation: iconPop 0.4s ease forwards;
+    }
+    @keyframes iconPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+
+    /* Style 4: Pin drops into place */
+    .btn-pin-land.animating svg {
+      animation: pinLand 0.5s ease forwards;
+    }
+    @keyframes pinLand {
+      0% { transform: translateY(0) scale(1); }
+      20% { transform: translateY(-8px) scale(1.1); }
+      60% { transform: translateY(2px) scale(0.95); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    /* Style 5: Quick flash */
+    .btn-flash.animating {
+      animation: flash 0.3s ease forwards;
+    }
+    @keyframes flash {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.3); }
+      100% { filter: brightness(1); }
+    }
+
+    /* Style 6: Slide down press */
+    .btn-slide.animating {
+      animation: slidePress 0.25s ease forwards;
+    }
+    @keyframes slidePress {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(3px); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+      100% { transform: translateY(0); }
+    }
+
+    /* Style 7: Flash + Subtle Pop (combined) */
+    .btn-flash-pop.animating {
+      animation: flashPop 0.35s ease forwards;
+    }
+    .btn-flash-pop.animating svg {
+      animation: subtleIconPop 0.35s ease forwards;
+    }
+    @keyframes flashPop {
+      0% { filter: brightness(1); }
+      40% { filter: brightness(1.3); }
+      100% { filter: brightness(1); }
+    }
+    @keyframes subtleIconPop {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    /* ========== HEADER PIN ========== */
+    .header-demo {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #161616;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .header-logo {
+      font-weight: bold;
+      font-size: 28px;
+    }
+    .header-logo .h { color: white; }
+    .header-logo .s { color: #d4a855; }
+
+    .header-pin {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: none;
+    }
+
+    .header-pin svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .header-pin.not-checked {
+      border-color: #888;
+      color: #888;
+    }
+
+    .header-pin.checked {
+      border-color: #10b981;
+      color: #10b981;
+    }
+
+    /* Pulse when not checked in - stronger opacity, one direction only */
+    .header-pin.not-checked.pulse-ring {
+      animation: pulseRing 1.5s infinite;
+    }
+
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 rgba(136, 136, 136, 0.7); }
+      100% { box-shadow: 0 0 0 10px rgba(136, 136, 136, 0); }
+    }
+
+    /* Even stronger pulse option */
+    .header-pin.not-checked.pulse-ring-strong {
+      animation: pulseRingStrong 1.8s infinite;
+    }
+
+    @keyframes pulseRingStrong {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(136, 136, 136, 0.9); }
+      50% { box-shadow: 0 0 0 12px rgba(136, 136, 136, 0); }
+    }
+
+    /* Glow when checked in */
+    .header-pin.checked.glow {
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+    }
+
+    /* ========== CARDS ========== */
+    .cards-demo {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .card {
+      width: 60px;
+      height: 84px;
+      border-radius: 6px;
+      border: 2px solid;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: white;
+      border-color: white;
+      font-weight: bold;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .card .rank { font-size: 24px; color: black; }
+    .card .suit { font-size: 20px; }
+    .card.red .suit, .card.red .rank { color: #ef4444; }
+    .card.black .suit, .card.black .rank { color: black; }
+
+    .card.empty {
+      background: #1a1a1a;
+      border-color: #444;
+      border-style: dashed;
+      color: #666;
+    }
+
+    .card.hold {
+      background: #10b981;
+      border-color: #10b981;
+    }
+    .card.hold .rank, .card.hold .suit { color: white; }
+
+    /* Card: Tap scale */
+    .cards-demo.tap-scale .card:active {
+      transform: scale(0.95);
+    }
+
+    /* Card: Flip */
+    .cards-demo.flip .card {
+      transform-style: preserve-3d;
+      transition: transform 0.4s;
+    }
+
+    .cards-demo.flip .card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    /* Card: Bounce select */
+    .cards-demo.bounce-select .card.selected {
+      animation: cardBounce 0.3s ease;
+    }
+
+    @keyframes cardBounce {
+      0%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
+
+    /* Card: Glow on hold */
+    .cards-demo .card.hold.glow {
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+      animation: holdPulse 1.5s infinite;
+    }
+
+    @keyframes holdPulse {
+      0%, 100% { box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.7); }
+    }
+
+    /* ========== INTERACTIVE DEMO ========== */
+    .demo-instructions {
+      color: #666;
+      font-size: 12px;
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Animation Mockups</h1>
+  <p class="note">Click/tap elements to see animations. These are CSS-only previews.</p>
+
+  <!-- NAV TABS -->
+  <h2>Navigation Tabs</h2>
+
+  <div class="section">
+    <div class="section-title">1. Bounce (on select)</div>
+    <div class="nav-demo bounce" id="nav-bounce">
+      <button class="nav-btn active" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3l1 10 1-10"/><path d="M2 9h20"/></svg>
+        <span>Slots</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 6 5 6 8c0 4 6 11 6 11s6-7 6-11c0-3-2.5-6-6-6z"/></svg>
+        <span>VP</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22V2l4 4 4-4v20"/></svg>
+        <span>Bloodies</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <span>Trip</span>
+      </button>
+    </div>
+    <p class="demo-instructions">Click tabs to see bounce animation</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">2. Scale Pop (on select)</div>
+    <div class="nav-demo scale" id="nav-scale">
+      <button class="nav-btn active" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3l1 10 1-10"/><path d="M2 9h20"/></svg>
+        <span>Slots</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 6 5 6 8c0 4 6 11 6 11s6-7 6-11c0-3-2.5-6-6-6z"/></svg>
+        <span>VP</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22V2l4 4 4-4v20"/></svg>
+        <span>Bloodies</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <span>Trip</span>
+      </button>
+    </div>
+    <p class="demo-instructions">Click tabs to see scale pop animation</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">3. Slide Up + Fill Background</div>
+    <div class="nav-demo fill" id="nav-fill">
+      <button class="nav-btn active" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3l1 10 1-10"/><path d="M2 9h20"/></svg>
+        <span>Slots</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 6 5 6 8c0 4 6 11 6 11s6-7 6-11c0-3-2.5-6-6-6z"/></svg>
+        <span>VP</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22V2l4 4 4-4v20"/></svg>
+        <span>Bloodies</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <span>Trip</span>
+      </button>
+    </div>
+    <p class="demo-instructions">Click tabs to see slide up + background fill</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">4. Pop (wiggle + scale)</div>
+    <div class="nav-demo morph" id="nav-morph">
+      <button class="nav-btn active" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M11 3l1 10 1-10"/><path d="M2 9h20"/></svg>
+        <span>Slots</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.5 2 6 5 6 8c0 4 6 11 6 11s6-7 6-11c0-3-2.5-6-6-6z"/></svg>
+        <span>VP</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 22V2l4 4 4-4v20"/></svg>
+        <span>Bloodies</span>
+      </button>
+      <button class="nav-btn" onclick="selectNav(this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        <span>Trip</span>
+      </button>
+    </div>
+    <p class="demo-instructions">Click tabs to see pop animation with subtle wiggle</p>
+  </div>
+
+  <!-- BUTTONS -->
+  <h2>Action Buttons</h2>
+
+  <div class="section">
+    <div class="section-title">Button Animations (tap to trigger - animation completes fully)</div>
+    <div class="button-row">
+      <button class="action-btn btn-gold btn-press-pop" onclick="animateBtn(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Press + Pop
+      </button>
+
+      <button class="action-btn btn-gold btn-bounce" onclick="animateBtn(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Bounce
+      </button>
+
+      <button class="action-btn btn-gold btn-icon-pop" onclick="animateBtn(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Icon Pop
+      </button>
+    </div>
+    <div class="button-row" style="margin-top: 12px;">
+      <button class="action-btn btn-gold btn-pin-land" onclick="animateBtn(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Pin Land
+      </button>
+
+      <button class="action-btn btn-gold btn-flash" onclick="animateBtn(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Flash
+      </button>
+
+      <button class="action-btn btn-gold btn-slide" onclick="animateBtn(this)">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Slide Press
+      </button>
+    </div>
+    <div class="button-row" style="margin-top: 12px;">
+      <button class="action-btn btn-gold btn-flash-pop" onclick="animateBtn(this)" style="border: 2px solid #d4a855;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3" fill="#d4a855"/></svg>
+        Flash + Subtle Pop (Recommended)
+      </button>
+    </div>
+    <p class="demo-instructions">Tap once — animation plays and completes</p>
+  </div>
+
+  <!-- HEADER PIN -->
+  <h2>Header Location Pin</h2>
+
+  <div class="section">
+    <div class="section-title">Not Checked In - Pulse Ring (0.7 opacity)</div>
+    <div class="header-demo">
+      <span class="header-logo"><span class="h">H</span><span class="s">S</span></span>
+      <button class="header-pin not-checked pulse-ring">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="4" fill="#161616"/></svg>
+      </button>
+    </div>
+    <p class="demo-instructions">Stronger pulse (0.7 opacity, 10px ring)</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Not Checked In - Pulse Ring Strong (0.9 opacity)</div>
+    <div class="header-demo">
+      <span class="header-logo"><span class="h">H</span><span class="s">S</span></span>
+      <button class="header-pin not-checked pulse-ring-strong">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="4" fill="#161616"/></svg>
+      </button>
+    </div>
+    <p class="demo-instructions">Even stronger pulse (0.9 opacity, 12px ring, faster)</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Checked In - Glow</div>
+    <div class="header-demo">
+      <span class="header-logo"><span class="h">H</span><span class="s">S</span></span>
+      <button class="header-pin checked glow">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="4" fill="#161616"/></svg>
+      </button>
+    </div>
+    <p class="demo-instructions">Soft glow indicates active check-in</p>
+  </div>
+
+  <!-- CARDS -->
+  <h2>Hand Checker Cards</h2>
+
+  <div class="section">
+    <div class="section-title">Tap to Select (scale feedback)</div>
+    <div class="cards-demo tap-scale">
+      <div class="card red"><span class="rank">K</span><span class="suit">&#9829;</span></div>
+      <div class="card black"><span class="rank">Q</span><span class="suit">&#9824;</span></div>
+      <div class="card red"><span class="rank">J</span><span class="suit">&#9830;</span></div>
+      <div class="card black"><span class="rank">10</span><span class="suit">&#9827;</span></div>
+      <div class="card empty"><span class="rank">?</span></div>
+    </div>
+    <p class="demo-instructions">Click cards to see press feedback</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Hold Cards with Glow</div>
+    <div class="cards-demo">
+      <div class="card hold glow"><span class="rank">K</span><span class="suit">&#9829;</span></div>
+      <div class="card hold glow"><span class="rank">K</span><span class="suit">&#9824;</span></div>
+      <div class="card" style="background:#2a2a2a;border-color:#444;"><span class="rank" style="color:#888;">J</span><span class="suit" style="color:#888;">&#9830;</span></div>
+      <div class="card" style="background:#2a2a2a;border-color:#444;"><span class="rank" style="color:#888;">10</span><span class="suit" style="color:#888;">&#9827;</span></div>
+      <div class="card hold glow"><span class="rank">K</span><span class="suit">&#9830;</span></div>
+    </div>
+    <p class="demo-instructions">HOLD cards pulse with green glow</p>
+  </div>
+
+  <script>
+    function selectNav(btn) {
+      const parent = btn.parentElement;
+      parent.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // Re-trigger animation by removing and re-adding class
+      const svg = btn.querySelector('svg');
+      svg.style.animation = 'none';
+      svg.offsetHeight; // Trigger reflow
+      svg.style.animation = '';
+    }
+
+    function animateBtn(btn) {
+      // Remove class, force reflow, add class to trigger animation
+      btn.classList.remove('animating');
+      btn.offsetHeight; // Force reflow
+      btn.classList.add('animating');
+
+      // Remove class after animation completes
+      setTimeout(() => {
+        btn.classList.remove('animating');
+      }, 500);
+    }
+  </script>
+</body>
+</html>

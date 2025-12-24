@@ -142,6 +142,11 @@ export function TripProvider({ children }) {
     setCurrentTrip(trip);
   };
 
+  const clearTrip = () => {
+    setCurrentTrip(null);
+    localStorage.removeItem('hitSeeker_lastTrip');
+  };
+
   return (
     <TripContext.Provider value={{
       trips,
@@ -150,7 +155,8 @@ export function TripProvider({ children }) {
       loading,
       createTrip,
       joinTrip,
-      selectTrip
+      selectTrip,
+      clearTrip
     }}>
       {children}
     </TripContext.Provider>

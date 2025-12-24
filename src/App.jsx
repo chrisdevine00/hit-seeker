@@ -74,7 +74,7 @@ import { LoginScreen, TripSelectionScreen } from './screens';
 // Component imports
 import { TripHeader, DesktopSidebar } from './components/layout';
 import { StrategyValidator } from './components/features';
-import { ConfirmDialog } from './components/ui';
+import { ConfirmDialog, FilledMapPin, AnimatedButton } from './components/ui';
 
 // Initialize global styles
 injectGlobalStyles();
@@ -1037,13 +1037,13 @@ function VideoPokerTab({ onSpot }) {
       
       {/* Spot Button - when pay table selected */}
       {selectedPayTable && onSpot && (
-        <button
+        <AnimatedButton
           onClick={() => onSpot(game, selectedPayTable)}
           className="w-full bg-[#d4a855] hover:bg-[#c49745] text-black py-3 rounded font-semibold flex items-center justify-center gap-2"
         >
-          <MapPin size={18} />
+          <FilledMapPin size={18} holeColor="#d4a855" />
           Spot This Pay Table
-        </button>
+        </AnimatedButton>
       )}
 
       {/* Hand Entry */}
@@ -1069,7 +1069,7 @@ function VideoPokerTab({ onSpot }) {
             </div>
             
             {/* Card Display */}
-            <div className="flex gap-2 justify-center mb-3">
+            <div className="flex gap-1 sm:gap-2 justify-center mb-3">
               {selectedHand.map((card, index) => {
                 const shouldHold = recommendation?.hold?.includes(index);
                 const isJoker = card?.rank === 'JOKER' || card?.isJoker;
@@ -1077,11 +1077,11 @@ function VideoPokerTab({ onSpot }) {
                   <div key={index} className="text-center">
                     <button
                       onClick={() => setShowCardPicker(index)}
-                      className={`w-24 h-32 rounded-lg border-2 flex flex-col items-center justify-center transition-colors ${
-                        card 
+                      className={`w-14 h-20 sm:w-24 sm:h-32 rounded sm:rounded-lg border-2 flex flex-col items-center justify-center transition-all active:scale-95 ${
+                        card
                           ? isComplete
                             ? shouldHold
-                              ? 'bg-emerald-600 border-emerald-500'
+                              ? 'bg-emerald-600 border-emerald-500 animate-hold-pulse'
                               : 'bg-[#2a2a2a] border-[#444]'
                             : isJoker
                               ? 'bg-purple-900 border-purple-500'
@@ -1092,29 +1092,29 @@ function VideoPokerTab({ onSpot }) {
                       {card ? (
                         isJoker ? (
                           <>
-                            <span className={`text-3xl font-bold ${isComplete ? 'text-purple-300' : 'text-purple-400'}`}>★</span>
-                            <span className={`text-xs font-bold ${isComplete ? 'text-purple-300' : 'text-purple-400'}`}>JOKER</span>
+                            <span className={`text-xl sm:text-3xl font-bold ${isComplete ? 'text-purple-300' : 'text-purple-400'}`}>★</span>
+                            <span className={`text-[8px] sm:text-xs font-bold ${isComplete ? 'text-purple-300' : 'text-purple-400'}`}>JOKER</span>
                           </>
                         ) : (
                           <>
-                            <span className={`text-4xl font-bold ${
-                              isComplete 
+                            <span className={`text-2xl sm:text-4xl font-bold ${
+                              isComplete
                                 ? (card.color === 'text-red-500' ? 'text-red-400' : 'text-white')
                                 : card.color
                             }`}>{card.rank}</span>
-                            <span className={`text-3xl ${
-                              isComplete 
+                            <span className={`text-xl sm:text-3xl ${
+                              isComplete
                                 ? (card.color === 'text-red-500' ? 'text-red-400' : 'text-white')
                                 : card.color
                             }`}>{card.suit}</span>
                           </>
                         )
                       ) : (
-                        <span className="text-[#666] text-4xl">?</span>
+                        <span className="text-[#666] text-2xl sm:text-4xl">?</span>
                       )}
                     </button>
                     {isComplete && (
-                      <p className={`text-sm mt-1.5 font-bold ${shouldHold ? 'text-emerald-400' : 'text-[#666]'}`}>
+                      <p className={`text-xs sm:text-sm mt-1 sm:mt-1.5 font-bold ${shouldHold ? 'text-emerald-400' : 'text-[#666]'}`}>
                         {shouldHold ? 'HOLD' : 'DRAW'}
                       </p>
                     )}
@@ -2038,6 +2038,7 @@ function MainApp() {
   const { myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
 
   const [activeTab, setActiveTab] = useState('hunt');
+  const [animatingTab, setAnimatingTab] = useState(null); // Track tab animation
   const [tripSubTab, setTripSubTab] = useState('overview'); // 'overview', 'casinos', 'notes', 'team'
   const [selectedMachine, setSelectedMachine] = useState(null);
   const [recentMachines, setRecentMachines] = useState([]); // Track recently viewed machines
@@ -2393,6 +2394,8 @@ function MainApp() {
         tabs={NAV_TABS}
         activeTab={activeTab}
         onTabChange={(id) => { setActiveTab(id); setSelectedMachine(null); setSelectedCasino(null); }}
+        animatingTab={animatingTab}
+        setAnimatingTab={setAnimatingTab}
       />
       <TripHeader
         onOpenSettings={() => setShowTripSettings(true)}
@@ -2553,7 +2556,7 @@ function MainApp() {
                 <div className="space-y-4 mb-6">
                   <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <MapPin size={16} className="text-emerald-400" />
+                      <FilledMapPin size={16} className="text-emerald-400" holeColor="#2a2a2a" />
                     </div>
                     <div>
                       <p className="text-white font-medium text-sm">Check in to casinos</p>
@@ -2770,7 +2773,7 @@ function MainApp() {
           <div className="bg-[#161616] border border-[#333] rounded p-6 max-w-sm w-full">
             <div className="text-center mb-4">
               <div className="w-14 h-14 mx-auto mb-3 bg-emerald-600/20 rounded-full flex items-center justify-center">
-                <MapPin size={28} className="text-emerald-400" />
+                <FilledMapPin size={28} className="text-emerald-400" holeColor="#161616" />
               </div>
               <h3 className="text-lg font-bold text-white mb-1">
                 {myCheckIn ? 'Switch Location?' : 'Check In?'}
@@ -2796,12 +2799,12 @@ function MainApp() {
             </div>
             
             <div className="space-y-2">
-              <button 
+              <AnimatedButton
                 onClick={confirmCheckIn}
                 className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded font-semibold"
               >
                 {myCheckIn ? `Switch to ${pendingCheckIn.name}` : 'Check In'}
-              </button>
+              </AnimatedButton>
               <button 
                 onClick={cancelCheckIn}
                 className="w-full bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] py-3 rounded font-medium"
@@ -3327,13 +3330,13 @@ function MainApp() {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 gap-3">
-              <button
+              <AnimatedButton
                 onClick={() => openSlotSpotter(selectedMachine.name)}
                 className="bg-[#d4a855] hover:bg-[#c49745] text-black rounded p-3 flex items-center justify-center gap-2 font-semibold"
               >
-                <MapPin size={18} />
+                <FilledMapPin size={18} holeColor="#d4a855" />
                 Spot It
-              </button>
+              </AnimatedButton>
               <button
                 onClick={() => document.getElementById('photo-input-hunt')?.click()}
                 disabled={photoUploading}
@@ -3665,7 +3668,7 @@ function MainApp() {
                                   </div>
                                   {activity.casino && (
                                     <p className="text-[#aaa] text-xs mt-1 flex items-center gap-1">
-                                      <MapPin size={10} /> {activity.casino}
+                                      <FilledMapPin size={10} className="text-[#aaa]" holeColor="#161616" /> {activity.casino}
                                       {activity.location && ` • ${activity.location}`}
                                     </p>
                                   )}
@@ -3703,7 +3706,7 @@ function MainApp() {
                                   <p className="text-[#bbb] text-sm">{note.content || note.state}</p>
                                   {note.casino && (
                                     <p className="text-[#aaa] text-xs mt-1 flex items-center gap-1">
-                                      <MapPin size={10} /> {note.casino}
+                                      <FilledMapPin size={10} className="text-[#aaa]" holeColor="#161616" /> {note.casino}
                                     </p>
                                   )}
                                 </div>
@@ -4010,10 +4013,23 @@ function MainApp() {
           {NAV_TABS.map(tab => (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setSelectedMachine(null); setSelectedCasino(null); }}
-              className={`flex flex-col items-center py-2 px-3 ${activeTab === tab.id ? 'text-[#d4a855]' : 'text-[#aaaaaa]'}`}
+              onClick={() => {
+                if (activeTab !== tab.id) {
+                  setAnimatingTab(tab.id);
+                }
+                setActiveTab(tab.id);
+                setSelectedMachine(null);
+                setSelectedCasino(null);
+              }}
+              className={`flex flex-col items-center py-2 px-3 ${
+                activeTab === tab.id ? 'text-[#d4a855]' : 'text-[#aaaaaa]'
+              }`}
             >
-              <tab.icon size={22} />
+              <tab.icon
+                size={22}
+                className={animatingTab === tab.id ? 'animate-nav-pop' : ''}
+                onAnimationEnd={() => setAnimatingTab(null)}
+              />
               <span className="text-xs mt-1 font-medium">{tab.label}</span>
             </button>
           ))}

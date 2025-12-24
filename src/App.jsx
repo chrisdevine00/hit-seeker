@@ -893,8 +893,8 @@ function VideoPokerTab({ onSpot }) {
   return (
     <div className="pb-24">
       {/* Header */}
-      <div className="p-4 border-b border-[#333] -mx-4 mb-4">
-        <h1 className="text-2xl font-bold text-white mb-1">Video Poker</h1>
+      <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
+        <h1 className="text-2xl font-bold text-white">Video Poker</h1>
         <p className="text-gray-500 text-sm">Find the best pay tables</p>
       </div>
 
@@ -1941,8 +1941,8 @@ function BloodiesTab() {
   return (
     <div className="pb-24">
       {/* Header */}
-      <div className="p-4 border-b border-[#333]">
-        <h1 className="text-2xl font-bold text-white mb-1">Bloodies</h1>
+      <div className="px-4 py-2 border-b border-[#333]">
+        <h1 className="text-2xl font-bold text-white">Bloodies</h1>
         <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
       </div>
       
@@ -2944,8 +2944,8 @@ function MainApp() {
         {activeTab === 'hunt' && !selectedMachine && (
           <div className="pb-24">
             {/* Header */}
-            <div className="p-4 border-b border-[#333] -mx-4 mb-4">
-              <h1 className="text-2xl font-bold text-white mb-1">Slots</h1>
+            <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
+              <h1 className="text-2xl font-bold text-white">Slots</h1>
               <p className="text-gray-500 text-sm">Find advantage play opportunities</p>
             </div>
 
@@ -3452,8 +3452,8 @@ function MainApp() {
         {activeTab === 'trip' && !selectedCasino && (
           <div className="pb-24">
             {/* Header */}
-            <div className="p-4 border-b border-[#333] -mx-4 mb-4">
-              <h1 className="text-2xl font-bold text-white mb-1">Trip</h1>
+            <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
+              <h1 className="text-2xl font-bold text-white">Trip</h1>
               <p className="text-gray-500 text-sm">Manage your scouting trip</p>
             </div>
 

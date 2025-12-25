@@ -155,8 +155,12 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
   return (
     <div className="bg-[#161616] border border-[#333] rounded p-4 space-y-4">
       <div className="flex items-center gap-2">
-        <Gem size={24} className="text-[#d4a855]" />
-        <h3 className="font-bold text-white text-lg">Spot Find</h3>
+        {activeType === 'slot' && <Gem size={24} className="text-[#d4a855]" />}
+        {activeType === 'vp' && <Spade size={24} className="text-[#d4a855]" />}
+        {activeType === 'bloody' && <GlassWater size={24} className="text-[#d4a855]" />}
+        <h3 className="font-bold text-white text-lg">
+          {activeType === 'bloody' ? 'Log Bloody' : 'Spot Find'}
+        </h3>
       </div>
       
       {/* Type Toggle - only show if not locked */}
@@ -2734,7 +2738,7 @@ function MainApp() {
               <>
                 <div className="text-center mb-6">
                   <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                    <Diamond size={32} className="text-[#d4a855]" />
+                    <Gem size={32} className="text-[#d4a855]" />
                   </div>
                   <h2 className="text-xl font-bold text-white mb-2">Hunt Tab</h2>
                   <p className="text-[#aaa] text-sm">Find your next play</p>

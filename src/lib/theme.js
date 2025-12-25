@@ -54,6 +54,9 @@ export function injectGlobalStyles() {
     style.textContent = `
       @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&display=swap');
 
+      html { overflow-x: hidden; overflow-y: scroll; }
+      body { overflow-x: hidden; max-width: 100vw; }
+
       ::-webkit-scrollbar { width: 6px; height: 6px; }
       ::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 3px; }
       ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }

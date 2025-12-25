@@ -70,3 +70,38 @@ Key tables (inferred from code):
 - Deep link scheme: `hitseeker://`
 - iOS minimum version: 15.0
 - App ID: `com.hitseeker.app`
+
+## Roadmap
+
+### Spotter Badges System
+Add achievement badges for slot and VP spotting (similar to existing Bloody Mary badges):
+
+**Slot Badges (ideas):**
+- Milestone badges (1, 10, 50, 100 spots)
+- Tier-specific (T1 Specialist, MHB Master)
+- Coverage badges (multi-casino spotting)
+- Documentation badges (adding photos)
+
+**VP Badges (ideas):**
+- Milestone badges (1, 10, 50 VP finds)
+- Game variety badges (logging different game types)
+- High-return finds (99%+ pay tables)
+- Denomination badges
+
+**Open questions:**
+- Separate systems vs unified "Spotter Badges" collection?
+- Display location (Trip tab? Dedicated achievements screen?)
+- Trip-scoped vs lifetime achievements?
+
+### User Settings Screen
+Add a user-level settings section (separate from trip settings):
+
+**Core features:**
+- Account info display (email, profile name)
+- Sign out button
+- Haptics toggle (enable/disable vibration feedback)
+
+**Future considerations:**
+- Sync Bloodies to cloud (currently localStorage only - lost on device switch)
+- Default view mode preference (cards vs list)
+- Delete account option (GDPR/privacy compliance)

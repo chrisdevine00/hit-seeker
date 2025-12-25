@@ -1037,6 +1037,7 @@ function VideoPokerTab({ onSpot }) {
       </div>
 
       <div className="space-y-4">
+      {/* Content */}
       {/* Game & Pay Table Selector - Collapsible */}
       {selectedPayTable && !selectorExpanded ? (
         /* Collapsed Summary Bar - resembles slot machine list item */
@@ -1397,6 +1398,7 @@ function VideoPokerTab({ onSpot }) {
           </div>
         </details>
       )}
+      </div>
 
       {/* Card Picker Modal */}
       {showCardPicker !== null && (
@@ -1411,7 +1413,6 @@ function VideoPokerTab({ onSpot }) {
           excludeCards={selectedHand}
         />
       )}
-      </div>
     </div>
   );
 }
@@ -2677,7 +2678,7 @@ function MainApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] pb-20 md:pb-0 md:pl-16">
+    <div className="min-h-screen bg-[#0d0d0d] pb-20 md:pb-0 md:pl-16 overflow-x-hidden">
       <DesktopSidebar
         tabs={NAV_TABS}
         activeTab={activeTab}

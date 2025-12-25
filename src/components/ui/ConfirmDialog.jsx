@@ -1,7 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from './Button';
 
 export function ConfirmDialog({ isOpen, title, message, onConfirm, onCancel }) {
+  // Escape key to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onCancel]);
+
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">

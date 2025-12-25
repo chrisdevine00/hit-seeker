@@ -421,13 +421,25 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         </button>
       )}
 
+      {/* Validation Message */}
+      {(() => {
+        const missingField = isBloody
+          ? (!casino && 'casino')
+          : isVP
+            ? (!selectedVPGame ? 'game' : (!selectedVPPayTable && !prefillData?.payTable) ? 'pay table' : null)
+            : (!machine && 'machine');
+        return missingField ? (
+          <p className="text-red-400 text-sm text-center">Please select a {missingField} to continue</p>
+        ) : null;
+      })()}
+
       {/* Actions */}
       <div className="space-y-2">
         <Button
           onClick={handleSubmit}
           disabled={isBloody ? !casino : isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine}
           variant="primary"
-          className="w-full disabled:opacity-50"
+          className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Save Spot
         </Button>
@@ -558,7 +570,7 @@ function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhoto
           <h3 className="text-white font-semibold">{machineName}</h3>
           {photo.casino && <p className="text-[#bbbbbb] text-sm">{photo.casino}</p>}
         </div>
-        <button onClick={onClose} className="no-animate text-white p-2"><X size={24} /></button>
+        <button onClick={onClose} className="no-animate text-white p-2" aria-label="Close"><X size={24} /></button>
       </div>
 
       <div className="flex-1 flex items-center justify-center relative">
@@ -578,7 +590,7 @@ function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhoto
       <div className="p-4 bg-black/80 flex items-center justify-between">
         <div>
           <p className="text-[#bbbbbb] text-sm">{currentIndex + 1} of {allPhotos.length}</p>
-          <p className="text-[#aaaaaa] text-xs">{new Date(photo.created_at).toLocaleDateString()}</p>
+          <p className="text-[#aaaaaa] text-xs">{formatRelativeTime(photo.created_at)}</p>
         </div>
         <Button onClick={() => onDelete(photo.id)} variant="danger-subtle" size="sm" className="flex items-center gap-2">
           <Trash2 size={16} /> Delete
@@ -626,9 +638,9 @@ function MachineCarousel({ machines, tierColors, onSelect, tier, getLatestPhoto,
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => goTo(currentIndex - 1)} className="no-animate p-1 text-[#bbbbbb] hover:text-white"><ChevronLeft size={20} /></button>
+            <button onClick={() => goTo(currentIndex - 1)} className="no-animate p-1 text-[#bbbbbb] hover:text-white" aria-label="Previous photo"><ChevronLeft size={20} /></button>
             <span className="text-xs text-[#aaaaaa]">{currentIndex + 1}/{tierMachines.length}</span>
-            <button onClick={() => goTo(currentIndex + 1)} className="no-animate p-1 text-[#bbbbbb] hover:text-white"><ChevronRight size={20} /></button>
+            <button onClick={() => goTo(currentIndex + 1)} className="no-animate p-1 text-[#bbbbbb] hover:text-white" aria-label="Next photo"><ChevronRight size={20} /></button>
           </div>
         </div>
         
@@ -966,7 +978,7 @@ function VideoPokerTab({ onSpot }) {
         {/* Header */}
         <div className="flex justify-between items-center px-4 py-3 border-b border-[#333]">
           <h3 className="text-white font-semibold text-lg">Select Card</h3>
-          <button onClick={onClose} className="no-animate text-[#aaa] hover:text-white p-1">
+          <button onClick={onClose} className="no-animate text-[#aaa] hover:text-white p-1" aria-label="Close">
             <X size={24} />
           </button>
         </div>
@@ -1075,9 +1087,10 @@ function VideoPokerTab({ onSpot }) {
               className="w-full bg-[#0d0d0d] border border-[#333] rounded pl-9 pr-9 py-2 text-white text-sm focus:border-[#d4a855] focus:outline-none"
             />
             {gameSearch && (
-              <button 
+              <button
                 onClick={() => setGameSearch('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-white"
+                aria-label="Clear search"
               >
                 <X size={16} />
               </button>
@@ -1631,7 +1644,17 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
   const [rating, setRating] = useState(0);
   const [spice, setSpice] = useState(0);
   const [notes, setNotes] = useState('');
-  
+
+  // Escape key to close
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
   
   const handleSubmit = () => {
@@ -1663,7 +1686,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
       >
         <div className="flex justify-between items-center mb-5">
           <h3 className="text-white font-bold text-xl">Log a Bloody</h3>
-          <button onClick={onClose} className="no-animate text-gray-400 hover:text-white text-2xl">&times;</button>
+          <button onClick={onClose} className="no-animate text-gray-400 hover:text-white text-2xl" aria-label="Close">&times;</button>
         </div>
         
         {/* Location */}
@@ -1758,13 +1781,20 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
           />
         </div>
         
+        {/* Validation Message */}
+        {(!location || (location === 'custom' && !customLocation)) && (
+          <p className="text-red-400 text-sm text-center mb-3">
+            {!location ? 'Please select a location' : 'Please enter a location name'}
+          </p>
+        )}
+
         {/* Submit */}
         <Button
           onClick={handleSubmit}
           disabled={!location || (location === 'custom' && !customLocation)}
           variant="danger"
           size="lg"
-          className="w-full disabled:bg-gray-700 disabled:text-gray-500"
+          className="w-full disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
         >
           Log It!
         </Button>
@@ -1775,10 +1805,20 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
 
 // Badge Detail Modal
 function BadgeDetailModal({ badge, earned, onClose }) {
+  // Escape key to close
+  useEffect(() => {
+    if (!badge) return;
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [badge, onClose]);
+
   if (!badge) return null;
-  
+
   const colors = earned ? BADGE_COLORS[badge.color] : { outline: 'from-gray-600 to-gray-800', fill: 'from-gray-800/50 to-gray-900/50' };
-  
+
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="text-center" onClick={e => e.stopPropagation()}>
@@ -1872,7 +1912,12 @@ function BloodiesTab() {
     });
     
     setBloodies(newBloodies);
-    setToast({ message: 'Bloody logged!', type: 'success' });
+    const ratingText = bloodyData.rating > 0 ? `${'★'.repeat(bloodyData.rating)} ` : '';
+    const spiceText = bloodyData.spice > 0 ? `${'🔥'.repeat(bloodyData.spice)} ` : '';
+    setToast({
+      message: `${ratingText}${spiceText}at ${bloodyData.location}`,
+      type: 'success'
+    });
     
     // Show badge unlock after a short delay
     if (justEarned.length > 0) {
@@ -2149,9 +2194,15 @@ function BloodiesTab() {
       </div>
       
       {/* Recent Bloodies */}
-      {bloodies.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
+      <div>
+        <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
+        {bloodies.length === 0 ? (
+          <div className="text-center py-8 bg-[#1a1a1a] rounded border border-[#333]">
+            <GlassWater size={40} className="mx-auto text-[#444] mb-3" />
+            <p className="text-[#888] mb-1">No bloodies logged yet</p>
+            <p className="text-[#666] text-sm">Tap the button above to log your first!</p>
+          </div>
+        ) : (
           <div className="space-y-2">
             {bloodies.slice(-5).reverse().map(bloody => (
               <div key={bloody.id} className="bg-[#1a1a1a] rounded p-3 border border-[#333]">
@@ -2159,7 +2210,7 @@ function BloodiesTab() {
                   <div>
                     <div className="text-white font-medium">{bloody.location}</div>
                     <div className="text-gray-500 text-xs">
-                      {new Date(bloody.timestamp).toLocaleDateString()} at {new Date(bloody.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatRelativeTime(bloody.timestamp)}
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -2179,8 +2230,8 @@ function BloodiesTab() {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
       </div>
 
       {/* Log Modal */}
@@ -2257,6 +2308,24 @@ function MainApp() {
   const [machineViewMode, setMachineViewMode] = useState('cards'); // 'list' or 'cards'
   const [apOnly, setApOnly] = useState(false); // AP machines only toggle
   const [releaseYearFilter, setReleaseYearFilter] = useState('all'); // 'all', '2024', '2023', etc.
+
+  // Escape key to close modals
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        // Close modals in order of priority (top-most first)
+        if (viewingPhoto) setViewingPhoto(null);
+        else if (showTierHelp) setShowTierHelp(false);
+        else if (showTripSettings) setShowTripSettings(false);
+        else if (showSpotter) setShowSpotter(false);
+        else if (showNoteForm) setShowNoteForm(false);
+        else if (selectedMachine) setSelectedMachine(null);
+        else if (showOnboarding) setShowOnboarding(false);
+      }
+    };
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [viewingPhoto, showTierHelp, showTripSettings, showSpotter, showNoteForm, selectedMachine, showOnboarding]);
 
   // Track recently viewed machines
   const selectMachine = (machine) => {
@@ -2914,7 +2983,7 @@ function MainApp() {
           <div className="bg-[#161616] border border-[#333] rounded max-w-sm w-full p-5" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">Understanding Tiers</h2>
-              <button onClick={() => setShowTierHelp(false)} className="text-[#aaa] hover:text-white">
+              <button onClick={() => setShowTierHelp(false)} className="text-[#aaa] hover:text-white" aria-label="Close">
                 <X size={20} />
               </button>
             </div>
@@ -3116,8 +3185,17 @@ function MainApp() {
                   placeholder="Search 777 machines..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#161616] border border-[#333] rounded pl-10 pr-4 py-3 text-white placeholder-gray-500 focus:border-[#d4a855] focus:outline-none"
+                  className={`w-full bg-[#161616] border border-[#333] rounded pl-10 ${searchQuery ? 'pr-10' : 'pr-4'} py-3 text-white placeholder-gray-500 focus:border-[#d4a855] focus:outline-none`}
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-white transition-colors"
+                    aria-label="Clear search"
+                  >
+                    <X size={18} />
+                  </button>
+                )}
               </div>
               {/* View Toggle */}
               <div className="flex bg-[#161616] border border-[#333] rounded overflow-hidden">
@@ -3946,9 +4024,10 @@ function MainApp() {
                     className="w-full bg-[#0d0d0d] border border-[#333] rounded pl-10 pr-10 py-3 text-white placeholder-[#666] focus:border-[#d4a855] focus:outline-none"
                   />
                   {casinoSearch && (
-                    <button 
+                    <button
                       onClick={() => setCasinoSearch('')}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666] hover:text-white"
+                      aria-label="Clear search"
                     >
                       <X size={18} />
                     </button>

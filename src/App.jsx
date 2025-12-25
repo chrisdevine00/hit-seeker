@@ -91,31 +91,36 @@ const NAV_TABS = [
 // SPOTTER FORM - Unified for Slots and VP
 // ============================================
 function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillData, currentCasino }) {
-  // spotType: 'slot' or 'vp'
+  // spotType: 'slot', 'vp', or 'bloody'
   // prefillData: { machine } for slots, { game, payTable, return } for VP
-  
+
   // Allow switching type if not prefilled
   const isTypeLocked = prefillData?.machine || prefillData?.game;
   const [activeType, setActiveType] = useState(initialSpotType || 'slot');
-  
+
   const [casino, setCasino] = useState(currentCasino || '');
   const [location, setLocation] = useState('');
   const [state, setState] = useState('');
   const [denomination, setDenomination] = useState('');
   const [playable, setPlayable] = useState(false);
   const [machine, setMachine] = useState(prefillData?.machine || '');
-  
+
   // VP-specific state
   const [selectedVPGame, setSelectedVPGame] = useState(prefillData?.game || '');
   const [selectedVPPayTable, setSelectedVPPayTable] = useState(null);
-  
+
+  // Bloody-specific state
+  const [bloodyRating, setBloodyRating] = useState(0);
+  const [bloodySpice, setBloodySpice] = useState(0);
+
   // vpGames is an object, not array - get the game by key or find by id
   const vpGame = vpGames[selectedVPGame] || Object.values(vpGames).find(g => g.id === selectedVPGame);
 
   const handleSubmit = () => {
     if (activeType === 'slot' && !machine.trim()) return;
     if (activeType === 'vp' && !selectedVPGame) return;
-    
+    if (activeType === 'bloody' && !casino.trim()) return;
+
     const noteData = {
       type: activeType,
       casino: casino.trim(),
@@ -123,23 +128,28 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       playable,
       created_at: new Date().toISOString(),
     };
-    
+
     if (activeType === 'slot') {
       noteData.machine = machine.trim();
       noteData.state = state.trim();
-    } else {
+    } else if (activeType === 'vp') {
       noteData.vpGame = selectedVPGame;
       noteData.vpGameName = vpGame?.name || prefillData?.gameName;
       noteData.vpPayTable = selectedVPPayTable?.label || prefillData?.payTable;
       noteData.vpReturn = selectedVPPayTable?.return || prefillData?.return;
       noteData.denomination = denomination.trim();
       noteData.state = state.trim();
+    } else if (activeType === 'bloody') {
+      noteData.bloodyRating = bloodyRating;
+      noteData.bloodySpice = bloodySpice;
+      noteData.state = state.trim(); // notes
     }
-    
+
     onSubmit(noteData);
   };
 
   const isVP = activeType === 'vp';
+  const isBloody = activeType === 'bloody';
 
   return (
     <div className="bg-[#161616] border border-[#333] rounded p-4 space-y-4">
@@ -153,23 +163,33 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         <div className="flex gap-2 p-1 bg-[#0d0d0d] rounded">
           <button
             onClick={() => setActiveType('slot')}
-            className={`flex-1 py-2 px-4 rounded text-sm font-medium transition-colors ${
-              activeType === 'slot' 
-                ? 'bg-[#d4a855] text-black' 
+            className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
+              activeType === 'slot'
+                ? 'bg-[#d4a855] text-black'
                 : 'text-[#aaa] hover:text-white'
             }`}
           >
-            Slot Machine
+            Slot
           </button>
           <button
             onClick={() => setActiveType('vp')}
-            className={`flex-1 py-2 px-4 rounded text-sm font-medium transition-colors ${
-              activeType === 'vp' 
-                ? 'bg-[#d4a855] text-black' 
+            className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
+              activeType === 'vp'
+                ? 'bg-[#d4a855] text-black'
                 : 'text-[#aaa] hover:text-white'
             }`}
           >
             Video Poker
+          </button>
+          <button
+            onClick={() => setActiveType('bloody')}
+            className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
+              activeType === 'bloody'
+                ? 'bg-[#d4a855] text-black'
+                : 'text-[#aaa] hover:text-white'
+            }`}
+          >
+            Bloody
           </button>
         </div>
       )}
@@ -189,8 +209,8 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             <>
               <div>
                 <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Game</label>
-                <select 
-                  value={selectedVPGame} 
+                <select
+                  value={selectedVPGame}
                   onChange={(e) => { setSelectedVPGame(e.target.value); setSelectedVPPayTable(null); }}
                   className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
@@ -211,7 +231,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                   })()}
                 </select>
               </div>
-              
+
               {vpGame && (
                 <div>
                   <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Pay Table</label>
@@ -221,8 +241,8 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                         key={pt.id}
                         onClick={() => setSelectedVPPayTable(pt)}
                         className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                          selectedVPPayTable?.id === pt.id 
-                            ? 'bg-[#d4a855] text-black' 
+                          selectedVPPayTable?.id === pt.id
+                            ? 'bg-[#d4a855] text-black'
                             : 'bg-[#0d0d0d] text-[#aaa] hover:text-white border border-[#333]'
                         }`}
                       >
@@ -235,15 +255,54 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             </>
           )}
         </div>
+      ) : isBloody ? (
+        // Bloody Mary - Rating and Spice
+        <div className="space-y-4">
+          {/* Rating */}
+          <div>
+            <label className="text-[#888] text-xs uppercase tracking-wider mb-2 block">Rating</label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  onClick={() => setBloodyRating(bloodyRating === star ? 0 : star)}
+                  className={`text-3xl transition-all hover:scale-110 ${
+                    star <= bloodyRating ? 'text-yellow-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]' : 'text-gray-600'
+                  }`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Spice Level */}
+          <div>
+            <label className="text-[#888] text-xs uppercase tracking-wider mb-2 block">Spice Level</label>
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5].map(fire => (
+                <button
+                  key={fire}
+                  onClick={() => setBloodySpice(bloodySpice === fire ? 0 : fire)}
+                  className={`transition-all hover:scale-110 ${
+                    fire <= bloodySpice ? 'text-orange-500' : 'text-gray-600 opacity-40'
+                  }`}
+                >
+                  <Flame size={28} />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       ) : (
         // Slot Selection
         <div className="bg-[#0d0d0d] border border-[#d4a855]/30 rounded p-3">
           {prefillData?.machine ? (
             <p className="text-white font-semibold">{prefillData.machine}</p>
           ) : (
-            <select 
-              value={machine} 
-              onChange={(e) => setMachine(e.target.value)} 
+            <select
+              value={machine}
+              onChange={(e) => setMachine(e.target.value)}
               className="w-full bg-transparent text-white focus:outline-none appearance-none cursor-pointer"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d4a855' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0px center' }}
             >
@@ -269,18 +328,20 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         </select>
       </div>
       
-      {/* Location within casino */}
-      <div>
-        <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Location in Casino</label>
-        <input 
-          type="text" 
-          placeholder={isVP ? "e.g., Bar top, High limit room" : "e.g., Near entrance, High limit"} 
-          value={location} 
-          onChange={(e) => setLocation(e.target.value)} 
-          className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white placeholder-[#555]" 
-        />
-      </div>
-      
+      {/* Location within casino - not needed for bloody */}
+      {!isBloody && (
+        <div>
+          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Location in Casino</label>
+          <input
+            type="text"
+            placeholder={isVP ? "e.g., Bar top, High limit room" : "e.g., Near entrance, High limit"}
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white placeholder-[#555]"
+          />
+        </div>
+      )}
+
       {/* VP-specific: Denomination */}
       {isVP && (
         <div>
@@ -291,8 +352,8 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                 key={denom}
                 onClick={() => setDenomination(denomination === denom ? '' : denom)}
                 className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
-                  denomination === denom 
-                    ? 'bg-[#d4a855] text-black' 
+                  denomination === denom
+                    ? 'bg-[#d4a855] text-black'
                     : 'bg-[#0d0d0d] text-[#aaa] hover:text-white border border-[#333]'
                 }`}
               >
@@ -302,36 +363,38 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
           </div>
         </div>
       )}
-      
+
       {/* State/Notes */}
       <div>
         <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">
-          {isVP ? 'Notes' : 'Machine State'}
+          {isBloody ? 'Notes' : isVP ? 'Notes' : 'Machine State'}
         </label>
-        <textarea 
-          placeholder={isVP ? "e.g., Multiple machines, good location" : "e.g., Meter at 85%, 3 coins on reel 2"} 
-          value={state} 
-          onChange={(e) => setState(e.target.value)} 
-          className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white placeholder-[#555] min-h-[70px]" 
+        <textarea
+          placeholder={isBloody ? "e.g., Great garnishes, served in a souvenir glass" : isVP ? "e.g., Multiple machines, good location" : "e.g., Meter at 85%, 3 coins on reel 2"}
+          value={state}
+          onChange={(e) => setState(e.target.value)}
+          className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white placeholder-[#555] min-h-[70px]"
         />
       </div>
-      
-      {/* Playable toggle */}
-      <button 
-        onClick={() => setPlayable(!playable)} 
-        className={`w-full py-3 rounded font-semibold flex items-center justify-center gap-2 transition-colors border ${
-          playable ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-[#1a1a1a] text-[#888] border-[#333]'
-        }`}
-      >
-        {playable ? <CheckCircle2 size={18} /> : <div className="w-5 h-5 border-2 border-[#555] rounded-full" />}
-        {playable ? 'Marked as Playable!' : 'Mark as Playable?'}
-      </button>
-      
+
+      {/* Playable toggle - not for bloody */}
+      {!isBloody && (
+        <button
+          onClick={() => setPlayable(!playable)}
+          className={`w-full py-3 rounded font-semibold flex items-center justify-center gap-2 transition-colors border ${
+            playable ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-[#1a1a1a] text-[#888] border-[#333]'
+          }`}
+        >
+          {playable ? <CheckCircle2 size={18} /> : <div className="w-5 h-5 border-2 border-[#555] rounded-full" />}
+          {playable ? 'Marked as Playable!' : 'Mark as Playable?'}
+        </button>
+      )}
+
       {/* Actions */}
       <div className="space-y-2">
         <Button
           onClick={handleSubmit}
-          disabled={isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine}
+          disabled={isBloody ? !casino : isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine}
           variant="primary"
           className="w-full disabled:opacity-50"
         >
@@ -372,27 +435,50 @@ function NoteForm({ onSubmit, onCancel, prefillMachine, currentCasino }) {
 }
 
 // ============================================
-// NOTE CARD - Handles both Slots and VP
+// NOTE CARD - Handles Slots, VP, and Bloody
 // ============================================
 function NoteCard({ note, onEdit, onDelete, isOwn }) {
   const [expanded, setExpanded] = useState(false);
   const isVP = note.type === 'vp';
-  const title = isVP ? (note.vpGameName || note.vpGame) : note.machine;
+  const isBloody = note.type === 'bloody';
+  const title = isBloody ? 'Bloody Mary' : isVP ? (note.vpGameName || note.vpGame) : note.machine;
   const subtitle = isVP ? `${note.vpPayTable} • ${note.vpReturn}%` : null;
-  
+
+  // Get badge color based on type
+  const getBadgeClass = () => {
+    if (isBloody) return 'bg-red-600 text-white';
+    if (isVP) return 'bg-blue-600 text-white';
+    return 'bg-[#d4a855] text-black';
+  };
+
   return (
     <div className={`bg-[#161616] border rounded overflow-hidden ${note.playable ? 'border-emerald-500/50' : 'border-[#333]'}`}>
       <button onClick={() => setExpanded(!expanded)} className="w-full p-4 text-left">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-[#d4a855] text-black'}`}>
-                {isVP ? 'VP' : 'SLOT'}
+              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getBadgeClass()}`}>
+                {isBloody ? 'BLOODY' : isVP ? 'VP' : 'SLOT'}
               </span>
               {note.playable && <span className="text-emerald-400 text-xs font-semibold bg-emerald-400/20 px-2 py-0.5 rounded-full">PLAYABLE</span>}
               <span className="text-white font-semibold truncate">{title}</span>
             </div>
             {subtitle && <p className="text-[#d4a855] text-sm mb-1">{subtitle}</p>}
+            {/* Bloody rating display */}
+            {isBloody && (note.bloodyRating > 0 || note.bloodySpice > 0) && (
+              <div className="flex items-center gap-3 mb-1">
+                {note.bloodyRating > 0 && (
+                  <span className="text-yellow-400 text-sm">
+                    {'★'.repeat(note.bloodyRating)}{'☆'.repeat(5 - note.bloodyRating)}
+                  </span>
+                )}
+                {note.bloodySpice > 0 && (
+                  <span className="text-orange-500 text-sm flex items-center gap-0.5">
+                    {[...Array(note.bloodySpice)].map((_, i) => <Flame key={i} size={14} />)}
+                  </span>
+                )}
+              </div>
+            )}
             <p className="text-[#bbb] text-sm">{note.casino || 'Unknown casino'}</p>
             {note.denomination && <p className="text-[#888] text-xs">{note.denomination} denomination</p>}
             {note.profiles?.display_name && (
@@ -405,11 +491,11 @@ function NoteCard({ note, onEdit, onDelete, isOwn }) {
           </div>
         </div>
       </button>
-      
+
       {expanded && (
         <div className="px-4 pb-4 border-t border-[#333] pt-3">
           {note.location && <p className="text-sm text-[#ccc] mb-2"><span className="text-[#888]">Location:</span> {note.location}</p>}
-          {note.state && <p className="text-sm text-[#ccc] mb-3"><span className="text-[#888]">{isVP ? 'Notes:' : 'State:'}</span> {note.state}</p>}
+          {note.state && <p className="text-sm text-[#ccc] mb-3"><span className="text-[#888]">{isBloody ? 'Notes:' : isVP ? 'Notes:' : 'State:'}</span> {note.state}</p>}
           {isOwn && (
             <div className="flex gap-2">
               <Button onClick={() => onEdit(note)} variant="secondary" size="sm" className="flex-1 flex items-center justify-center gap-1">
@@ -1191,8 +1277,8 @@ function VideoPokerTab({ onSpot }) {
         );
       })()}
 
-      {/* Prompt to select pay table first */}
-      {!selectedPayTable && (
+      {/* Prompt to select pay table first - only show when game is selected */}
+      {selectedGame && !selectedPayTable && (
         <div className="bg-[#0d0d0d] border border-dashed border-[#333] rounded p-6 text-center">
           <p className="text-[#aaa]">Select a pay table above to check hands</p>
         </div>
@@ -3002,68 +3088,44 @@ function MainApp() {
               </div>
             </div>
 
-            {/* AP Toggle and Year Filter Row */}
-            <div className="flex items-center gap-3">
-              {/* AP Only Toggle */}
+            {/* Category Filter - horizontal scroll */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {/* AP Only Toggle - first filter */}
               <button
                 onClick={() => setApOnly(!apOnly)}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-colors border ${
-                  apOnly
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-[#161616] text-[#bbbbbb] border-[#333]'
-                }`}
-              >
-                <Target size={16} />
-                AP Only ({apCount})
-              </button>
-              
-              {/* Release Year Filter */}
-              {releaseYears.length > 0 && (
-                <select
-                  value={releaseYearFilter}
-                  onChange={(e) => setReleaseYearFilter(e.target.value)}
-                  className="bg-[#161616] border border-[#333] rounded px-3 py-2 text-sm text-[#bbbbbb] focus:outline-none focus:border-[#d4a855]"
-                >
-                  <option value="all">All Years</option>
-                  {releaseYears.map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              )}
-
-              {/* Help Button */}
-              <button
-                onClick={() => setShowTierHelp(true)}
-                className="ml-auto p-2 text-[#aaa] hover:text-[#d4a855] transition-colors"
-                title="What do tiers mean?"
-              >
-                <Info size={18} />
-              </button>
-            </div>
-
-            {/* Category Filter - horizontal scroll */}
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              <button
-                onClick={() => setSelectedCategory('all')}
                 className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  selectedCategory === 'all' 
-                    ? 'bg-[#d4a855] text-black' 
+                  apOnly
+                    ? 'bg-emerald-600 text-white'
                     : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
                 }`}
               >
-                All ({apOnly ? apCount : filteredMachines.length})
+                AP Only ({apCount})
+              </button>
+
+              {/* Divider */}
+              <div className="w-px h-5 bg-[#333] shrink-0" />
+
+              <button
+                onClick={() => setSelectedCategory('all')}
+                className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
+                  selectedCategory === 'all'
+                    ? 'bg-[#d4a855] text-black'
+                    : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
+                }`}
+              >
+                All ({apOnly ? apCount : machines.length})
               </button>
               {Object.entries(machineCategories)
                 .filter(([key]) => !apOnly || key !== 'entertainment')
                 .map(([key, cat]) => {
-                const count = filteredMachines.filter(m => m.category === key).length;
+                const count = machines.filter(m => m.category === key).length;
                 return (
                   <button
                     key={key}
                     onClick={() => setSelectedCategory(key)}
                     className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                      selectedCategory === key 
-                        ? 'bg-[#d4a855] text-black' 
+                      selectedCategory === key
+                        ? 'bg-[#d4a855] text-black'
                         : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
                     }`}
                   >
@@ -3071,6 +3133,15 @@ function MainApp() {
                   </button>
                 );
               })}
+
+              {/* Help Button */}
+              <button
+                onClick={() => setShowTierHelp(true)}
+                className="shrink-0 ml-auto p-1.5 text-[#aaa] hover:text-[#d4a855] transition-colors"
+                title="What do tiers mean?"
+              >
+                <Info size={16} />
+              </button>
             </div>
 
             {/* Recently Viewed (if any) */}

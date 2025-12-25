@@ -703,7 +703,7 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
 // VIDEO POKER TAB COMPONENT
 // ============================================
 function VideoPokerTab({ onSpot }) {
-  const [selectedGame, setSelectedGame] = useState('jacks-or-better');
+  const [selectedGame, setSelectedGame] = useState(null);
   const [selectedPayTable, setSelectedPayTable] = useState(null);
   const [selectedHand, setSelectedHand] = useState([null, null, null, null, null]);
   const [showCardPicker, setShowCardPicker] = useState(null);
@@ -768,10 +768,10 @@ function VideoPokerTab({ onSpot }) {
     }
   }, [selectedPayTable]);
   
-  // Auto-select first filtered game if current selection is not in filtered list
+  // If a game was selected but is no longer in the filtered list, clear selection
   React.useEffect(() => {
-    if (filteredGames.length > 0 && !filteredGames.find(g => g.id === selectedGame)) {
-      setSelectedGame(filteredGames[0].id);
+    if (selectedGame && filteredGames.length > 0 && !filteredGames.find(g => g.id === selectedGame)) {
+      setSelectedGame(null);
       setSelectedPayTable(null);
       setSelectedHand([null, null, null, null, null]);
     }
@@ -968,7 +968,7 @@ function VideoPokerTab({ onSpot }) {
           </div>
           
           {/* Category filter - horizontal scroll */}
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               onClick={() => setSelectedCategory('all')}
               className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
@@ -990,34 +990,53 @@ function VideoPokerTab({ onSpot }) {
             ))}
           </div>
           
-          {/* Game dropdown */}
-          {filteredGames.length > 0 ? (
-            <select
-              value={selectedGame}
-              onChange={(e) => {
-                setSelectedGame(e.target.value);
-                setSelectedPayTable(null);
-                setSelectedHand([null, null, null, null, null]);
-              }}
-              className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white font-medium focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
-            >
-              {filteredGames.map(g => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
-          ) : (
-            <div className="bg-[#0d0d0d] border border-dashed border-[#333] rounded p-4 text-center">
-              <p className="text-[#aaa] mb-2">No games match your filters</p>
-              <button 
-                onClick={() => { setGameSearch(''); setSelectedCategory('all'); }}
-                className="text-[#d4a855] text-sm hover:underline"
-              >
-                Clear filters
-              </button>
-            </div>
-          )}
-          
+          {/* Game selector */}
+          <div className="w-full overflow-hidden">
+            {filteredGames.length > 0 ? (
+              selectedGame ? (
+                /* Selected game - solid gold display with X to clear */
+                <button
+                  onClick={() => {
+                    setSelectedGame(null);
+                    setSelectedPayTable(null);
+                    setSelectedHand([null, null, null, null, null]);
+                  }}
+                  className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+                >
+                  <span className="truncate">{game?.name}</span>
+                  <X size={18} className="shrink-0 ml-2 opacity-60" />
+                </button>
+              ) : (
+                /* No game selected - dropdown with placeholder */
+                <select
+                  value=""
+                  onChange={(e) => {
+                    setSelectedGame(e.target.value);
+                    setSelectedPayTable(null);
+                    setSelectedHand([null, null, null, null, null]);
+                  }}
+                  className="w-full max-w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-[#aaa] font-medium focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', boxSizing: 'border-box' }}
+                >
+                  <option value="" disabled>Select a game...</option>
+                  {filteredGames.map(g => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                </select>
+              )
+            ) : (
+              <div className="bg-[#0d0d0d] border border-dashed border-[#333] rounded p-4 text-center">
+                <p className="text-[#aaa] mb-2">No games match your filters</p>
+                <button
+                  onClick={() => { setGameSearch(''); setSelectedCategory('all'); }}
+                  className="text-[#d4a855] text-sm hover:underline"
+                >
+                  Clear filters
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* Pay Table Selection */}
           {game && filteredGames.length > 0 && (
             <div className="pt-2 border-t border-[#333]">

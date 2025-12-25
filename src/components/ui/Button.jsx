@@ -28,7 +28,6 @@ export function Button({
   children,
   onClick,
   animate = true,
-  delay = 150,
   ...props
 }) {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -36,15 +35,12 @@ export function Button({
   const shouldAnimate = animate && animatedVariants.includes(variant);
 
   const handleClick = (e) => {
-    hapticLight();
+    try { hapticLight(); } catch (err) { /* ignore haptic errors */ }
     if (shouldAnimate) {
       setIsAnimating(true);
-      setTimeout(() => {
-        onClick?.(e);
-      }, delay);
-    } else {
-      onClick?.(e);
     }
+    // Call onClick immediately - animation is visual only
+    onClick?.(e);
   };
 
   const handleAnimationEnd = () => {

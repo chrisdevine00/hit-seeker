@@ -37,7 +37,7 @@ const BADGE_ICONS = {
 // Lib imports
 import { supabase } from './lib/supabase';
 import { theme, injectGlobalStyles } from './lib/theme';
-import { hapticLight, hapticSelection, hapticSuccess, hapticCelebration } from './lib/haptics';
+import { hapticLight, hapticMedium, hapticSelection, hapticSuccess, hapticCelebration } from './lib/haptics';
 
 // Context imports
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -74,11 +74,15 @@ import { LoginScreen, TripSelectionScreen } from './screens';
 
 // Component imports
 import { TripHeader, DesktopSidebar } from './components/layout';
-import { StrategyValidator } from './components/features';
+import { StrategyValidator, DevModePanel } from './components/features';
+import { initErrorCapture } from './lib/errorCapture';
 import { ConfirmDialog, FilledMapPin, Button } from './components/ui';
 
 // Initialize global styles
 injectGlobalStyles();
+
+// Initialize error capture for dev mode
+initErrorCapture();
 
 // Tab navigation configuration (shared between mobile and desktop nav)
 const NAV_TABS = [
@@ -2359,6 +2363,19 @@ function MainApp() {
   const [showDebugMenu, setShowDebugMenu] = useState(false);
   const [showStrategyValidator, setShowStrategyValidator] = useState(false);
 
+  // Dev mode visibility - persisted in localStorage, toggled via long-press on logo
+  const [devModeEnabled, setDevModeEnabled] = useState(() => {
+    return localStorage.getItem('devModeEnabled') === 'true';
+  });
+
+  const toggleDevMode = () => {
+    const newValue = !devModeEnabled;
+    setDevModeEnabled(newValue);
+    localStorage.setItem('devModeEnabled', newValue.toString());
+    if (!newValue) setShowDebugMenu(false); // Close menu when disabling
+    hapticMedium(); // Feedback for toggle
+  };
+
   const handleCheckIn = (casino) => {
     checkIn(casino.id, casino.name);
   };
@@ -2667,11 +2684,13 @@ function MainApp() {
         onTabChange={(id) => { setActiveTab(id); setSelectedMachine(null); setSelectedCasino(null); }}
         animatingTab={animatingTab}
         setAnimatingTab={setAnimatingTab}
+        onLogoLongPress={user?.email === 'christopher.devine@gmail.com' ? toggleDevMode : null}
       />
       <TripHeader
         onOpenSettings={() => setShowTripSettings(true)}
         onLocationClick={handleHeaderCheckIn}
         myCheckIn={myCheckIn}
+        onLogoLongPress={user?.email === 'christopher.devine@gmail.com' ? toggleDevMode : null}
       />
 
       {/* Onboarding Modal - 5 Step Walkthrough */}
@@ -3097,65 +3116,29 @@ function MainApp() {
         </div>
       )}
 
-      {/* Debug Menu - Only visible to admin */}
-      {user?.email === 'christopher.devine@gmail.com' && (
-        <>
-          <button
-            onClick={() => setShowDebugMenu(!showDebugMenu)}
-            className="fixed bottom-24 right-4 w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xs font-bold z-40 shadow-lg"
-          >
-            DEV
-          </button>
-
-          {showDebugMenu && (
-            <div className="fixed bottom-36 right-4 bg-[#161616] border border-purple-500/50 rounded p-4 z-40 shadow-xl w-64">
-              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3">Developer Tools</p>
-
-              {/* Strategy Validator */}
-              <button
-                onClick={() => { setShowStrategyValidator(true); setShowDebugMenu(false); }}
-                className="w-full text-left px-3 py-2 rounded text-sm bg-[#0d0d0d] text-[#aaa] hover:text-white hover:bg-emerald-900/30 mb-3"
-              >
-                Run Strategy Validator
-              </button>
-
-              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-2">Geolocation Simulator</p>
-              <div className="space-y-2">
-                <button
-                  onClick={() => { setDebugGeoMode('near-casino'); setShowDebugMenu(false); }}
-                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'near-casino' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-                >
-                  Near Casino (Bellagio)
-                </button>
-                <button
-                  onClick={() => { setDebugGeoMode('not-near'); setShowDebugMenu(false); }}
-                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'not-near' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-                >
-                  Not Near Any Casino
-                </button>
-                <button
-                  onClick={() => { setDebugGeoMode('error'); setShowDebugMenu(false); }}
-                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'error' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-                >
-                  Geolocation Error
-                </button>
-                <button
-                  onClick={() => { setDebugGeoMode(null); setShowDebugMenu(false); }}
-                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === null ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-                >
-                  Use Real Location
-                </button>
-              </div>
-              <p className="text-[#666] text-xs mt-3">
-                Current: <span className="text-purple-400">{debugGeoMode || 'Real'}</span>
-              </p>
-              <p className="text-[#555] text-xs mt-1">
-                Tap "Check In" button to test
-              </p>
-            </div>
-          )}
-        </>
+      {/* Dev Mode Button - Only visible to admin when dev mode is enabled */}
+      {user?.email === 'christopher.devine@gmail.com' && devModeEnabled && (
+        <button
+          onClick={() => setShowDebugMenu(true)}
+          className="fixed bottom-24 right-4 w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xs font-bold z-40 shadow-lg md:bottom-4"
+        >
+          DEV
+        </button>
       )}
+
+      {/* Dev Mode Panel */}
+      <DevModePanel
+        isOpen={showDebugMenu}
+        onClose={() => setShowDebugMenu(false)}
+        user={user}
+        currentTrip={currentTrip}
+        myCheckIn={myCheckIn}
+        notesCount={notes?.length || 0}
+        onForceRefresh={refreshNotes}
+        debugGeoMode={debugGeoMode}
+        setDebugGeoMode={setDebugGeoMode}
+        onShowStrategyValidator={() => setShowStrategyValidator(true)}
+      />
       
       {/* Strategy Validator Modal */}
       {showStrategyValidator && (

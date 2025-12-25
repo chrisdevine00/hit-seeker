@@ -1,11 +1,33 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { hapticSelection } from '../../lib/haptics';
 
-export function DesktopSidebar({ tabs, activeTab, onTabChange, animatingTab, setAnimatingTab }) {
+export function DesktopSidebar({ tabs, activeTab, onTabChange, animatingTab, setAnimatingTab, onLogoLongPress }) {
+  const longPressTimer = useRef(null);
+
+  const handleLogoMouseDown = () => {
+    if (!onLogoLongPress) return;
+    longPressTimer.current = setTimeout(() => {
+      onLogoLongPress();
+      longPressTimer.current = null;
+    }, 800); // 800ms long press
+  };
+
+  const handleLogoMouseUp = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
   return (
     <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-16 bg-[#0d0d0d] border-r border-[#333] flex-col items-center py-4 z-40">
-      {/* Logo */}
-      <div className="mb-8">
+      {/* Logo - long press to toggle dev mode */}
+      <div
+        className="mb-8 cursor-pointer select-none"
+        onMouseDown={handleLogoMouseDown}
+        onMouseUp={handleLogoMouseUp}
+        onMouseLeave={handleLogoMouseUp}
+      >
         <span className="text-[#d4a855] font-bold text-xl" style={{ fontFamily: 'Outfit, sans-serif' }}>
           H
         </span>

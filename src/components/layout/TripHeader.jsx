@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useTrip } from '../../context/TripContext';
 import { FilledMapPin } from '../ui';
 
-export function TripHeader({ onOpenSettings, onLocationClick, myCheckIn }) {
+export function TripHeader({ onOpenSettings, onLocationClick, myCheckIn, onLogoLongPress }) {
   const { currentTrip } = useTrip();
+  const longPressTimer = useRef(null);
+
+  const handleLogoTouchStart = () => {
+    if (!onLogoLongPress) return;
+    longPressTimer.current = setTimeout(() => {
+      onLogoLongPress();
+      longPressTimer.current = null;
+    }, 800); // 800ms long press
+  };
+
+  const handleLogoTouchEnd = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
 
   return (
     <div
@@ -11,7 +27,15 @@ export function TripHeader({ onOpenSettings, onLocationClick, myCheckIn }) {
       style={{ paddingTop: 'calc(var(--sat, 0px) + 12px)' }}
     >
       <div className="flex items-center justify-between">
-        <button onClick={onOpenSettings} className="flex items-center gap-3">
+        <button
+          onClick={onOpenSettings}
+          onTouchStart={handleLogoTouchStart}
+          onTouchEnd={handleLogoTouchEnd}
+          onMouseDown={handleLogoTouchStart}
+          onMouseUp={handleLogoTouchEnd}
+          onMouseLeave={handleLogoTouchEnd}
+          className="flex items-center gap-3"
+        >
           <span className="font-bold text-4xl leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
             <span className="text-white">H</span>
             <span style={{ color: '#d4a855' }}>S</span>

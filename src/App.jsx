@@ -319,8 +319,8 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       {/* Playable toggle */}
       <button 
         onClick={() => setPlayable(!playable)} 
-        className={`w-full py-3 rounded font-semibold flex items-center justify-center gap-2 transition-colors ${
-          playable ? 'bg-emerald-600 text-white' : 'bg-[#1a1a1a] text-[#888] border border-[#333]'
+        className={`w-full py-3 rounded font-semibold flex items-center justify-center gap-2 transition-colors border ${
+          playable ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-[#1a1a1a] text-[#888] border-[#333]'
         }`}
       >
         {playable ? <CheckCircle2 size={18} /> : <div className="w-5 h-5 border-2 border-[#555] rounded-full" />}
@@ -2988,10 +2988,10 @@ function MainApp() {
               {/* AP Only Toggle */}
               <button
                 onClick={() => setApOnly(!apOnly)}
-                className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-colors ${
-                  apOnly 
-                    ? 'bg-emerald-600 text-white' 
-                    : 'bg-[#161616] text-[#bbbbbb] border border-[#333]'
+                className={`flex items-center gap-2 px-3 py-2 rounded text-sm font-medium transition-colors border ${
+                  apOnly
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-[#161616] text-[#bbbbbb] border-[#333]'
                 }`}
               >
                 <Target size={16} />
@@ -3472,10 +3472,10 @@ function MainApp() {
                 <button
                   key={sub.id}
                   onClick={() => setTripSubTab(sub.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all whitespace-nowrap border ${
                     tripSubTab === sub.id
-                      ? 'bg-[#d4a855] text-black'
-                      : 'bg-[#1a1a1a] text-[#aaa] border border-[#333]'
+                      ? 'bg-[#d4a855] text-black border-[#d4a855]'
+                      : 'bg-[#1a1a1a] text-[#aaa] border-[#333]'
                   }`}
                 >
                   <sub.icon size={16} />

@@ -209,27 +209,37 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             <>
               <div>
                 <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Game</label>
-                <select
-                  value={selectedVPGame}
-                  onChange={(e) => { setSelectedVPGame(e.target.value); setSelectedVPPayTable(null); }}
-                  className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
-                >
-                  <option value="">Select game...</option>
-                  {(() => {
-                    const FEATURED = ['jacks-or-better','bonus-poker','bonus-poker-deluxe','double-bonus','double-double-bonus','triple-double-bonus','deuces-wild','bonus-deuces-wild','loose-deuces','joker-poker-kings','joker-poker-twopair','ultimate-x-jacks','ultimate-x-bonus','ultimate-x-ddb','ultimate-x-double-bonus','ultimate-x-joker'];
-                    return Object.values(vpGames)
-                      .filter(g => g.category)
-                      .sort((a, b) => {
-                        const aF = FEATURED.includes(a.id), bF = FEATURED.includes(b.id);
-                        if (aF && !bF) return -1;
-                        if (!aF && bF) return 1;
-                        if (aF && bF) return FEATURED.indexOf(a.id) - FEATURED.indexOf(b.id);
-                        return (b.popularity || 50) - (a.popularity || 50);
-                      })
-                      .map(g => <option key={g.id} value={g.id}>{g.name}</option>);
-                  })()}
-                </select>
+                {selectedVPGame ? (
+                  <button
+                    onClick={() => { setSelectedVPGame(''); setSelectedVPPayTable(null); }}
+                    className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+                  >
+                    <span className="truncate">{vpGames[selectedVPGame]?.name || selectedVPGame}</span>
+                    <X size={18} className="shrink-0 ml-2 opacity-60" />
+                  </button>
+                ) : (
+                  <select
+                    value=""
+                    onChange={(e) => { setSelectedVPGame(e.target.value); setSelectedVPPayTable(null); }}
+                    className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-[#aaa] font-medium focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
+                  >
+                    <option value="" disabled>Select a game...</option>
+                    {(() => {
+                      const FEATURED = ['jacks-or-better','bonus-poker','bonus-poker-deluxe','double-bonus','double-double-bonus','triple-double-bonus','deuces-wild','bonus-deuces-wild','loose-deuces','joker-poker-kings','joker-poker-twopair','ultimate-x-jacks','ultimate-x-bonus','ultimate-x-ddb','ultimate-x-double-bonus','ultimate-x-joker'];
+                      return Object.values(vpGames)
+                        .filter(g => g.category)
+                        .sort((a, b) => {
+                          const aF = FEATURED.includes(a.id), bF = FEATURED.includes(b.id);
+                          if (aF && !bF) return -1;
+                          if (!aF && bF) return 1;
+                          if (aF && bF) return FEATURED.indexOf(a.id) - FEATURED.indexOf(b.id);
+                          return (b.popularity || 50) - (a.popularity || 50);
+                        })
+                        .map(g => <option key={g.id} value={g.id}>{g.name}</option>);
+                    })()}
+                  </select>
+                )}
               </div>
 
               {vpGame && (
@@ -296,17 +306,28 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         </div>
       ) : (
         // Slot Selection
-        <div className="bg-[#0d0d0d] border border-[#d4a855]/30 rounded p-3">
+        <div>
+          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Machine</label>
           {prefillData?.machine ? (
-            <p className="text-white font-semibold">{prefillData.machine}</p>
+            <div className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium">
+              {prefillData.machine}
+            </div>
+          ) : machine ? (
+            <button
+              onClick={() => setMachine('')}
+              className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+            >
+              <span className="truncate">{machine}</span>
+              <X size={18} className="shrink-0 ml-2 opacity-60" />
+            </button>
           ) : (
             <select
-              value={machine}
+              value=""
               onChange={(e) => setMachine(e.target.value)}
-              className="w-full bg-transparent text-white focus:outline-none appearance-none cursor-pointer"
-              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d4a855' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0px center' }}
+              className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-[#aaa] font-medium focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
             >
-              <option value="">Select machine...</option>
+              <option value="" disabled>Select a machine...</option>
               {machines.map(m => <option key={m.id} value={m.name}>{m.name}</option>)}
               <option value="Other">Other</option>
             </select>
@@ -317,15 +338,25 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       {/* Casino */}
       <div>
         <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Casino</label>
-        <select 
-          value={casino} 
-          onChange={(e) => setCasino(e.target.value)} 
-          className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-white focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
-        >
-          <option value="">Select casino...</option>
-          {vegasCasinos.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-        </select>
+        {casino ? (
+          <button
+            onClick={() => setCasino('')}
+            className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+          >
+            <span className="truncate">{casino}</span>
+            <X size={18} className="shrink-0 ml-2 opacity-60" />
+          </button>
+        ) : (
+          <select
+            value=""
+            onChange={(e) => setCasino(e.target.value)}
+            className="w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-[#aaa] font-medium focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
+          >
+            <option value="" disabled>Select a casino...</option>
+            {vegasCasinos.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+          </select>
+        )}
       </div>
       
       {/* Location within casino - not needed for bloody */}
@@ -1638,25 +1669,44 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
         {/* Location */}
         <div className="mb-4">
           <label className="text-gray-400 text-sm mb-1 block">Location *</label>
-          <select 
-            value={location}
-            onChange={e => setLocation(e.target.value)}
-            className="w-full bg-[#242424] border border-[#444] rounded px-4 py-3 text-white"
-          >
-            <option value="">Select location...</option>
-            {casinos.map(c => (
-              <option key={c.id} value={c.name}>{c.name}</option>
-            ))}
-            <option value="custom">Other (type below)</option>
-          </select>
-          {location === 'custom' && (
-            <input
-              type="text"
-              value={customLocation}
-              onChange={e => setCustomLocation(e.target.value)}
-              placeholder="Enter location name..."
-              className="w-full mt-2 bg-[#242424] border border-[#444] rounded px-4 py-3 text-white placeholder-gray-600"
-            />
+          {location && location !== 'custom' ? (
+            <button
+              onClick={() => setLocation('')}
+              className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+            >
+              <span className="truncate">{location}</span>
+              <X size={18} className="shrink-0 ml-2 opacity-60" />
+            </button>
+          ) : location === 'custom' ? (
+            <div>
+              <button
+                onClick={() => { setLocation(''); setCustomLocation(''); }}
+                className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+              >
+                <span className="truncate">Other (custom)</span>
+                <X size={18} className="shrink-0 ml-2 opacity-60" />
+              </button>
+              <input
+                type="text"
+                value={customLocation}
+                onChange={e => setCustomLocation(e.target.value)}
+                placeholder="Enter location name..."
+                className="w-full mt-2 bg-[#242424] border border-[#444] rounded px-4 py-3 text-white placeholder-gray-600"
+              />
+            </div>
+          ) : (
+            <select
+              value=""
+              onChange={e => setLocation(e.target.value)}
+              className="w-full bg-[#242424] border border-[#444] rounded px-4 py-3 text-[#aaa] font-medium appearance-none cursor-pointer"
+              style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
+            >
+              <option value="" disabled>Select a location...</option>
+              {casinos.map(c => (
+                <option key={c.id} value={c.name}>{c.name}</option>
+              ))}
+              <option value="custom">Other (type below)</option>
+            </select>
           )}
         </div>
         

@@ -77,6 +77,7 @@ import { TripHeader, DesktopSidebar } from './components/layout';
 import { StrategyValidator, DevModePanel } from './components/features';
 import { initErrorCapture } from './lib/errorCapture';
 import { ConfirmDialog, FilledMapPin, Button } from './components/ui';
+import { Toaster, toast } from 'sonner';
 
 // Initialize global styles
 injectGlobalStyles();
@@ -1621,32 +1622,6 @@ function HexBadge({ badge, earned, size = 'medium', onClick }) {
   );
 }
 
-// Toast notification component
-function BloodyToast({ message, type = 'success', onClose }) {
-  useEffect(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  }, [onClose]);
-  
-  return (
-    <div
-      className="fixed right-4 z-50 animate-slide-in-right"
-      style={{ top: 'calc(var(--sat, 0px) + 16px)' }}
-    >
-      <div className={`rounded px-4 py-3 shadow-lg flex items-center gap-3 ${
-        type === 'success' ? 'bg-emerald-900/90 border border-emerald-700' :
-        type === 'badge' ? 'bg-purple-900/90 border border-purple-700' :
-        'bg-[#242424] border border-[#444]'
-      }`}>
-        {type === 'badge' ? <Trophy size={24} className="text-yellow-400" /> : <GlassWater size={24} className="text-red-400" />}
-        <div>
-          <p className="text-white font-semibold">{message}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Log Bloody Modal
 function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
   const [location, setLocation] = useState('');
@@ -1885,7 +1860,6 @@ function BloodiesTab() {
   });
   
   const [showLogModal, setShowLogModal] = useState(false);
-  const [toast, setToast] = useState(null);
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [newBadges, setNewBadges] = useState([]);
   
@@ -1923,11 +1897,15 @@ function BloodiesTab() {
     
     setBloodies(newBloodies);
     hapticSuccess();
-    const ratingText = bloodyData.rating > 0 ? `${'★'.repeat(bloodyData.rating)} ` : '';
-    const spiceText = bloodyData.spice > 0 ? `${'🔥'.repeat(bloodyData.spice)} ` : '';
-    setToast({
-      message: `${ratingText}${spiceText}at ${bloodyData.location}`,
-      type: 'success'
+
+    // Build toast message parts
+    const parts = [];
+    if (bloodyData.spice > 0) parts.push(`${bloodyData.spice}🔥`);
+    if (bloodyData.rating > 0) parts.push(`${bloodyData.rating}⭐`);
+    const prefix = parts.length > 0 ? `${parts.join(' ')} ` : '';
+
+    toast.success(`${prefix}Bloody at ${bloodyData.location}`, {
+      icon: <GlassWater size={18} className="text-red-400" />,
     });
     
     // Show badge unlock after a short delay
@@ -2260,16 +2238,7 @@ function BloodiesTab() {
         earned={selectedBadge && earnedBadges.has(selectedBadge.id)}
         onClose={() => setSelectedBadge(null)}
       />
-      
-      {/* Toast */}
-      {toast && (
-        <BloodyToast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
-      
+
       {/* Badge Unlock Modal */}
       <BadgeUnlockModal />
     </div>
@@ -4325,6 +4294,18 @@ export default function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <Toaster
+        theme="dark"
+        position="top-right"
+        offset={16}
+        toastOptions={{
+          style: {
+            background: '#161616',
+            border: '1px solid #333',
+            color: '#fff',
+          },
+        }}
+      />
     </AuthProvider>
   );
 }

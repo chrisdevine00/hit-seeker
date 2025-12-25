@@ -3097,60 +3097,64 @@ function MainApp() {
         </div>
       )}
 
-      {/* Debug Menu for Testing Geolocation Flows */}
-      <button
-        onClick={() => setShowDebugMenu(!showDebugMenu)}
-        className="fixed bottom-24 right-4 w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xs font-bold z-40 shadow-lg"
-      >
-        DEV
-      </button>
-      
-      {showDebugMenu && (
-        <div className="fixed bottom-36 right-4 bg-[#161616] border border-purple-500/50 rounded p-4 z-40 shadow-xl w-64">
-          <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3">Developer Tools</p>
-          
-          {/* Strategy Validator */}
+      {/* Debug Menu - Only visible to admin */}
+      {user?.email === 'christopher.devine@gmail.com' && (
+        <>
           <button
-            onClick={() => { setShowStrategyValidator(true); setShowDebugMenu(false); }}
-            className="w-full text-left px-3 py-2 rounded text-sm bg-[#0d0d0d] text-[#aaa] hover:text-white hover:bg-emerald-900/30 mb-3"
+            onClick={() => setShowDebugMenu(!showDebugMenu)}
+            className="fixed bottom-24 right-4 w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xs font-bold z-40 shadow-lg"
           >
-            Run Strategy Validator
+            DEV
           </button>
-          
-          <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-2">Geolocation Simulator</p>
-          <div className="space-y-2">
-            <button
-              onClick={() => { setDebugGeoMode('near-casino'); setShowDebugMenu(false); }}
-              className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'near-casino' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-            >
-              Near Casino (Bellagio)
-            </button>
-            <button
-              onClick={() => { setDebugGeoMode('not-near'); setShowDebugMenu(false); }}
-              className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'not-near' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-            >
-              Not Near Any Casino
-            </button>
-            <button
-              onClick={() => { setDebugGeoMode('error'); setShowDebugMenu(false); }}
-              className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'error' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-            >
-              Geolocation Error
-            </button>
-            <button
-              onClick={() => { setDebugGeoMode(null); setShowDebugMenu(false); }}
-              className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === null ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
-            >
-              Use Real Location
-            </button>
-          </div>
-          <p className="text-[#666] text-xs mt-3">
-            Current: <span className="text-purple-400">{debugGeoMode || 'Real'}</span>
-          </p>
-          <p className="text-[#555] text-xs mt-1">
-            Tap "Check In" button to test
-          </p>
-        </div>
+
+          {showDebugMenu && (
+            <div className="fixed bottom-36 right-4 bg-[#161616] border border-purple-500/50 rounded p-4 z-40 shadow-xl w-64">
+              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3">Developer Tools</p>
+
+              {/* Strategy Validator */}
+              <button
+                onClick={() => { setShowStrategyValidator(true); setShowDebugMenu(false); }}
+                className="w-full text-left px-3 py-2 rounded text-sm bg-[#0d0d0d] text-[#aaa] hover:text-white hover:bg-emerald-900/30 mb-3"
+              >
+                Run Strategy Validator
+              </button>
+
+              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-2">Geolocation Simulator</p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => { setDebugGeoMode('near-casino'); setShowDebugMenu(false); }}
+                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'near-casino' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
+                >
+                  Near Casino (Bellagio)
+                </button>
+                <button
+                  onClick={() => { setDebugGeoMode('not-near'); setShowDebugMenu(false); }}
+                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'not-near' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
+                >
+                  Not Near Any Casino
+                </button>
+                <button
+                  onClick={() => { setDebugGeoMode('error'); setShowDebugMenu(false); }}
+                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === 'error' ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
+                >
+                  Geolocation Error
+                </button>
+                <button
+                  onClick={() => { setDebugGeoMode(null); setShowDebugMenu(false); }}
+                  className={`w-full text-left px-3 py-2 rounded text-sm ${debugGeoMode === null ? 'bg-purple-600 text-white' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'}`}
+                >
+                  Use Real Location
+                </button>
+              </div>
+              <p className="text-[#666] text-xs mt-3">
+                Current: <span className="text-purple-400">{debugGeoMode || 'Real'}</span>
+              </p>
+              <p className="text-[#555] text-xs mt-1">
+                Tap "Check In" button to test
+              </p>
+            </div>
+          )}
+        </>
       )}
       
       {/* Strategy Validator Modal */}

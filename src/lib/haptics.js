@@ -1,0 +1,132 @@
+// Haptics utility with Capacitor native support and web fallback
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
+
+// Check if we're on a native platform
+const isNative = () => window.Capacitor?.isNativePlatform?.() ?? false;
+
+// Check if web vibration API is available
+const canVibrate = () => 'vibrate' in navigator;
+
+/**
+ * Light impact - for button taps, selections
+ */
+export const hapticLight = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } else if (canVibrate()) {
+      navigator.vibrate(10);
+    }
+  } catch (e) {
+    // Silently fail - haptics are non-critical
+  }
+};
+
+/**
+ * Medium impact - for confirmations, success actions
+ */
+export const hapticMedium = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.impact({ style: ImpactStyle.Medium });
+    } else if (canVibrate()) {
+      navigator.vibrate(20);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};
+
+/**
+ * Heavy impact - for important actions, errors
+ */
+export const hapticHeavy = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.impact({ style: ImpactStyle.Heavy });
+    } else if (canVibrate()) {
+      navigator.vibrate(30);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};
+
+/**
+ * Selection changed - for picker/tab changes
+ */
+export const hapticSelection = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.selectionChanged();
+    } else if (canVibrate()) {
+      navigator.vibrate(5);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};
+
+/**
+ * Success notification - for completed actions
+ */
+export const hapticSuccess = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.notification({ type: NotificationType.Success });
+    } else if (canVibrate()) {
+      navigator.vibrate([10, 50, 10]);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};
+
+/**
+ * Warning notification - for warnings
+ */
+export const hapticWarning = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.notification({ type: NotificationType.Warning });
+    } else if (canVibrate()) {
+      navigator.vibrate([20, 50, 20]);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};
+
+/**
+ * Error notification - for errors
+ */
+export const hapticError = async () => {
+  try {
+    if (isNative()) {
+      await Haptics.notification({ type: NotificationType.Error });
+    } else if (canVibrate()) {
+      navigator.vibrate([30, 50, 30, 50, 30]);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};
+
+/**
+ * Celebration - for badge unlocks, achievements
+ */
+export const hapticCelebration = async () => {
+  try {
+    if (isNative()) {
+      // Double heavy impact for celebration
+      await Haptics.impact({ style: ImpactStyle.Heavy });
+      setTimeout(async () => {
+        await Haptics.notification({ type: NotificationType.Success });
+      }, 100);
+    } else if (canVibrate()) {
+      navigator.vibrate([50, 30, 50, 30, 100]);
+    }
+  } catch (e) {
+    // Silently fail
+  }
+};

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { hapticLight } from '../../lib/haptics';
 
 const variants = {
   primary: 'bg-[#d4a855] hover:bg-[#c49745] text-black font-semibold',
@@ -35,6 +36,7 @@ export function Button({
   const shouldAnimate = animate && animatedVariants.includes(variant);
 
   const handleClick = (e) => {
+    hapticLight();
     if (shouldAnimate) {
       setIsAnimating(true);
       setTimeout(() => {

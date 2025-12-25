@@ -37,6 +37,7 @@ const BADGE_ICONS = {
 // Lib imports
 import { supabase } from './lib/supabase';
 import { theme, injectGlobalStyles } from './lib/theme';
+import { hapticLight, hapticSelection, hapticSuccess, hapticCelebration } from './lib/haptics';
 
 // Context imports
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -275,7 +276,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
               {[1, 2, 3, 4, 5].map(star => (
                 <button
                   key={star}
-                  onClick={() => setBloodyRating(bloodyRating === star ? 0 : star)}
+                  onClick={() => { hapticLight(); setBloodyRating(bloodyRating === star ? 0 : star); }}
                   className={`text-3xl transition-all hover:scale-110 ${
                     star <= bloodyRating ? 'text-yellow-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]' : 'text-gray-600'
                   }`}
@@ -293,7 +294,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
               {[1, 2, 3, 4, 5].map(fire => (
                 <button
                   key={fire}
-                  onClick={() => setBloodySpice(bloodySpice === fire ? 0 : fire)}
+                  onClick={() => { hapticLight(); setBloodySpice(bloodySpice === fire ? 0 : fire); }}
                   className={`transition-all hover:scale-110 ${
                     fire <= bloodySpice ? 'text-orange-500' : 'text-gray-600 opacity-40'
                   }`}
@@ -1740,7 +1741,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
             {[1, 2, 3, 4, 5].map(star => (
               <button
                 key={star}
-                onClick={() => setRating(rating === star ? 0 : star)}
+                onClick={() => { hapticLight(); setRating(rating === star ? 0 : star); }}
                 className={`text-3xl transition-all hover:scale-110 ${
                   star <= rating ? 'text-yellow-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]' : 'text-gray-600'
                 }`}
@@ -1758,7 +1759,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
             {[1, 2, 3, 4, 5].map(fire => (
               <button
                 key={fire}
-                onClick={() => setSpice(spice === fire ? 0 : fire)}
+                onClick={() => { hapticLight(); setSpice(spice === fire ? 0 : fire); }}
                 className={`transition-all hover:scale-110 ${
                   fire <= spice ? 'text-orange-500' : 'text-gray-600 opacity-40'
                 }`}
@@ -1912,6 +1913,7 @@ function BloodiesTab() {
     });
     
     setBloodies(newBloodies);
+    hapticSuccess();
     const ratingText = bloodyData.rating > 0 ? `${'★'.repeat(bloodyData.rating)} ` : '';
     const spiceText = bloodyData.spice > 0 ? `${'🔥'.repeat(bloodyData.spice)} ` : '';
     setToast({
@@ -1922,6 +1924,7 @@ function BloodiesTab() {
     // Show badge unlock after a short delay
     if (justEarned.length > 0) {
       setTimeout(() => {
+        hapticCelebration();
         setNewBadges(justEarned);
       }, 1500);
     }
@@ -2443,6 +2446,7 @@ function MainApp() {
 
   const confirmCheckIn = () => {
     if (pendingCheckIn) {
+      hapticSuccess();
       handleCheckIn(pendingCheckIn);
       setPendingCheckIn(null);
     }
@@ -4296,6 +4300,7 @@ function MainApp() {
             <button
               key={tab.id}
               onClick={() => {
+                hapticSelection();
                 if (activeTab !== tab.id) {
                   setAnimatingTab(tab.id);
                 }

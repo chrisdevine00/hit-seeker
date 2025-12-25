@@ -1,4 +1,5 @@
 import React from 'react';
+import { hapticSelection } from '../../lib/haptics';
 
 export function DesktopSidebar({ tabs, activeTab, onTabChange, animatingTab, setAnimatingTab }) {
   return (
@@ -16,6 +17,7 @@ export function DesktopSidebar({ tabs, activeTab, onTabChange, animatingTab, set
           <button
             key={tab.id}
             onClick={() => {
+              hapticSelection();
               if (activeTab !== tab.id) {
                 setAnimatingTab?.(tab.id);
               }

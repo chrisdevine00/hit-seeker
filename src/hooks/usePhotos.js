@@ -113,18 +113,36 @@ export function usePhotos() {
 
   const deletePhoto = async (machineId, photoId) => {
     const photo = photos[machineId]?.find(p => p.id === photoId);
-    if (!photo) return;
+    if (!photo) {
+      console.error('Photo not found:', { machineId, photoId, availablePhotos: photos[machineId] });
+      throw new Error('Photo not found');
+    }
 
     // Delete from storage
-    await supabase.storage
+    const { error: storageError } = await supabase.storage
       .from('machine-photos')
       .remove([photo.storage_path]);
 
+    if (storageError) {
+      console.error('Error deleting from storage:', storageError);
+    }
+
     // Delete from database
-    await supabase
+    const { error: dbError } = await supabase
       .from('machine_photos')
       .delete()
       .eq('id', photoId);
+
+    if (dbError) {
+      console.error('Error deleting from database:', dbError);
+      throw dbError;
+    }
+
+    // Manually update local state (don't rely on realtime)
+    setPhotos(prev => ({
+      ...prev,
+      [machineId]: (prev[machineId] || []).filter(p => p.id !== photoId)
+    }));
   };
 
   const getPhotoUrl = (photo) => {

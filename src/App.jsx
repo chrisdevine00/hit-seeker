@@ -676,9 +676,18 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [pendingFile, setPendingFile] = useState(null);
 
   const existingPhoto = photos.length > 0 ? photos[0] : null;
+
+  const handleDeleteConfirm = async () => {
+    if (existingPhoto) {
+      await onDeletePhoto(machine.id, existingPhoto.id);
+      toast.success('Photo deleted');
+    }
+    setShowDeleteConfirm(false);
+  };
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
@@ -741,6 +750,20 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
         </div>
       )}
 
+      {/* Delete Photo Confirmation */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-[#161616] rounded p-6 max-w-sm w-full border border-[#333]">
+            <h3 className="text-lg font-semibold text-white mb-2">Delete Photo?</h3>
+            <p className="text-[#bbbbbb] mb-6">This action cannot be undone.</p>
+            <div className="space-y-2">
+              <Button onClick={handleDeleteConfirm} variant="danger" className="w-full">Delete</Button>
+              <Button onClick={() => setShowDeleteConfirm(false)} variant="secondary" className="w-full">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <button 
         type="button" 
         onClick={(e) => {
@@ -776,13 +799,25 @@ function MachineDetail({ machine, onBack, onAddNote, photos, onAddPhoto, onDelet
         </div>
         
         <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} className="hidden" />
-        
+
         {existingPhoto && (
-          <button onClick={handlePhotoClick} className="text-[#d4a855] text-sm flex items-center gap-1 mb-3" disabled={uploading}>
-            <Camera size={14} /> {uploading ? 'Uploading...' : 'Replace Photo'}
-          </button>
+          <div className="flex gap-2 mb-3">
+            <button
+              onClick={handlePhotoClick}
+              className="flex-1 bg-[#0d0d0d] border border-[#333] hover:border-[#d4a855] text-[#aaa] hover:text-white text-sm flex items-center justify-center gap-2 py-2 px-3 rounded transition-colors"
+              disabled={uploading}
+            >
+              <Camera size={16} /> {uploading ? 'Uploading...' : 'Replace'}
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="bg-[#0d0d0d] border border-[#333] hover:border-red-500 text-[#aaa] hover:text-red-400 text-sm flex items-center justify-center gap-2 py-2 px-3 rounded transition-colors"
+            >
+              <Trash2 size={16} /> Delete
+            </button>
+          </div>
         )}
-        
+
         <p className="text-gray-300 bg-[#0d0d0d]/50 rounded p-3 text-sm">{machine.quickId}</p>
       </div>
 
@@ -3619,13 +3654,32 @@ function MainApp() {
               ) : (
                 <div className="grid grid-cols-3 gap-2">
                   {getMachinePhotos(selectedMachine.id).map(photo => (
-                    <button
-                      key={photo.id}
-                      onClick={() => setViewingPhoto(photo)}
-                      className="aspect-square rounded overflow-hidden bg-[#0d0d0d]"
-                    >
-                      <img src={getPhotoUrl(photo)} alt="" className="w-full h-full object-cover" />
-                    </button>
+                    <div key={photo.id} className="relative aspect-square rounded overflow-hidden bg-[#0d0d0d] group">
+                      <button
+                        onClick={() => setViewingPhoto(photo)}
+                        className="w-full h-full"
+                      >
+                        <img src={getPhotoUrl(photo)} alt="" className="w-full h-full object-cover" />
+                      </button>
+                      {/* Delete button overlay */}
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (confirm('Delete this photo?')) {
+                            try {
+                              await deletePhoto(selectedMachine.id, photo.id);
+                              toast.success('Photo deleted');
+                            } catch (err) {
+                              toast.error('Failed to delete photo');
+                              console.error('Delete photo error:', err);
+                            }
+                          }
+                        }}
+                        className="absolute top-1 right-1 w-7 h-7 bg-black/70 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+                      >
+                        <Trash2 size={14} className="text-white" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}

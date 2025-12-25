@@ -1941,13 +1941,13 @@ function BloodiesTab() {
   return (
     <div className="pb-24">
       {/* Header */}
-      <div className="px-4 py-2 border-b border-[#333]">
+      <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
         <h1 className="text-2xl font-bold text-white">Bloodies</h1>
         <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
       </div>
-      
+
       {/* Stats Cards */}
-      <div className="p-4 grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <div className="bg-[#1a1a1a] rounded p-4 text-center border border-[#333]">
           <div className="text-4xl font-bold text-white">{bloodies.length}</div>
           <div className="text-gray-500 text-sm">Lifetime</div>
@@ -1959,7 +1959,7 @@ function BloodiesTab() {
       </div>
       
       {/* Log Button */}
-      <div className="px-4 mb-6">
+      <div className="mt-4 mb-6">
         <Button
           onClick={() => setShowLogModal(true)}
           variant="danger"
@@ -1972,7 +1972,7 @@ function BloodiesTab() {
       </div>
       
       {/* Badges Section */}
-      <div className="px-4">
+      <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-white">Badges</h2>
           <span className="text-sm text-gray-500">{earnedBadges.size} / {BLOODY_BADGES.length}</span>
@@ -1994,7 +1994,7 @@ function BloodiesTab() {
       
       {/* Recent Bloodies */}
       {bloodies.length > 0 && (
-        <div className="px-4 mt-6">
+        <div className="mt-6">
           <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
           <div className="space-y-2">
             {bloodies.slice(-5).reverse().map(bloody => (

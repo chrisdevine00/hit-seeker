@@ -208,7 +208,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             // VP selection dropdowns
             <>
               <div>
-                <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Game</label>
+                <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Game <span className="text-red-500">*</span></label>
                 {selectedVPGame ? (
                   <button
                     onClick={() => { setSelectedVPGame(''); setSelectedVPPayTable(null); }}
@@ -307,7 +307,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       ) : (
         // Slot Selection
         <div>
-          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Machine</label>
+          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Machine <span className="text-red-500">*</span></label>
           {prefillData?.machine ? (
             <div className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium">
               {prefillData.machine}
@@ -337,7 +337,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
       
       {/* Casino */}
       <div>
-        <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Casino</label>
+        <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Casino {isBloody && <span className="text-red-500">*</span>}</label>
         {casino ? (
           <button
             onClick={() => setCasino('')}
@@ -1668,7 +1668,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
         
         {/* Location */}
         <div className="mb-4">
-          <label className="text-gray-400 text-sm mb-1 block">Location *</label>
+          <label className="text-gray-400 text-sm mb-1 block">Location <span className="text-red-500">*</span></label>
           {location && location !== 'custom' ? (
             <button
               onClick={() => setLocation('')}

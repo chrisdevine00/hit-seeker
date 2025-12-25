@@ -1946,6 +1946,7 @@ function BloodiesTab() {
         <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
       </div>
 
+      <div className="space-y-4">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-[#1a1a1a] rounded p-4 text-center border border-[#333]">
@@ -1959,7 +1960,7 @@ function BloodiesTab() {
       </div>
       
       {/* Log Button */}
-      <div className="mt-4 mb-6">
+      <div>
         <Button
           onClick={() => setShowLogModal(true)}
           variant="danger"
@@ -1994,7 +1995,7 @@ function BloodiesTab() {
       
       {/* Recent Bloodies */}
       {bloodies.length > 0 && (
-        <div className="mt-6">
+        <div>
           <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
           <div className="space-y-2">
             {bloodies.slice(-5).reverse().map(bloody => (
@@ -2025,7 +2026,8 @@ function BloodiesTab() {
           </div>
         </div>
       )}
-      
+      </div>
+
       {/* Log Modal */}
       <LogBloodyModal
         isOpen={showLogModal}
@@ -2949,6 +2951,7 @@ function MainApp() {
               <p className="text-gray-500 text-sm">Find advantage play opportunities</p>
             </div>
 
+            <div className="space-y-4">
             {/* Search and View Toggle Row */}
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -3195,6 +3198,7 @@ function MainApp() {
                 ))}
               </div>
             )}
+            </div>
           </div>
         )}
 

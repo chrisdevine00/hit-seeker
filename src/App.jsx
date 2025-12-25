@@ -298,7 +298,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                     fire <= bloodySpice ? 'text-orange-500' : 'text-gray-600 opacity-40'
                   }`}
                 >
-                  <Flame size={28} />
+                  <Flame size={28} fill="currentColor" />
                 </button>
               ))}
             </div>
@@ -517,7 +517,7 @@ function NoteCard({ note, onEdit, onDelete, isOwn }) {
                 )}
                 {note.bloodySpice > 0 && (
                   <span className="text-orange-500 text-sm flex items-center gap-0.5">
-                    {[...Array(note.bloodySpice)].map((_, i) => <Flame key={i} size={14} />)}
+                    {[...Array(note.bloodySpice)].map((_, i) => <Flame key={i} size={14} fill="currentColor" />)}
                   </span>
                 )}
               </div>
@@ -1763,7 +1763,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
                   fire <= spice ? 'text-orange-500' : 'text-gray-600 opacity-40'
                 }`}
               >
-                <Flame size={28} />
+                <Flame size={28} fill="currentColor" />
               </button>
             ))}
           </div>
@@ -2219,7 +2219,7 @@ function BloodiesTab() {
                     )}
                     {bloody.spice > 0 && (
                       <span className="flex text-orange-500">
-                        {[...Array(bloody.spice)].map((_, i) => <Flame key={i} size={14} />)}
+                        {[...Array(bloody.spice)].map((_, i) => <Flame key={i} size={14} fill="currentColor" />)}
                       </span>
                     )}
                   </div>

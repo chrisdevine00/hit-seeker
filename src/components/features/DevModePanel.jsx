@@ -376,25 +376,46 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
           {/* Badge Preview */}
           <div className="bg-[#0d0d0d] rounded-lg p-3">
             <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3">Badge Celebration Preview</p>
-            <p className="text-[#666] text-xs mb-3">Test different badge unlock effects</p>
-            <div className="grid grid-cols-3 gap-2">
+
+            {/* By Tier */}
+            <p className="text-[#666] text-xs mb-2">By Tier</p>
+            <div className="grid grid-cols-5 gap-1 mb-3">
               {[
-                { effect: 'confetti', label: 'Confetti', color: 'amber' },
-                { effect: 'fire', label: 'Fire', color: 'red' },
-                { effect: 'explode', label: 'Explode', color: 'purple' },
+                { key: 'common', label: 'Com', color: 'bg-gray-700' },
+                { key: 'uncommon', label: 'Unc', color: 'bg-green-900' },
+                { key: 'rare', label: 'Rare', color: 'bg-blue-900' },
+                { key: 'epic', label: 'Epic', color: 'bg-purple-900' },
+                { key: 'legendary', label: 'Leg', color: 'bg-amber-900' },
               ].map(opt => (
                 <button
-                  key={opt.effect}
+                  key={opt.key}
                   onClick={() => {
-                    console.log('Button clicked:', opt.effect, 'onPreviewBadge:', typeof onPreviewBadge);
-                    if (onPreviewBadge) {
-                      onPreviewBadge(opt.effect);
-                    } else {
-                      console.log('onPreviewBadge is not defined!');
-                    }
+                    if (onPreviewBadge) onPreviewBadge(opt.key);
                     hapticLight();
                   }}
-                  className="px-3 py-2 rounded text-sm bg-[#1a1a1a] text-[#aaa] hover:text-white hover:bg-[#333] transition-colors"
+                  className={`px-2 py-1.5 rounded text-xs ${opt.color} text-white hover:opacity-80 transition-opacity`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+
+            {/* By Domain */}
+            <p className="text-[#666] text-xs mb-2">By Domain</p>
+            <div className="grid grid-cols-4 gap-1">
+              {[
+                { key: 'slot', label: 'Slots', color: 'bg-amber-800' },
+                { key: 'vp', label: 'VP', color: 'bg-sky-800' },
+                { key: 'bloody', label: 'Bloody', color: 'bg-red-800' },
+                { key: 'trip', label: 'Trip', color: 'bg-green-800' },
+              ].map(opt => (
+                <button
+                  key={opt.key}
+                  onClick={() => {
+                    if (onPreviewBadge) onPreviewBadge(opt.key);
+                    hapticLight();
+                  }}
+                  className={`px-2 py-1.5 rounded text-xs ${opt.color} text-white hover:opacity-80 transition-opacity`}
                 >
                   {opt.label}
                 </button>

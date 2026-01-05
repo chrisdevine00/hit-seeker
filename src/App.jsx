@@ -1898,17 +1898,25 @@ function MainApp() {
   const [showStrategyValidator, setShowStrategyValidator] = useState(false);
   const [previewBadges, setPreviewBadges] = useState([]);
 
-  // Test badges for previewing effects
+  // Test badges for previewing effects - organized by domain and tier
   const TEST_BADGES = {
-    confetti: { id: 'test-confetti', name: 'First Spot', description: 'Log your first slot spot', icon: 'target', color: 'amber', effect: 'confetti', tier: 'common' },
-    fire: { id: 'test-fire', name: 'Centurion', description: 'Log 100 slot spots', icon: 'crown', color: 'red', effect: 'fire', tier: 'legendary' },
-    explode: { id: 'test-explode', name: 'Holy Grail', description: 'Find a 100%+ return VP machine', icon: 'trophy', color: 'purple', effect: 'explode', tier: 'epic' },
+    // By tier (slot domain)
+    'common': { id: 'test-common', name: 'First Spot', description: 'Log your first slot spot', icon: 'target', color: 'amber', effect: 'none', tier: 'common', domain: 'slot' },
+    'uncommon': { id: 'test-uncommon', name: 'Sharp Eye', description: 'Log 10 slot spots', icon: 'eye', color: 'amber', effect: 'confetti', tier: 'uncommon', domain: 'slot' },
+    'rare': { id: 'test-rare', name: 'Quarter Century', description: 'Log 25 slot spots', icon: 'hash', color: 'gold', effect: 'confetti', tier: 'rare', domain: 'slot' },
+    'epic': { id: 'test-epic', name: 'Half Ton', description: 'Log 50 slot spots', icon: 'trophy', color: 'gold', effect: 'fire', tier: 'epic', domain: 'slot' },
+    'legendary': { id: 'test-legendary', name: 'Centurion', description: 'Log 100 slot spots', icon: 'crown', color: 'gold', effect: 'explode', tier: 'legendary', domain: 'slot' },
+    // By domain
+    'slot': { id: 'test-slot', name: 'Golden Eye', description: 'Mark 25 spots as Playable', icon: 'sparkles', color: 'gold', effect: 'fire', tier: 'epic', domain: 'slot' },
+    'vp': { id: 'test-vp', name: 'Holy Grail', description: 'Find a 100%+ return table', icon: 'gem', color: 'gold', effect: 'fire', tier: 'epic', domain: 'vp' },
+    'bloody': { id: 'test-bloody', name: 'Strip Crawler', description: '5 different Strip casinos', icon: 'dices', color: 'gold', effect: 'fire', tier: 'epic', domain: 'bloody' },
+    'trip': { id: 'test-trip', name: 'Vegas Regular', description: 'Trip in consecutive months', icon: 'calendar-check', color: 'emerald', effect: 'fire', tier: 'epic', domain: 'trip' },
   };
 
-  const handlePreviewBadge = (effectType) => {
-    console.log('Preview badge triggered:', effectType, TEST_BADGES[effectType]);
+  const handlePreviewBadge = (badgeKey) => {
+    console.log('Preview badge triggered:', badgeKey, TEST_BADGES[badgeKey]);
     setShowDebugMenu(false);
-    const badge = TEST_BADGES[effectType];
+    const badge = TEST_BADGES[badgeKey];
     if (badge) {
       setPreviewBadges([badge]);
     }

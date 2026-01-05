@@ -5,6 +5,24 @@ import { BADGE_COLORS } from '../definitions/badgeColors';
 import { BADGE_ICONS } from '../definitions/badgeIcons';
 import { Button } from '../../components/ui';
 
+// Domain color themes for light rays
+const DOMAIN_COLORS = {
+  bloody: { primary: '#dc2626', secondary: '#fca5a5', glow: 'rgba(220, 38, 38, 0.4)' },
+  slot: { primary: '#d4a855', secondary: '#ffd700', glow: 'rgba(212, 168, 85, 0.4)' },
+  vp: { primary: '#0ea5e9', secondary: '#7dd3fc', glow: 'rgba(14, 165, 233, 0.4)' },
+  trip: { primary: '#22c55e', secondary: '#86efac', glow: 'rgba(34, 197, 94, 0.4)' },
+  casino: { primary: '#a855f7', secondary: '#d8b4fe', glow: 'rgba(168, 85, 247, 0.4)' },
+};
+
+// Tier-based settings
+const TIER_SETTINGS = {
+  common: { rayOpacity: 0.3, raySpeed: 8, glowIntensity: 0.3, celebration: 'none' },
+  uncommon: { rayOpacity: 0.5, raySpeed: 6, glowIntensity: 0.5, celebration: 'confetti' },
+  rare: { rayOpacity: 0.7, raySpeed: 4, glowIntensity: 0.7, celebration: 'confetti' },
+  epic: { rayOpacity: 0.9, raySpeed: 3, glowIntensity: 0.9, celebration: 'fire' },
+  legendary: { rayOpacity: 1.0, raySpeed: 2, glowIntensity: 1.0, celebration: 'explode' },
+};
+
 // Badge unlock celebration modal with enhanced effects
 export function BadgeUnlockModal({ badges, onDismiss }) {
   const [showBadge, setShowBadge] = useState(false);
@@ -15,7 +33,13 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
   // Get badge info (with fallbacks)
   const badge = badges?.[0];
   const colors = BADGE_COLORS[badge?.color] || BADGE_COLORS.amber;
-  const effectType = badge?.effect || 'confetti';
+  const domain = badge?.domain || 'slot';
+  const tier = badge?.tier || 'common';
+  const domainColors = DOMAIN_COLORS[domain] || DOMAIN_COLORS.slot;
+  const tierSettings = TIER_SETTINGS[tier] || TIER_SETTINGS.common;
+
+  // Use tier-based celebration unless explicitly set on badge
+  const effectType = badge?.effect || tierSettings.celebration;
   const IconComponent = badge ? BADGE_ICONS[badge.icon] : null;
 
   // Explosion positions for major badges
@@ -50,15 +74,12 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
     const end = Date.now() + duration;
     const colors = getColorPalette(badgeColor);
 
-    // Heat colors for fire/explode
-    const heatColors = ['#ff4500', '#ff6b00', '#ff8c00', '#ffa500', '#ffcc00', '#ff0000'];
-
     // Initial big burst from center
     confetti({
       particleCount: 150,
       spread: 100,
       origin: { y: 0.5, x: 0.5 },
-      colors: effect === 'fire' || effect === 'explode' ? heatColors : colors,
+      colors: colors,
       startVelocity: 55,
       gravity: 0.8,
       shapes: ['circle', 'square'],
@@ -71,13 +92,13 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         particleCount: 80,
         spread: 120,
         origin: { y: 0.55, x: 0.5 },
-        colors: effect === 'fire' || effect === 'explode' ? heatColors : colors,
+        colors: colors,
         startVelocity: 40,
         gravity: 1,
       });
     }, 200);
 
-    // Continuous side cannons (independent effect)
+    // Continuous side cannons
     const cannonInterval = setInterval(() => {
       if (Date.now() > end) {
         clearInterval(cannonInterval);
@@ -88,7 +109,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         angle: 60,
         spread: 40,
         origin: { x: 0, y: 0.7 },
-        colors: effect === 'fire' || effect === 'explode' ? heatColors : colors,
+        colors: colors,
         startVelocity: 35,
         gravity: 0.9,
       });
@@ -97,20 +118,18 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         angle: 120,
         spread: 40,
         origin: { x: 1, y: 0.7 },
-        colors: effect === 'fire' || effect === 'explode' ? heatColors : colors,
+        colors: colors,
         startVelocity: 35,
         gravity: 0.9,
       });
     }, 300);
 
-    // Confetti rain from top - random positions across full width
+    // Confetti rain from top
     const sparkleInterval = setInterval(() => {
       if (Date.now() > end) {
         clearInterval(sparkleInterval);
         return;
       }
-
-      // Fire multiple small bursts from random x positions across the screen
       for (let i = 0; i < 6; i++) {
         confetti({
           particleCount: 2,
@@ -130,35 +149,32 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
     confettiRef.current = { cannon: cannonInterval, sparkle: sparkleInterval };
   }, [getColorPalette]);
 
-  // Heat particles effect (for fire/explode) - slow rising embers
+  // Heat particles effect (for fire/explode)
   const fireHeatParticles = useCallback(() => {
     const duration = 3500;
     const end = Date.now() + duration;
     const heatColors = ['#cc3300', '#b32d00', '#992600', '#e64500', '#cc2200', '#8b1a00'];
 
-    // Slow rising embers - minimal velocity, strong negative gravity pulls them up
     const heatInterval = setInterval(() => {
       if (Date.now() > end) {
         clearInterval(heatInterval);
         return;
       }
-
-      // Spawn embers across the bottom, they float up slowly
       for (let i = 0; i < 5; i++) {
-        const xPos = 0.15 + Math.random() * 0.7; // Spread across 70% of screen width
+        const xPos = 0.15 + Math.random() * 0.7;
         confetti({
           particleCount: 1,
           angle: 90,
           spread: 0,
           origin: { x: xPos, y: 1.05 },
           colors: [heatColors[Math.floor(Math.random() * heatColors.length)]],
-          startVelocity: 2 + Math.random() * 3, // Very slow start
-          gravity: -0.15 - Math.random() * 0.1, // Gentle upward pull
-          scalar: 0.4 + Math.random() * 0.3, // Small particles
-          drift: (Math.random() - 0.5) * 1.5, // Gentle wiggle
-          ticks: 300 + Math.random() * 200, // Long life to rise high
+          startVelocity: 2 + Math.random() * 3,
+          gravity: -0.15 - Math.random() * 0.1,
+          scalar: 0.4 + Math.random() * 0.3,
+          drift: (Math.random() - 0.5) * 1.5,
+          ticks: 300 + Math.random() * 200,
           shapes: ['circle'],
-          decay: 0.92 + Math.random() * 0.05, // Slow fade
+          decay: 0.92 + Math.random() * 0.05,
         });
       }
     }, 50);
@@ -166,7 +182,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
     return heatInterval;
   }, []);
 
-  // Generate sparkle particles - fade in, rise, rotate, fade out, then respawn elsewhere
+  // Generate sparkle particles
   const generateSparkles = useCallback(() => {
     const newSparkles = [];
     for (let i = 0; i < 25; i++) {
@@ -174,24 +190,22 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         id: i,
         left: 5 + Math.random() * 90,
         top: 10 + Math.random() * 80,
-        size: 10 + Math.random() * 12, // 10-22px
-        rotation: 45 + Math.random() * 30, // 45-75 degree rotation (gentler)
-        duration: 1.8 + Math.random() * 1.2, // 1.8-3s lifecycle (slower)
-        delay: Math.random() * 2, // Stagger initial appearance
-        key: Date.now() + i, // Unique key for re-render
+        size: 10 + Math.random() * 12,
+        rotation: 45 + Math.random() * 30,
+        duration: 1.8 + Math.random() * 1.2,
+        delay: Math.random() * 2,
+        key: Date.now() + i,
       });
     }
     setSparkles(newSparkles);
   }, []);
 
-  // Respawn sparkles at new random locations after they complete animation
+  // Respawn sparkles
   const sparkleIntervalRef = useRef(null);
   useEffect(() => {
     if (sparkles.length > 0) {
-      // Every 600ms, respawn a few sparkles at new locations
       sparkleIntervalRef.current = setInterval(() => {
         setSparkles(prev => prev.map(sparkle => {
-          // 20% chance to respawn each sparkle at new location
           if (Math.random() < 0.2) {
             return {
               ...sparkle,
@@ -200,8 +214,8 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
               size: 10 + Math.random() * 12,
               rotation: 45 + Math.random() * 30,
               duration: 1.8 + Math.random() * 1.2,
-              delay: 0, // No delay on respawn
-              key: Date.now() + sparkle.id, // New key forces animation restart
+              delay: 0,
+              key: Date.now() + sparkle.id,
             };
           }
           return sparkle;
@@ -234,14 +248,14 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
     const badgeTimer = setTimeout(() => {
       setShowBadge(true);
 
-      // Fire confetti for confetti effect type - uses badge color
+      // Fire confetti for confetti effect type
       if (effectType === 'confetti') {
         fireConfetti(badge.color, effectType);
         generateSparkles();
       }
     }, 100);
 
-    // For explosion effect - heat particles, no regular confetti
+    // For explosion effect
     if (effectType === 'explode') {
       const newExplosions = explosionPositions.map((pos, i) => ({
         id: i,
@@ -251,7 +265,6 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
       }));
       setExplosions(newExplosions);
 
-      // Stagger the explosions
       explosionPositions.forEach((pos, i) => {
         setTimeout(() => {
           setExplosions(prev => prev.map(exp =>
@@ -271,10 +284,9 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
           ));
         }, pos.delay + 1450);
       });
-
     }
 
-    // Fire effect - heat particles rising (no sparkles)
+    // Fire effect
     if (effectType === 'fire') {
       setTimeout(() => {
         heatInterval = fireHeatParticles();
@@ -311,9 +323,47 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
   // Early return AFTER all hooks
   if (!badges || badges.length === 0 || !badge) return null;
 
+  // Generate light rays with domain colors
+  const rayCount = tier === 'legendary' ? 16 : 12;
+
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 overflow-hidden">
-      {/* Animated background glow */}
+      {/* Light rays - always visible, intensity based on tier */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          opacity: showBadge ? 1 : 0,
+          transition: 'opacity 0.5s ease-out',
+        }}
+      >
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          style={{
+            width: '200%',
+            height: '200%',
+            animation: showBadge ? `spin-rays ${tierSettings.raySpeed}s linear infinite` : 'none',
+          }}
+        >
+          {[...Array(rayCount)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute left-1/2 top-1/2 origin-top"
+              style={{
+                width: tier === 'legendary' ? '4px' : '3px',
+                height: '50%',
+                background: tier === 'legendary'
+                  ? `linear-gradient(to bottom, transparent 10%, ${['#ff6b6b', '#ffd700', '#4ade80', '#60a5fa', '#a855f7'][i % 5]} 30%, transparent 100%)`
+                  : `linear-gradient(to bottom, transparent 10%, ${domainColors.primary} 30%, ${domainColors.secondary} 60%, transparent 100%)`,
+                transform: `translate(-50%, 0) rotate(${i * (360 / rayCount)}deg)`,
+                opacity: tierSettings.rayOpacity * (0.5 + Math.random() * 0.5),
+                filter: `blur(${tier === 'legendary' ? 2 : 1}px)`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Radial glow behind badge */}
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-500"
         style={{
@@ -321,13 +371,13 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
             ? 'linear-gradient(to top, rgba(255, 60, 0, 0.6) 0%, rgba(255, 40, 0, 0.4) 25%, rgba(200, 30, 0, 0.2) 45%, transparent 60%)'
             : effectType === 'explode'
             ? undefined
-            : 'radial-gradient(circle at 50% 50%, rgba(212, 168, 85, 0.25) 0%, transparent 60%)',
-          opacity: showBadge ? 1 : 0,
+            : `radial-gradient(circle at 50% 50%, ${domainColors.glow} 0%, transparent 60%)`,
+          opacity: showBadge ? tierSettings.glowIntensity : 0,
           animation: showBadge && effectType !== 'explode' ? 'pulse-glow 2s ease-in-out infinite' : 'none',
         }}
       />
 
-      {/* Explode nebula glow - multiple layered gradients */}
+      {/* Explode nebula glow */}
       {effectType === 'explode' && (
         <>
           <div
@@ -357,7 +407,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         </>
       )}
 
-      {/* Floating sparkles - fade in, rise, rotate, fade out */}
+      {/* Floating sparkles */}
       {sparkles.map(sparkle => (
         <div
           key={sparkle.key}
@@ -374,35 +424,14 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
             animationDelay: `${sparkle.delay}s`,
           }}
         >
-          <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" style={{ filter: 'drop-shadow(0 0 3px rgba(255, 215, 0, 0.6))' }}>
+          <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" style={{ filter: `drop-shadow(0 0 3px ${domainColors.secondary})` }}>
             <path
               d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"
-              fill={effectType === 'fire' || effectType === 'explode' ? 'rgba(255, 150, 50, 1)' : 'rgba(255, 215, 0, 1)'}
+              fill={domainColors.secondary}
             />
           </svg>
         </div>
       ))}
-
-      {/* Shimmer rays */}
-      {showBadge && (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {[...Array(8)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute left-1/2 top-1/2 origin-center"
-              style={{
-                width: '2px',
-                height: '150%',
-                background: 'linear-gradient(to bottom, transparent, rgba(255, 215, 0, 0.3), transparent)',
-                transform: `translate(-50%, -50%) rotate(${i * 45}deg)`,
-                animation: 'shimmer-ray 3s ease-in-out infinite',
-                animationDelay: `${i * 0.2}s`,
-                opacity: 0.5,
-              }}
-            />
-          ))}
-        </div>
-      )}
 
       {/* Explosion effects */}
       {effectType === 'explode' && explosions.map(exp => exp.visible && (
@@ -430,32 +459,45 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         </div>
       ))}
 
-      {/* Main content */}
+      {/* Main content with 3D spin entry */}
       <div
         className="text-center relative z-[100]"
         style={{
           opacity: showBadge ? 1 : 0,
-          transform: showBadge ? 'scale(1)' : 'scale(0.5)',
-          transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
+          transform: showBadge ? 'perspective(1000px) rotateY(0deg) scale(1)' : 'perspective(1000px) rotateY(180deg) scale(0.5)',
+          transition: 'all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
       >
-        {/* Header with animated sparkles */}
-        <div className="mb-2 text-yellow-400 text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2">
+        {/* Header */}
+        <div className="mb-2 text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2" style={{ color: domainColors.secondary }}>
           <Sparkles size={16} className="animate-pulse" />
-          <span className="animate-shimmer bg-gradient-to-r from-yellow-400 via-yellow-200 to-yellow-400 bg-clip-text text-transparent bg-[length:200%_100%]">
+          <span
+            className="bg-clip-text text-transparent bg-[length:200%_100%]"
+            style={{
+              backgroundImage: `linear-gradient(90deg, ${domainColors.secondary}, white, ${domainColors.secondary})`,
+              animation: 'shimmer 2s linear infinite',
+            }}
+          >
             Badge Unlocked!
           </span>
           <Sparkles size={16} className="animate-pulse" />
         </div>
 
-        {/* Badge with effects */}
-        <div className="relative mx-auto mb-4" style={{ width: '200px', height: '220px' }}>
+        {/* Badge container with levitation */}
+        <div
+          className="relative mx-auto mb-4"
+          style={{
+            width: '200px',
+            height: '240px',
+            animation: showBadge ? 'levitate 3s ease-in-out infinite' : 'none',
+          }}
+        >
           {/* Fire effect */}
           {effectType === 'fire' && (
             <div
               className="absolute left-1/2 transform -translate-x-1/2"
               style={{
-                bottom: '25px',
+                bottom: '45px',
                 width: '240px',
                 height: '260px',
                 zIndex: 1
@@ -476,9 +518,9 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
           <div
             className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full"
             style={{
-              width: '160px',
-              height: '160px',
-              background: `radial-gradient(circle, ${effectType === 'fire' ? 'rgba(255,100,0,0.4)' : 'rgba(212,168,85,0.3)'} 0%, transparent 70%)`,
+              width: '180px',
+              height: '180px',
+              background: `radial-gradient(circle, ${domainColors.glow} 0%, transparent 70%)`,
               animation: 'pulse-ring 1.5s ease-in-out infinite',
               zIndex: 0,
             }}
@@ -486,16 +528,14 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
 
           {/* Hexagon badge */}
           <div
-            className="absolute left-1/2 transform -translate-x-1/2 bottom-0"
-            style={{ zIndex: 10 }}
+            className="absolute left-1/2 transform -translate-x-1/2"
+            style={{ zIndex: 10, top: '20px' }}
           >
             <div
-              className={`w-32 h-[140px] bg-gradient-to-b ${colors.outline} flex items-center justify-center shadow-lg`}
+              className={`w-32 h-[140px] bg-gradient-to-b ${colors.outline} flex items-center justify-center`}
               style={{
                 clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                boxShadow: effectType === 'fire' ? '0 0 80px rgba(255, 80, 0, 0.8), 0 0 120px rgba(255, 50, 0, 0.4)' :
-                           effectType === 'explode' ? '0 0 80px rgba(255, 150, 0, 0.7), 0 0 120px rgba(255, 100, 0, 0.4)' :
-                           '0 0 40px rgba(212, 168, 85, 0.4)',
+                boxShadow: `0 0 ${40 + tierSettings.glowIntensity * 40}px ${domainColors.glow}, 0 0 ${80 + tierSettings.glowIntensity * 40}px ${domainColors.glow}`,
                 animation: 'badge-glow 2s ease-in-out infinite',
               }}
             >
@@ -513,10 +553,26 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
               </div>
             </div>
           </div>
+
+          {/* Shadow for levitation effect */}
+          <div
+            className="absolute left-1/2 transform -translate-x-1/2"
+            style={{
+              bottom: '0px',
+              width: '100px',
+              height: '20px',
+              background: 'radial-gradient(ellipse, rgba(0,0,0,0.4), transparent)',
+              borderRadius: '50%',
+              animation: showBadge ? 'shadow-pulse 3s ease-in-out infinite' : 'none',
+            }}
+          />
         </div>
 
         <h2 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">{badge.name}</h2>
-        <p className="text-gray-400 mb-6">{badge.description}</p>
+        <p className="text-gray-400 mb-1">{badge.description}</p>
+        <p className="text-xs uppercase tracking-wider mb-6" style={{ color: domainColors.primary }}>
+          {tier} • {domain}
+        </p>
 
         <Button
           onClick={handleDismiss}
@@ -530,15 +586,24 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
 
       {/* CSS Animations */}
       <style>{`
+        @keyframes spin-rays {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes levitate {
+          0%, 100% { transform: translateX(-50%) translateY(0); }
+          50% { transform: translateX(-50%) translateY(-12px); }
+        }
+
+        @keyframes shadow-pulse {
+          0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.4; }
+          50% { transform: translateX(-50%) scale(0.7); opacity: 0.2; }
+        }
+
         @keyframes sparkle-lifecycle {
-          0% {
-            opacity: 0;
-            transform: translateY(0) rotate(0deg) scale(0.7);
-          }
-          100% {
-            opacity: 0;
-            transform: translateY(-35px) rotate(var(--sparkle-rotation)) scale(0.7);
-          }
+          0% { transform: translateY(0) rotate(0deg) scale(0.7); }
+          100% { transform: translateY(-35px) rotate(var(--sparkle-rotation)) scale(0.7); }
         }
 
         @keyframes sparkle-opacity {
@@ -568,56 +633,23 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         }
 
         @keyframes pulse-glow {
-          0%, 100% {
-            opacity: 0.6;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 1;
-            transform: scale(1.05);
-          }
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
         }
 
         @keyframes pulse-ring {
-          0%, 100% {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 0.5;
-          }
-          50% {
-            transform: translate(-50%, -50%) scale(1.2);
-            opacity: 0.8;
-          }
-        }
-
-        @keyframes shimmer-ray {
-          0%, 100% {
-            opacity: 0.2;
-          }
-          50% {
-            opacity: 0.6;
-          }
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
+          50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
         }
 
         @keyframes badge-glow {
-          0%, 100% {
-            filter: brightness(1);
-          }
-          50% {
-            filter: brightness(1.2);
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 2s linear infinite;
+          0%, 100% { filter: brightness(1); }
+          50% { filter: brightness(1.2); }
         }
 
         @keyframes shimmer {
-          0% {
-            background-position: 200% 0;
-          }
-          100% {
-            background-position: -200% 0;
-          }
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
       `}</style>
     </div>

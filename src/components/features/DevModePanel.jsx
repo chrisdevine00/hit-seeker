@@ -402,12 +402,12 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
 
             {/* By Domain */}
             <p className="text-[#666] text-xs mb-2">By Domain</p>
-            <div className="grid grid-cols-4 gap-1">
+            <div className="grid grid-cols-4 gap-1 mb-3">
               {[
                 { key: 'slot', label: 'Slots', color: 'bg-amber-800' },
-                { key: 'vp', label: 'VP', color: 'bg-sky-800' },
+                { key: 'vp', label: 'VP', color: 'bg-green-800' },
                 { key: 'bloody', label: 'Bloody', color: 'bg-red-800' },
-                { key: 'trip', label: 'Trip', color: 'bg-green-800' },
+                { key: 'trip', label: 'Trip', color: 'bg-gradient-to-r from-pink-600 via-yellow-500 to-green-500' },
               ].map(opt => (
                 <button
                   key={opt.key}
@@ -420,6 +420,20 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
                   {opt.label}
                 </button>
               ))}
+            </div>
+
+            {/* Special Effects */}
+            <p className="text-[#666] text-xs mb-2">Special Effects</p>
+            <div className="grid grid-cols-1 gap-1">
+              <button
+                onClick={() => {
+                  if (onPreviewBadge) onPreviewBadge('spicy');
+                  hapticLight();
+                }}
+                className="px-2 py-1.5 rounded text-xs bg-gradient-to-r from-orange-600 to-red-600 text-white hover:opacity-80 transition-opacity flex items-center justify-center gap-1"
+              >
+                🔥 Spicy (Fire Effect)
+              </button>
             </div>
           </div>
 

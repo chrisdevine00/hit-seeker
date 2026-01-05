@@ -12,35 +12,48 @@ export const STRIP_CASINO_IDS = [
 // Badge definitions with criteria
 export const BLOODY_BADGES = [
   // Milestones
-  { id: 'first-blood', name: 'First Blood', description: 'Log your first bloody', category: 'milestone', domain: 'bloody', icon: 'droplet', color: 'red', effect: 'confetti', tier: 'common' },
-  { id: 'getting-started', name: 'Getting Started', description: 'Log 5 bloodies', category: 'milestone', domain: 'bloody', icon: 'rocket', color: 'blue', effect: 'confetti', tier: 'common' },
-  { id: 'double-digits', name: 'Double Digits', description: 'Log 10 bloodies', category: 'milestone', domain: 'bloody', icon: 'hash', color: 'purple', effect: 'explode', tier: 'uncommon' },
+  { id: 'first-blood', name: 'First Blood', description: 'Log your first bloody', category: 'milestone', domain: 'bloody', icon: 'droplet', color: 'red', effect: 'none', tier: 'common' },
+  { id: 'getting-started', name: 'Getting Started', description: 'Log 5 bloodies', category: 'milestone', domain: 'bloody', icon: 'rocket', color: 'blue', effect: 'none', tier: 'common' },
+  { id: 'double-digits', name: 'Double Digits', description: 'Log 10 bloodies', category: 'milestone', domain: 'bloody', icon: 'hash', color: 'purple', effect: 'confetti', tier: 'uncommon' },
   // Daily Frequency
-  { id: 'back-to-back', name: 'Back to Back', description: '2 bloodies within 30 minutes', category: 'frequency', domain: 'bloody', icon: 'zap', color: 'yellow', effect: 'confetti', tier: 'common' },
+  { id: 'back-to-back', name: 'Back to Back', description: '2 bloodies within 30 minutes', category: 'frequency', domain: 'bloody', icon: 'zap', color: 'yellow', effect: 'none', tier: 'common' },
   { id: 'triple-threat', name: 'Triple Threat', description: '3 bloodies in one day', category: 'frequency', domain: 'bloody', icon: 'three', color: 'orange', effect: 'confetti', tier: 'uncommon' },
-  { id: 'high-five', name: 'High Five', description: '5 bloodies in one day', category: 'frequency', domain: 'bloody', icon: 'hand', color: 'pink', effect: 'explode', tier: 'rare' },
+  { id: 'high-five', name: 'High Five', description: '5 bloodies in one day', category: 'frequency', domain: 'bloody', icon: 'hand', color: 'pink', effect: 'confetti', tier: 'rare' },
   // Location
-  { id: 'regular', name: 'Regular', description: 'Same location 3+ times', category: 'location', domain: 'bloody', icon: 'home', color: 'teal', effect: 'confetti', tier: 'common' },
+  { id: 'regular', name: 'Regular', description: 'Same location 3+ times', category: 'location', domain: 'bloody', icon: 'home', color: 'teal', effect: 'none', tier: 'common' },
   { id: 'explorer', name: 'Explorer', description: '5 different locations', category: 'location', domain: 'bloody', icon: 'compass', color: 'green', effect: 'confetti', tier: 'uncommon' },
-  { id: 'wanderer', name: 'Wanderer', description: '10 different locations', category: 'location', domain: 'bloody', icon: 'map-pinned', color: 'emerald', effect: 'explode', tier: 'rare' },
-  { id: 'strip-crawler', name: 'Strip Crawler', description: '5 different Strip casinos', category: 'location', domain: 'bloody', icon: 'dices', color: 'gold', effect: 'explode', tier: 'epic' },
+  { id: 'wanderer', name: 'Wanderer', description: '10 different locations', category: 'location', domain: 'bloody', icon: 'map-pinned', color: 'emerald', effect: 'confetti', tier: 'rare' },
+  { id: 'strip-crawler', name: 'Strip Crawler', description: '5 different Strip casinos', category: 'location', domain: 'bloody', icon: 'dices', color: 'gold', effect: 'confetti', tier: 'epic' },
   // Rating
-  { id: 'five-star-find', name: 'Five Star Find', description: 'Log a 5-star bloody', category: 'rating', domain: 'bloody', icon: 'star', color: 'yellow', effect: 'confetti', tier: 'common' },
+  { id: 'five-star-find', name: 'Five Star Find', description: 'Log a 5-star bloody', category: 'rating', domain: 'bloody', icon: 'star', color: 'yellow', effect: 'none', tier: 'common' },
   { id: 'tough-crowd', name: 'Tough Crowd', description: 'Log a 1-star bloody', category: 'rating', domain: 'bloody', icon: 'thumbs-down', color: 'gray', effect: 'none', tier: 'common' },
   // Spice - these get fire effects!
-  { id: 'cough-cough', name: 'Cough, Cough', description: 'Log a 5-fire spice rating', category: 'spice', domain: 'bloody', icon: 'flame', color: 'red', effect: 'fire', tier: 'uncommon' },
-  { id: 'heat-seeker', name: 'Heat Seeker', description: 'Log five 5-fire bloodies', category: 'spice', domain: 'bloody', icon: 'pepper', color: 'orange', effect: 'explode', tier: 'rare' },
+  // Common spicy badges
+  { id: 'first-flame', name: 'First Flame', description: 'Log your first spicy bloody', category: 'spice', domain: 'bloody', icon: 'flame', color: 'red', effect: 'fire', tier: 'common' },
+  { id: 'jalapeno-starter', name: 'Jalapeño Starter', description: 'Try a mild-spicy bloody (2-3 heat)', category: 'spice', domain: 'bloody', icon: 'leaf', color: 'green', effect: 'fire', tier: 'common' },
+  { id: 'morning-burn', name: 'Morning Burn', description: 'Order a spicy bloody before 10am', category: 'spice', domain: 'bloody', icon: 'sunrise', color: 'orange', effect: 'fire', tier: 'common' },
+  { id: 'capsaicin-curious', name: 'Capsaicin Curious', description: 'Try spicy bloodies at 2 different venues', category: 'spice', domain: 'bloody', icon: 'map-pin', color: 'red', effect: 'fire', tier: 'common' },
   { id: 'mild-mannered', name: 'Mild Mannered', description: 'Log a 1-fire bloody', category: 'spice', domain: 'bloody', icon: 'milk', color: 'blue', effect: 'none', tier: 'common' },
-  { id: 'spice-spectrum', name: 'Spice Spectrum', description: 'Log all 5 spice levels', category: 'spice', domain: 'bloody', icon: 'rainbow', color: 'purple', effect: 'explode', tier: 'epic' },
-  { id: 'playing-it-safe', name: 'Playing It Safe', description: '5 in a row at 1-2 spice', category: 'spice', domain: 'bloody', icon: 'shield', color: 'teal', effect: 'fire', tier: 'rare' },
+  // Uncommon spicy badges
+  { id: 'pepper-curious', name: 'Pepper Curious', description: 'Log 3 spicy bloodies', category: 'spice', domain: 'bloody', icon: 'pepper', color: 'red', effect: 'fire', tier: 'uncommon' },
+  { id: 'heat-rising', name: 'Heat Rising', description: 'Log 5 spicy bloodies', category: 'spice', domain: 'bloody', icon: 'thermometer', color: 'orange', effect: 'fire', tier: 'uncommon' },
+  { id: 'double-dare', name: 'Double Dare', description: 'Back-to-back spicy bloodies in one day', category: 'spice', domain: 'bloody', icon: 'zap', color: 'yellow', effect: 'fire', tier: 'uncommon' },
+  { id: 'fire-starter', name: 'Fire Starter', description: 'Order the spiciest option (5-fire)', category: 'spice', domain: 'bloody', icon: 'flame', color: 'red', effect: 'fire', tier: 'uncommon' },
+  // Rare spicy badges
+  { id: 'spice-lord', name: 'Spice Lord', description: 'Log 10 spicy bloodies', category: 'spice', domain: 'bloody', icon: 'crown', color: 'orange', effect: 'fire', tier: 'rare' },
+  { id: 'sweat-equity', name: 'Sweat Equity', description: 'Log a 5-star bloody with 5-fire heat', category: 'spice', domain: 'bloody', icon: 'droplets', color: 'red', effect: 'fire', tier: 'rare' },
+  { id: 'spice-spectrum', name: 'Spice Spectrum', description: 'Log all 5 spice levels', category: 'spice', domain: 'bloody', icon: 'rainbow', color: 'purple', effect: 'confetti', tier: 'rare' },
+  { id: 'playing-it-safe', name: 'Playing It Safe', description: '5 in a row at 1-2 spice', category: 'spice', domain: 'bloody', icon: 'shield', color: 'teal', effect: 'confetti', tier: 'rare' },
+  // Epic spicy badges
+  { id: 'heat-seeker', name: 'Heat Seeker', description: 'Log 25 spicy bloodies', category: 'spice', domain: 'bloody', icon: 'target', color: 'red', effect: 'fire', tier: 'epic' },
   // Time
   { id: 'hair-of-the-dog', name: 'Hair of the Dog', description: 'First bloody before 9am', category: 'time', domain: 'bloody', icon: 'sunrise', color: 'amber', effect: 'confetti', tier: 'uncommon' },
   { id: 'night-owl', name: 'Night Owl', description: 'Bloody after midnight', category: 'time', domain: 'bloody', icon: 'moon', color: 'indigo', effect: 'confetti', tier: 'uncommon' },
-  { id: 'happy-hour', name: 'Happy Hour', description: 'Bloody between 4-6pm', category: 'time', domain: 'bloody', icon: 'beer', color: 'yellow', effect: 'confetti', tier: 'common' },
-  { id: 'weekend-warrior', name: 'Weekend Warrior', description: 'Log on both Sat & Sun', category: 'time', domain: 'bloody', icon: 'calendar', color: 'green', effect: 'explode', tier: 'uncommon' },
+  { id: 'happy-hour', name: 'Happy Hour', description: 'Bloody between 4-6pm', category: 'time', domain: 'bloody', icon: 'beer', color: 'yellow', effect: 'none', tier: 'common' },
+  { id: 'weekend-warrior', name: 'Weekend Warrior', description: 'Log on both Sat & Sun', category: 'time', domain: 'bloody', icon: 'calendar', color: 'green', effect: 'confetti', tier: 'uncommon' },
   // New badges from mockup
-  { id: 'photo-op', name: 'Photo Op', description: 'Add a photo to any bloody', category: 'documentation', domain: 'bloody', icon: 'camera', color: 'blue', effect: 'confetti', tier: 'common' },
-  { id: 'noted', name: 'Noted', description: 'Add a note to any bloody', category: 'documentation', domain: 'bloody', icon: 'sticky-note', color: 'yellow', effect: 'confetti', tier: 'common' },
-  { id: 'garnished', name: 'Garnished', description: 'Rate all aspects of a bloody', category: 'documentation', domain: 'bloody', icon: 'award', color: 'gold', effect: 'confetti', tier: 'common' },
-  { id: 'sunday-funday', name: 'Sunday Funday', description: 'Log 3 bloodies on Sunday', category: 'time', domain: 'bloody', icon: 'sparkles', color: 'pink', effect: 'explode', tier: 'rare' },
+  { id: 'photo-op', name: 'Photo Op', description: 'Add a photo to any bloody', category: 'documentation', domain: 'bloody', icon: 'camera', color: 'blue', effect: 'none', tier: 'common' },
+  { id: 'noted', name: 'Noted', description: 'Add a note to any bloody', category: 'documentation', domain: 'bloody', icon: 'sticky-note', color: 'yellow', effect: 'none', tier: 'common' },
+  { id: 'garnished', name: 'Garnished', description: 'Rate all aspects of a bloody', category: 'documentation', domain: 'bloody', icon: 'award', color: 'gold', effect: 'none', tier: 'common' },
+  { id: 'sunday-funday', name: 'Sunday Funday', description: 'Log 3 bloodies on Sunday', category: 'time', domain: 'bloody', icon: 'sparkles', color: 'pink', effect: 'confetti', tier: 'rare' },
 ];

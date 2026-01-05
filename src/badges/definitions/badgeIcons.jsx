@@ -1,5 +1,5 @@
 import {
-  Droplet, Rocket, Zap, Hand, Home, Compass, MapPinned, Dices, Star,
+  Droplet, Droplets, Rocket, Zap, Hand, Home, Compass, MapPinned, MapPin, Dices, Star,
   ThumbsDown, Flame, Milk, Rainbow, Shield, Sunrise, Moon, Beer,
   Calendar, Lock, GlassWater, Trophy, Sparkles, Target, Camera,
   StickyNote, Users, Map, Building2, Clock, Award, Crown, Eye,
@@ -7,7 +7,7 @@ import {
   Spade, Heart, Diamond, Club, Copy, Shuffle, Repeat, Briefcase,
   Palmtree, TrendingUp, Gem, Joystick, ListOrdered, Percent,
   Asterisk, Flag, UserPlus, Share2, Plane, Luggage, CalendarCheck,
-  ArrowRightLeft, Footprints, Landmark
+  ArrowRightLeft, Footprints, Landmark, Leaf, Thermometer
 } from 'lucide-react';
 
 // Custom text-based badge icons
@@ -103,4 +103,10 @@ export const BADGE_ICONS = {
   'arrow-right-left': ArrowRightLeft,
   'footprints': Footprints,
   'landmark': Landmark,
+
+  // Spicy badges
+  'leaf': Leaf,
+  'thermometer': Thermometer,
+  'droplets': Droplets,
+  'map-pin': MapPin,
 };

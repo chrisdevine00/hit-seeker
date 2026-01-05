@@ -1904,13 +1904,15 @@ function MainApp() {
     'common': { id: 'test-common', name: 'First Spot', description: 'Log your first slot spot', icon: 'target', color: 'amber', effect: 'none', tier: 'common', domain: 'slot' },
     'uncommon': { id: 'test-uncommon', name: 'Sharp Eye', description: 'Log 10 slot spots', icon: 'eye', color: 'amber', effect: 'confetti', tier: 'uncommon', domain: 'slot' },
     'rare': { id: 'test-rare', name: 'Quarter Century', description: 'Log 25 slot spots', icon: 'hash', color: 'gold', effect: 'confetti', tier: 'rare', domain: 'slot' },
-    'epic': { id: 'test-epic', name: 'Half Ton', description: 'Log 50 slot spots', icon: 'trophy', color: 'gold', effect: 'fire', tier: 'epic', domain: 'slot' },
+    'epic': { id: 'test-epic', name: 'Half Ton', description: 'Log 50 slot spots', icon: 'trophy', color: 'gold', effect: 'confetti', tier: 'epic', domain: 'slot' },
     'legendary': { id: 'test-legendary', name: 'Centurion', description: 'Log 100 slot spots', icon: 'crown', color: 'gold', effect: 'explode', tier: 'legendary', domain: 'slot' },
     // By domain
-    'slot': { id: 'test-slot', name: 'Golden Eye', description: 'Mark 25 spots as Playable', icon: 'sparkles', color: 'gold', effect: 'fire', tier: 'epic', domain: 'slot' },
-    'vp': { id: 'test-vp', name: 'Holy Grail', description: 'Find a 100%+ return table', icon: 'gem', color: 'gold', effect: 'fire', tier: 'epic', domain: 'vp' },
-    'bloody': { id: 'test-bloody', name: 'Strip Crawler', description: '5 different Strip casinos', icon: 'dices', color: 'gold', effect: 'fire', tier: 'epic', domain: 'bloody' },
-    'trip': { id: 'test-trip', name: 'Vegas Regular', description: 'Trip in consecutive months', icon: 'calendar-check', color: 'emerald', effect: 'fire', tier: 'epic', domain: 'trip' },
+    'slot': { id: 'test-slot', name: 'Golden Eye', description: 'Mark 25 spots as Playable', icon: 'sparkles', color: 'gold', effect: 'confetti', tier: 'epic', domain: 'slot' },
+    'vp': { id: 'test-vp', name: 'Holy Grail', description: 'Find a 100%+ return table', icon: 'gem', color: 'green', effect: 'confetti', tier: 'epic', domain: 'vp' },
+    'bloody': { id: 'test-bloody', name: 'Strip Crawler', description: '5 different Strip casinos', icon: 'dices', color: 'red', effect: 'confetti', tier: 'epic', domain: 'bloody' },
+    'trip': { id: 'test-trip', name: 'Vegas Regular', description: 'Trip in consecutive months', icon: 'calendar-check', color: 'emerald', effect: 'confetti', tier: 'epic', domain: 'trip' },
+    // Spicy badge (fire effect)
+    'spicy': { id: 'test-spicy', name: 'First Flame', description: 'Log your first spicy bloody', icon: 'flame', color: 'red', effect: 'fire', tier: 'common', domain: 'bloody' },
   };
 
   const handlePreviewBadge = (badgeKey) => {

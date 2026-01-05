@@ -62,7 +62,8 @@ export function DevModePanel({
   onForceRefresh,
   debugGeoMode,
   setDebugGeoMode,
-  onShowStrategyValidator
+  onShowStrategyValidator,
+  onPreviewBadge
 }) {
   const [errors, setErrors] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
@@ -365,6 +366,35 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
                   className={`px-3 py-2 rounded text-sm transition-colors ${
                     debugGeoMode === opt.value ? 'bg-purple-600 text-white' : 'bg-[#1a1a1a] text-[#aaa] hover:text-white'
                   }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Badge Preview */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3">Badge Celebration Preview</p>
+            <p className="text-[#666] text-xs mb-3">Test different badge unlock effects</p>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { effect: 'confetti', label: 'Confetti', color: 'amber' },
+                { effect: 'fire', label: 'Fire', color: 'red' },
+                { effect: 'explode', label: 'Explode', color: 'purple' },
+              ].map(opt => (
+                <button
+                  key={opt.effect}
+                  onClick={() => {
+                    console.log('Button clicked:', opt.effect, 'onPreviewBadge:', typeof onPreviewBadge);
+                    if (onPreviewBadge) {
+                      onPreviewBadge(opt.effect);
+                    } else {
+                      console.log('onPreviewBadge is not defined!');
+                    }
+                    hapticLight();
+                  }}
+                  className="px-3 py-2 rounded text-sm bg-[#1a1a1a] text-[#aaa] hover:text-white hover:bg-[#333] transition-colors"
                 >
                   {opt.label}
                 </button>

@@ -1,38 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem, GlassWater, Flame, Trophy, Sparkles, Star, Beer, Dices, Droplet, Rocket, Zap, Compass, MapPinned, ThumbsDown, Hand, Shield, Sunrise, Moon, Calendar, Lock, Rainbow, Milk } from 'lucide-react';
+import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem, GlassWater, Flame, Sparkles, Star, Lock } from 'lucide-react';
 
-// Custom text-based badge icons
-const HashIcon = ({ size, className }) => <span className={`font-bold ${className}`} style={{ fontSize: size * 0.7 }}>10</span>;
-const ThreeIcon = ({ size, className }) => <span className={`font-bold ${className}`} style={{ fontSize: size * 0.7 }}>3</span>;
-
-// Icon map for badge icons (replaces emojis)
-const BADGE_ICONS = {
-  'droplet': Droplet,
-  'rocket': Rocket,
-  'hash': HashIcon,
-  'zap': Zap,
-  'three': ThreeIcon,
-  'hand': Hand,
-  'home': Home,
-  'compass': Compass,
-  'map-pinned': MapPinned,
-  'dices': Dices,
-  'star': Star,
-  'thumbs-down': ThumbsDown,
-  'flame': Flame,
-  'pepper': Flame, // Using flame for pepper/spice
-  'milk': Milk,
-  'rainbow': Rainbow,
-  'shield': Shield,
-  'sunrise': Sunrise,
-  'moon': Moon,
-  'beer': Beer,
-  'calendar': Calendar,
-  'lock': Lock,
-  'wine': GlassWater,
-  'trophy': Trophy,
-  'sparkles': Sparkles,
-};
+// Badge system imports
+import {
+  BADGE_COLORS,
+  BADGE_ICONS,
+  BLOODY_BADGES,
+  checkBloodyBadges,
+  HexBadge,
+  BadgeDetailModal,
+  BadgeUnlockModal,
+  BadgeProvider,
+  useBadges,
+} from './badges';
 
 // Lib imports
 import { supabase } from './lib/supabase';
@@ -1457,205 +1437,7 @@ function VideoPokerTab({ onSpot }) {
 // BLOODIES TAB - Bloody Mary Tracker
 // ============================================
 
-// Badge definitions with criteria (icon keys reference BADGE_ICONS map)
-const BLOODY_BADGES = [
-  // Milestones
-  { id: 'first-blood', name: 'First Blood', description: 'Log your first bloody', category: 'milestone', icon: 'droplet', color: 'red', effect: 'confetti' },
-  { id: 'getting-started', name: 'Getting Started', description: 'Log 5 bloodies', category: 'milestone', icon: 'rocket', color: 'blue', effect: 'confetti' },
-  { id: 'double-digits', name: 'Double Digits', description: 'Log 10 bloodies', category: 'milestone', icon: 'hash', color: 'purple', effect: 'explode' },
-  // Daily Frequency
-  { id: 'back-to-back', name: 'Back to Back', description: '2 bloodies within 30 minutes', category: 'frequency', icon: 'zap', color: 'yellow', effect: 'confetti' },
-  { id: 'triple-threat', name: 'Triple Threat', description: '3 bloodies in one day', category: 'frequency', icon: 'three', color: 'orange', effect: 'confetti' },
-  { id: 'high-five', name: 'High Five', description: '5 bloodies in one day', category: 'frequency', icon: 'hand', color: 'pink', effect: 'explode' },
-  // Location
-  { id: 'regular', name: 'Regular', description: 'Same location 3+ times', category: 'location', icon: 'home', color: 'teal', effect: 'confetti' },
-  { id: 'explorer', name: 'Explorer', description: '5 different locations', category: 'location', icon: 'compass', color: 'green', effect: 'confetti' },
-  { id: 'wanderer', name: 'Wanderer', description: '10 different locations', category: 'location', icon: 'map-pinned', color: 'emerald', effect: 'explode' },
-  { id: 'strip-crawler', name: 'Strip Crawler', description: '5 different Strip casinos', category: 'location', icon: 'dices', color: 'gold', effect: 'explode' },
-  // Rating
-  { id: 'five-star-find', name: 'Five Star Find', description: 'Log a 5-star bloody', category: 'rating', icon: 'star', color: 'yellow', effect: 'confetti' },
-  { id: 'tough-crowd', name: 'Tough Crowd', description: 'Log a 1-star bloody', category: 'rating', icon: 'thumbs-down', color: 'gray', effect: 'none' },
-  // Spice - these get fire effects!
-  { id: 'cough-cough', name: 'Cough, Cough', description: 'Log a 5-fire spice rating', category: 'spice', icon: 'flame', color: 'red', effect: 'fire' },
-  { id: 'heat-seeker', name: 'Heat Seeker', description: 'Log five 5-fire bloodies', category: 'spice', icon: 'pepper', color: 'orange', effect: 'explode' },
-  { id: 'mild-mannered', name: 'Mild Mannered', description: 'Log a 1-fire bloody', category: 'spice', icon: 'milk', color: 'blue', effect: 'none' },
-  { id: 'spice-spectrum', name: 'Spice Spectrum', description: 'Log all 5 spice levels', category: 'spice', icon: 'rainbow', color: 'purple', effect: 'explode' },
-  { id: 'playing-it-safe', name: 'Playing It Safe', description: '5 in a row at 1-2 spice', category: 'spice', icon: 'shield', color: 'teal', effect: 'fire' },
-  // Time
-  { id: 'hair-of-the-dog', name: 'Hair of the Dog', description: 'First bloody before 9am', category: 'time', icon: 'sunrise', color: 'amber', effect: 'confetti' },
-  { id: 'night-owl', name: 'Night Owl', description: 'Bloody after midnight', category: 'time', icon: 'moon', color: 'indigo', effect: 'confetti' },
-  { id: 'happy-hour', name: 'Happy Hour', description: 'Bloody between 4-6pm', category: 'time', icon: 'beer', color: 'yellow', effect: 'confetti' },
-  { id: 'weekend-warrior', name: 'Weekend Warrior', description: 'Log on both Sat & Sun', category: 'time', icon: 'calendar', color: 'green', effect: 'explode' },
-];
 
-// Strip casino IDs for Strip Crawler badge
-const STRIP_CASINO_IDS = [
-  'bellagio', 'aria', 'cosmopolitan', 'venetian', 'palazzo', 'wynn', 'encore',
-  'mgm-grand', 'mandalay-bay', 'luxor', 'excalibur', 'new-york-new-york', 'park-mgm',
-  'caesars-palace', 'paris', 'ballys', 'flamingo', 'linq', 'harrahs',
-  'treasure-island', 'mirage', 'circus-circus', 'sahara', 'resorts-world',
-  'tropicana', 'planet-hollywood'
-];
-
-// Badge color mapping
-const BADGE_COLORS = {
-  red: { outline: 'from-red-500 to-red-700', fill: 'from-red-900/50 to-red-950/50' },
-  orange: { outline: 'from-orange-500 to-orange-700', fill: 'from-orange-900/50 to-orange-950/50' },
-  yellow: { outline: 'from-yellow-500 to-yellow-700', fill: 'from-yellow-900/50 to-yellow-950/50' },
-  amber: { outline: 'from-amber-500 to-amber-700', fill: 'from-amber-900/50 to-amber-950/50' },
-  gold: { outline: 'from-yellow-400 to-amber-600', fill: 'from-yellow-900/50 to-amber-950/50' },
-  green: { outline: 'from-green-500 to-green-700', fill: 'from-green-900/50 to-green-950/50' },
-  emerald: { outline: 'from-emerald-500 to-emerald-700', fill: 'from-emerald-900/50 to-emerald-950/50' },
-  teal: { outline: 'from-teal-500 to-teal-700', fill: 'from-teal-900/50 to-teal-950/50' },
-  blue: { outline: 'from-blue-500 to-blue-700', fill: 'from-blue-900/50 to-blue-950/50' },
-  indigo: { outline: 'from-indigo-500 to-indigo-700', fill: 'from-indigo-900/50 to-indigo-950/50' },
-  purple: { outline: 'from-purple-500 to-purple-700', fill: 'from-purple-900/50 to-purple-950/50' },
-  pink: { outline: 'from-pink-500 to-pink-700', fill: 'from-pink-900/50 to-pink-950/50' },
-  gray: { outline: 'from-gray-500 to-gray-700', fill: 'from-gray-800/50 to-gray-900/50' },
-};
-
-// Check which badges are earned based on bloodies history
-function checkBadges(bloodies) {
-  const earned = new Set();
-  
-  if (bloodies.length === 0) return earned;
-  
-  // Milestone badges
-  if (bloodies.length >= 1) earned.add('first-blood');
-  if (bloodies.length >= 5) earned.add('getting-started');
-  if (bloodies.length >= 10) earned.add('double-digits');
-  
-  // Location-based badges
-  const locationCounts = {};
-  const uniqueLocations = new Set();
-  const stripLocations = new Set();
-  
-  bloodies.forEach(b => {
-    if (b.location) {
-      const locKey = b.location.toLowerCase().trim();
-      locationCounts[locKey] = (locationCounts[locKey] || 0) + 1;
-      uniqueLocations.add(locKey);
-      
-      // Check if it's a strip casino
-      if (STRIP_CASINO_IDS.some(id => locKey.includes(id) || id.includes(locKey))) {
-        stripLocations.add(locKey);
-      }
-    }
-  });
-  
-  if (Object.values(locationCounts).some(count => count >= 3)) earned.add('regular');
-  if (uniqueLocations.size >= 5) earned.add('explorer');
-  if (uniqueLocations.size >= 10) earned.add('wanderer');
-  if (stripLocations.size >= 5) earned.add('strip-crawler');
-  
-  // Rating badges
-  if (bloodies.some(b => b.rating === 5)) earned.add('five-star-find');
-  if (bloodies.some(b => b.rating === 1)) earned.add('tough-crowd');
-  
-  // Spice badges
-  const spiceLevels = new Set(bloodies.map(b => b.spice).filter(s => s));
-  const fiveFireCount = bloodies.filter(b => b.spice === 5).length;
-  
-  if (bloodies.some(b => b.spice === 5)) earned.add('cough-cough');
-  if (fiveFireCount >= 5) earned.add('heat-seeker');
-  if (bloodies.some(b => b.spice === 1)) earned.add('mild-mannered');
-  if (spiceLevels.size === 5) earned.add('spice-spectrum');
-  
-  // Playing it safe - 5 in a row at 1-2 spice
-  let safeStreak = 0;
-  for (const b of bloodies) {
-    if (b.spice && b.spice <= 2) {
-      safeStreak++;
-      if (safeStreak >= 5) {
-        earned.add('playing-it-safe');
-        break;
-      }
-    } else {
-      safeStreak = 0;
-    }
-  }
-  
-  // Time-based badges
-  bloodies.forEach(b => {
-    const date = new Date(b.timestamp);
-    const hour = date.getHours();
-    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-    
-    if (hour < 9) earned.add('hair-of-the-dog');
-    if (hour >= 0 && hour < 5) earned.add('night-owl'); // After midnight, before 5am
-    if (hour >= 16 && hour < 18) earned.add('happy-hour');
-  });
-  
-  // Weekend Warrior - need both Sat and Sun
-  const hasSaturday = bloodies.some(b => new Date(b.timestamp).getDay() === 6);
-  const hasSunday = bloodies.some(b => new Date(b.timestamp).getDay() === 0);
-  if (hasSaturday && hasSunday) earned.add('weekend-warrior');
-  
-  // Frequency badges - group by day
-  const byDay = {};
-  bloodies.forEach(b => {
-    const dayKey = new Date(b.timestamp).toDateString();
-    if (!byDay[dayKey]) byDay[dayKey] = [];
-    byDay[dayKey].push(b);
-  });
-  
-  Object.values(byDay).forEach(dayBloodies => {
-    if (dayBloodies.length >= 3) earned.add('triple-threat');
-    if (dayBloodies.length >= 5) earned.add('high-five');
-    
-    // Back to back - 2 within 30 minutes
-    const sorted = [...dayBloodies].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-    for (let i = 1; i < sorted.length; i++) {
-      const diff = new Date(sorted[i].timestamp) - new Date(sorted[i-1].timestamp);
-      if (diff <= 30 * 60 * 1000) { // 30 minutes in ms
-        earned.add('back-to-back');
-        break;
-      }
-    }
-  });
-  
-  return earned;
-}
-
-// Hexagon Badge Component
-function HexBadge({ badge, earned, size = 'medium', onClick }) {
-  const sizes = {
-    small: { outer: 'w-16 h-[70px]', inner: 'w-12 h-[53px]', iconSize: 20 },
-    medium: { outer: 'w-20 h-[88px]', inner: 'w-16 h-[70px]', iconSize: 28 },
-    large: { outer: 'w-28 h-[123px]', inner: 'w-24 h-[105px]', iconSize: 40 },
-  };
-
-  const s = sizes[size];
-  const colors = earned ? BADGE_COLORS[badge.color] : { outline: 'from-gray-600 to-gray-800', fill: 'from-gray-800/50 to-gray-900/50' };
-
-  // Get the icon component from the map
-  const IconComponent = BADGE_ICONS[badge.icon];
-
-  return (
-    <div className="flex flex-col items-center cursor-pointer" onClick={onClick}>
-      {/* Outer hexagon (border) */}
-      <div
-        className={`${s.outer} bg-gradient-to-b ${colors.outline} flex items-center justify-center transition-all ${earned ? 'opacity-100' : 'opacity-40'}`}
-        style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
-      >
-        {/* Inner hexagon (fill) */}
-        <div
-          className={`${s.inner} bg-gradient-to-b ${colors.fill} flex items-center justify-center`}
-          style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
-        >
-          {earned ? (
-            IconComponent ? <IconComponent size={s.iconSize} className="text-white" /> : <span className="text-white">{badge.icon}</span>
-          ) : (
-            <Lock size={s.iconSize - 4} className="text-gray-600" />
-          )}
-        </div>
-      </div>
-      <span className={`text-xs mt-2 text-center ${earned ? 'text-white' : 'text-gray-500'} max-w-[80px]`}>
-        {badge.name}
-      </span>
-    </div>
-  );
-}
 
 // Log Bloody Modal
 function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
@@ -1823,69 +1605,6 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
   );
 }
 
-// Badge Detail Modal
-function BadgeDetailModal({ badge, earned, onClose }) {
-  // Escape key to close
-  useEffect(() => {
-    if (!badge) return;
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [badge, onClose]);
-
-  if (!badge) return null;
-
-  const colors = earned ? BADGE_COLORS[badge.color] : { outline: 'from-gray-600 to-gray-800', fill: 'from-gray-800/50 to-gray-900/50' };
-
-  return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="text-center" onClick={e => e.stopPropagation()}>
-        {/* Large hexagon badge */}
-        <div 
-          className={`w-32 h-[140px] bg-gradient-to-b ${colors.outline} flex items-center justify-center mx-auto mb-4 ${earned ? '' : 'opacity-40'}`}
-          style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
-        >
-          <div
-            className={`w-28 h-[123px] bg-gradient-to-b ${colors.fill} flex items-center justify-center`}
-            style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
-          >
-            {earned ? (
-              (() => {
-                const IconComponent = BADGE_ICONS[badge.icon];
-                return IconComponent ? <IconComponent size={48} className="text-white" /> : null;
-              })()
-            ) : (
-              <Lock size={32} className="text-gray-600" />
-            )}
-          </div>
-        </div>
-        
-        <h2 className={`text-2xl font-bold mb-2 ${earned ? 'text-white' : 'text-gray-500'}`}>
-          {badge.name}
-        </h2>
-        <p className={`${earned ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
-          {badge.description}
-        </p>
-        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs ${
-          earned ? 'bg-emerald-900/50 text-emerald-400 border border-emerald-700' : 'bg-gray-800 text-gray-500 border border-gray-700'
-        }`}>
-          {earned ? <><Check size={12} /> Unlocked</> : 'Locked'}
-        </span>
-        
-        <Button
-          onClick={onClose}
-          variant="secondary"
-          className="mx-auto mt-6"
-        >
-          Close
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 // Main Bloodies Tab Component
 function BloodiesTab() {
   // Load bloodies from localStorage
@@ -1904,7 +1623,7 @@ function BloodiesTab() {
   }, [bloodies]);
   
   // Calculate earned badges
-  const earnedBadges = checkBadges(bloodies);
+  const earnedBadges = checkBloodyBadges(bloodies);
   
   // Get today's count
   const today = new Date().toDateString();
@@ -1918,9 +1637,9 @@ function BloodiesTab() {
     };
     
     // Check for new badges before adding
-    const oldEarned = checkBadges(bloodies);
+    const oldEarned = checkBloodyBadges(bloodies);
     const newBloodies = [...bloodies, newBloody];
-    const newEarned = checkBadges(newBloodies);
+    const newEarned = checkBloodyBadges(newBloodies);
     
     // Find newly earned badges
     const justEarned = [];
@@ -1950,217 +1669,6 @@ function BloodiesTab() {
         setNewBadges(justEarned);
       }, 1500);
     }
-  };
-  
-  // Badge unlock celebration modal with Lottie effects
-  const BadgeUnlockModal = () => {
-    if (newBadges.length === 0) return null;
-    
-    const badge = newBadges[0];
-    const colors = BADGE_COLORS[badge.color];
-    const effectType = badge.effect || 'confetti';
-    
-    // Refs for Lottie containers
-    const fireContainerRef = useRef(null);
-    const explosionContainerRef = useRef(null);
-    const [showBadge, setShowBadge] = useState(false);
-    const [explosions, setExplosions] = useState([]);
-    
-    // Explosion positions for major badges
-    const explosionPositions = [
-      { top: '15%', left: '20%', delay: 0, scale: 1.0 },
-      { top: '10%', left: '80%', delay: 100, scale: 1.1 },
-      { top: '45%', left: '10%', delay: 200, scale: 0.9 },
-      { top: '50%', left: '50%', delay: 350, scale: 1.4 },
-      { top: '40%', left: '90%', delay: 450, scale: 1.0 },
-      { top: '80%', left: '25%', delay: 550, scale: 1.1 },
-      { top: '75%', left: '75%', delay: 650, scale: 0.95 },
-    ];
-    
-    useEffect(() => {
-      // Show badge quickly
-      const badgeTimer = setTimeout(() => setShowBadge(true), 100);
-      
-      // For explosion effect, trigger multiple explosions
-      if (effectType === 'explode') {
-        const newExplosions = explosionPositions.map((pos, i) => ({
-          id: i,
-          ...pos,
-          visible: false,
-          fading: false
-        }));
-        setExplosions(newExplosions);
-        
-        // Stagger the explosions
-        explosionPositions.forEach((pos, i) => {
-          setTimeout(() => {
-            setExplosions(prev => prev.map(exp => 
-              exp.id === i ? { ...exp, visible: true } : exp
-            ));
-          }, pos.delay);
-          
-          // Fade out each explosion
-          setTimeout(() => {
-            setExplosions(prev => prev.map(exp => 
-              exp.id === i ? { ...exp, fading: true } : exp
-            ));
-          }, pos.delay + 1200);
-          
-          // Remove explosion
-          setTimeout(() => {
-            setExplosions(prev => prev.map(exp => 
-              exp.id === i ? { ...exp, visible: false } : exp
-            ));
-          }, pos.delay + 1450);
-        });
-      }
-      
-      return () => clearTimeout(badgeTimer);
-    }, [badge.id, effectType]);
-    
-    const handleDismiss = () => {
-      setShowBadge(false);
-      setExplosions([]);
-      setTimeout(() => setNewBadges(prev => prev.slice(1)), 100);
-    };
-    
-    return (
-      <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-        {/* Screen glow for fire/explode effects */}
-        {(effectType === 'fire' || effectType === 'explode') && (
-          <div 
-            className="absolute inset-0 pointer-events-none transition-opacity duration-300"
-            style={{
-              background: 'radial-gradient(circle at 50% 50%, rgba(255, 100, 0, 0.25) 0%, transparent 50%)',
-              opacity: showBadge ? 1 : 0
-            }}
-          />
-        )}
-        
-        {/* Explosion effects - renders 7 lottie players at different positions */}
-        {effectType === 'explode' && explosions.map(exp => exp.visible && (
-          <div
-            key={exp.id}
-            className="absolute pointer-events-none"
-            style={{
-              top: exp.top,
-              left: exp.left,
-              transform: `translate(-50%, -50%) scale(${exp.scale})`,
-              width: '300px',
-              height: '300px',
-              opacity: exp.fading ? 0 : 1,
-              transition: 'opacity 0.25s ease-out',
-              zIndex: 51
-            }}
-          >
-            <lottie-player
-              src="/assets/explode.json"
-              background="transparent"
-              speed="1"
-              autoplay
-              style={{ width: '100%', height: '100%' }}
-            />
-          </div>
-        ))}
-        
-        {/* Main content */}
-        <div 
-          className="text-center relative z-[100]"
-          style={{
-            opacity: showBadge ? 1 : 0,
-            transform: showBadge ? 'scale(1)' : 'scale(0.5)',
-            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
-          }}
-        >
-          <div className="mb-2 text-yellow-400 text-sm font-semibold uppercase tracking-wider flex items-center justify-center gap-2">
-            <Sparkles size={16} /> Badge Unlocked! <Sparkles size={16} />
-          </div>
-          
-          {/* Badge with fire effect behind it */}
-          <div className="relative mx-auto mb-4" style={{ width: '200px', height: '220px' }}>
-            {/* Fire effect - positioned behind badge */}
-            {effectType === 'fire' && (
-              <div 
-                className="absolute left-1/2 transform -translate-x-1/2"
-                style={{ 
-                  bottom: '25px', 
-                  width: '240px', 
-                  height: '260px',
-                  zIndex: 1 
-                }}
-              >
-                <lottie-player
-                  src="/assets/fire-2.json"
-                  background="transparent"
-                  speed="1"
-                  loop
-                  autoplay
-                  style={{ width: '100%', height: '100%' }}
-                />
-              </div>
-            )}
-            
-            {/* Hexagon badge */}
-            <div 
-              className="absolute left-1/2 transform -translate-x-1/2 bottom-0"
-              style={{ zIndex: 10 }}
-            >
-              <div 
-                className={`w-32 h-[140px] bg-gradient-to-b ${colors.outline} flex items-center justify-center shadow-lg`}
-                style={{ 
-                  clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                  boxShadow: effectType === 'fire' ? '0 0 40px rgba(255, 100, 0, 0.5)' : 
-                             effectType === 'explode' ? '0 0 40px rgba(255, 200, 0, 0.5)' : 
-                             'none'
-                }}
-              >
-                <div
-                  className={`w-28 h-[123px] bg-gradient-to-b ${colors.fill} flex items-center justify-center`}
-                  style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }}
-                >
-                  {(() => {
-                    const IconComponent = BADGE_ICONS[badge.icon];
-                    return IconComponent ? <IconComponent size={48} className="text-white" /> : null;
-                  })()}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <h2 className="text-white text-2xl font-bold mb-2">{badge.name}</h2>
-          <p className="text-gray-400 mb-6">{badge.description}</p>
-          
-          <Button
-            onClick={handleDismiss}
-            variant="primary"
-            size="lg"
-            className="px-8"
-          >
-            {newBadges.length > 1 ? 'Next Badge →' : 'Awesome!'}
-          </Button>
-        </div>
-        
-        {/* Confetti effect using canvas-confetti (simple CSS fallback) */}
-        {effectType === 'confetti' && showBadge && (
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(30)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-3 h-3 rounded-sm"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: '-10px',
-                  backgroundColor: ['#d4a855', '#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7'][i % 7],
-                  animation: `confetti-fall ${2 + Math.random() * 2}s linear forwards`,
-                  animationDelay: `${Math.random() * 0.5}s`,
-                  transform: `rotate(${Math.random() * 360}deg)`
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    );
   };
   
   return (
@@ -2275,7 +1783,10 @@ function BloodiesTab() {
       />
 
       {/* Badge Unlock Modal */}
-      <BadgeUnlockModal />
+      <BadgeUnlockModal
+        badges={newBadges}
+        onDismiss={() => setNewBadges(prev => prev.slice(1))}
+      />
     </div>
   );
 }
@@ -2285,10 +1796,11 @@ function BloodiesTab() {
 // ============================================
 function MainApp() {
   const { user, profile, signOut } = useAuth();
-  const { currentTrip, tripMembers, clearTrip } = useTrip();
+  const { trips, currentTrip, tripMembers, clearTrip } = useTrip();
   const { notes, loading: notesLoading, addNote, updateNote, deleteNote, refresh: refreshNotes } = useNotes();
   const { photos, addPhoto, deletePhoto, getPhotoUrl, getMachinePhotos, getLatestPhoto } = usePhotos();
-  const { myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
+  const { checkIns, myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
+  const { updateSlotBadges, updateVPBadges, updateTripBadges, unlockQueue, dismissBadge } = useBadges();
 
   const [activeTab, setActiveTab] = useState('hunt');
   const [animatingTab, setAnimatingTab] = useState(null); // Track tab animation
@@ -2324,6 +1836,23 @@ function MainApp() {
   const [machineViewMode, setMachineViewMode] = useState('cards'); // 'list' or 'cards'
   const [apOnly, setApOnly] = useState(false); // AP machines only toggle
   const [releaseYearFilter, setReleaseYearFilter] = useState('all'); // 'all', '2024', '2023', etc.
+
+  // Update slot and VP badges when notes/photos change
+  useEffect(() => {
+    if (notes) {
+      const slotNotes = notes.filter(n => n.type !== 'vp' && !n.machine?.startsWith('VP:'));
+      const vpNotes = notes.filter(n => n.type === 'vp' || n.machine?.startsWith('VP:'));
+      updateSlotBadges(slotNotes, photos);
+      updateVPBadges(vpNotes, photos);
+    }
+  }, [notes, photos, updateSlotBadges, updateVPBadges]);
+
+  // Update trip badges when trip data changes
+  useEffect(() => {
+    if (trips && user) {
+      updateTripBadges(trips, tripMembers, checkIns, user.id);
+    }
+  }, [trips, tripMembers, checkIns, user, updateTripBadges]);
 
   // Escape key to close modals
   useEffect(() => {
@@ -2367,6 +1896,23 @@ function MainApp() {
   const [debugGeoMode, setDebugGeoMode] = useState(null);
   const [showDebugMenu, setShowDebugMenu] = useState(false);
   const [showStrategyValidator, setShowStrategyValidator] = useState(false);
+  const [previewBadges, setPreviewBadges] = useState([]);
+
+  // Test badges for previewing effects
+  const TEST_BADGES = {
+    confetti: { id: 'test-confetti', name: 'First Spot', description: 'Log your first slot spot', icon: 'target', color: 'amber', effect: 'confetti', tier: 'common' },
+    fire: { id: 'test-fire', name: 'Centurion', description: 'Log 100 slot spots', icon: 'crown', color: 'red', effect: 'fire', tier: 'legendary' },
+    explode: { id: 'test-explode', name: 'Holy Grail', description: 'Find a 100%+ return VP machine', icon: 'trophy', color: 'purple', effect: 'explode', tier: 'epic' },
+  };
+
+  const handlePreviewBadge = (effectType) => {
+    console.log('Preview badge triggered:', effectType, TEST_BADGES[effectType]);
+    setShowDebugMenu(false);
+    const badge = TEST_BADGES[effectType];
+    if (badge) {
+      setPreviewBadges([badge]);
+    }
+  };
 
   // Dev mode visibility - persisted in localStorage, toggled via long-press on logo
   const [devModeEnabled, setDevModeEnabled] = useState(() => {
@@ -3143,6 +2689,13 @@ function MainApp() {
         debugGeoMode={debugGeoMode}
         setDebugGeoMode={setDebugGeoMode}
         onShowStrategyValidator={() => setShowStrategyValidator(true)}
+        onPreviewBadge={handlePreviewBadge}
+      />
+
+      {/* Badge Preview Modal (for dev testing) */}
+      <BadgeUnlockModal
+        badges={previewBadges}
+        onDismiss={() => setPreviewBadges([])}
       />
       
       {/* Strategy Validator Modal */}
@@ -4308,6 +3861,12 @@ function MainApp() {
         )}
       </div>
 
+      {/* Global Badge Unlock Modal (for slot, VP, trip badges) */}
+      <BadgeUnlockModal
+        badges={unlockQueue}
+        onDismiss={dismissBadge}
+      />
+
       {/* Bottom Navigation - Mobile Only */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2 md:hidden">
         <div className="flex justify-around max-w-md mx-auto">
@@ -4387,7 +3946,9 @@ function AppContent() {
 
   return (
     <TripProvider>
-      <TripContent />
+      <BadgeProvider>
+        <TripContent />
+      </BadgeProvider>
     </TripProvider>
   );
 }

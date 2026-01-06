@@ -385,10 +385,10 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         </div>
       )}
 
-      {/* State/Notes */}
+      {/* Notes */}
       <div>
         <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">
-          {isBloody ? 'Notes' : isVP ? 'Notes' : 'Machine State'}
+          Notes
         </label>
         <textarea
           placeholder={isBloody ? "e.g., Great garnishes, served in a souvenir glass" : isVP ? "e.g., Multiple machines, good location" : "e.g., Meter at 85%, 3 coins on reel 2"}
@@ -864,7 +864,25 @@ function VideoPokerTab({ onSpot }) {
   const [gameSearch, setGameSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectorExpanded, setSelectorExpanded] = useState(true);
-  
+  const [vpViewMode, setVpViewMode] = useState('list'); // 'list' or 'cards'
+  const [recentVPGames, setRecentVPGames] = useState([]); // Track recently viewed VP games
+
+  // Track recently viewed VP games
+  const selectVPGame = (gameId) => {
+    setSelectedGame(gameId);
+    setSelectedPayTable(null);
+    setSelectedHand([null, null, null, null, null]);
+    if (gameId) {
+      const gameData = vpGames[gameId];
+      if (gameData) {
+        setRecentVPGames(prev => {
+          const filtered = prev.filter(g => g.id !== gameId);
+          return [gameData, ...filtered].slice(0, 5); // Keep last 5
+        });
+      }
+    }
+  };
+
   // List of games with full WoO strategy support (show these first)
   const FEATURED_GAMES = [
     'jacks-or-better',
@@ -888,9 +906,9 @@ function VideoPokerTab({ onSpot }) {
   // Filter games by search and category
   const filteredGames = Object.values(vpGames).filter(g => {
     if (!g.category) return false; // Skip non-VP games
-    const matchesSearch = gameSearch === '' || 
+    const matchesSearch = gameSearch === '' ||
       g.name.toLowerCase().includes(gameSearch.toLowerCase()) ||
-      g.shortName.toLowerCase().includes(gameSearch.toLowerCase());
+      g.shortName?.toLowerCase().includes(gameSearch.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
     return matchesSearch && matchesCategory;
   }).sort((a, b) => {
@@ -1053,6 +1071,59 @@ function VideoPokerTab({ onSpot }) {
       </div>
 
       <div className="space-y-4">
+      {/* Results Count & View Toggle - Always visible */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-[#aaa]">
+          {filteredGames.length} game{filteredGames.length !== 1 ? 's' : ''}
+        </p>
+        <div className="flex bg-[#161616] border border-[#333] rounded overflow-hidden">
+          <button
+            onClick={() => setVpViewMode('list')}
+            className={`p-2 transition-colors ${vpViewMode === 'list' ? 'bg-[#d4a855] text-black' : 'text-[#aaaaaa] hover:text-white'}`}
+            title="List view"
+          >
+            <LayoutList size={18} />
+          </button>
+          <button
+            onClick={() => setVpViewMode('cards')}
+            className={`p-2 transition-colors ${vpViewMode === 'cards' ? 'bg-[#d4a855] text-black' : 'text-[#aaaaaa] hover:text-white'}`}
+            title="Card view"
+          >
+            <Grid size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Recently Viewed (if any) */}
+      {recentVPGames.length > 0 && (
+        <div>
+          <p className="text-[#aaa] text-xs uppercase tracking-wider mb-2">Recently Viewed</p>
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {recentVPGames.map(g => {
+              const bestPayTable = g.payTables?.find(pt => pt.rating === 'HUNT') || g.payTables?.[0];
+              return (
+                <button
+                  key={g.id}
+                  onClick={() => selectVPGame(g.id)}
+                  className="shrink-0 bg-[#161616] border border-[#333] rounded px-3 py-2 flex items-center gap-2 hover:border-[#d4a855] transition-colors"
+                >
+                  {bestPayTable && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${
+                      bestPayTable.rating === 'HUNT' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
+                      bestPayTable.rating === 'OK' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                      'border-red-500/50 text-red-400 bg-red-500/10'
+                    }`}>
+                      {bestPayTable.rating}
+                    </span>
+                  )}
+                  <span className="text-white text-sm whitespace-nowrap">{g.shortName || g.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       {/* Game & Pay Table Selector - Collapsible */}
       {selectedPayTable && !selectorExpanded ? (
@@ -1145,53 +1216,156 @@ function VideoPokerTab({ onSpot }) {
               </button>
             ))}
           </div>
-          
-          {/* Game selector */}
-          <div className="w-full overflow-hidden">
-            {filteredGames.length > 0 ? (
-              selectedGame ? (
-                /* Selected game - solid gold display with X to clear */
-                <button
-                  onClick={() => {
-                    setSelectedGame(null);
-                    setSelectedPayTable(null);
-                    setSelectedHand([null, null, null, null, null]);
-                  }}
-                  className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
-                >
-                  <span className="truncate">{game?.name}</span>
-                  <X size={18} className="shrink-0 ml-2 opacity-60" />
-                </button>
-              ) : (
-                /* No game selected - dropdown with placeholder */
-                <select
-                  value=""
-                  onChange={(e) => {
-                    setSelectedGame(e.target.value);
-                    setSelectedPayTable(null);
-                    setSelectedHand([null, null, null, null, null]);
-                  }}
-                  className="w-full max-w-full bg-[#0d0d0d] border border-[#333] rounded px-4 py-3 text-[#aaa] font-medium focus:outline-none focus:border-[#d4a855] appearance-none cursor-pointer"
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', boxSizing: 'border-box' }}
-                >
-                  <option value="" disabled>Select a game...</option>
-                  {filteredGames.map(g => (
-                    <option key={g.id} value={g.id}>{g.name}</option>
-                  ))}
-                </select>
-              )
-            ) : (
-              <div className="bg-[#0d0d0d] border border-dashed border-[#333] rounded p-4 text-center">
-                <p className="text-[#aaa] mb-2">No games match your filters</p>
-                <button
-                  onClick={() => { setGameSearch(''); setSelectedCategory('all'); }}
-                  className="text-[#d4a855] text-sm hover:underline"
-                >
-                  Clear filters
-                </button>
+
+          {/* Selected Game Indicator */}
+          {selectedGame && (
+            <div className="flex items-center justify-between bg-[#d4a855]/10 border border-[#d4a855]/30 rounded px-3 py-2">
+              <span className="text-[#d4a855] text-sm font-medium truncate">{game?.name}</span>
+              <button
+                onClick={() => {
+                  setSelectedGame(null);
+                  setSelectedPayTable(null);
+                  setSelectedHand([null, null, null, null, null]);
+                }}
+                className="text-[#d4a855]/60 hover:text-[#d4a855] ml-2"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* Game List View */}
+          {vpViewMode === 'list' && filteredGames.length > 0 && (
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {filteredGames.map(g => {
+                const bestPayTable = g.payTables?.find(pt => pt.rating === 'HUNT') || g.payTables?.[0];
+                const isSelected = selectedGame === g.id;
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => selectVPGame(g.id)}
+                    className={`w-full bg-[#0d0d0d] border rounded p-3 text-left transition-colors ${
+                      isSelected
+                        ? 'border-[#d4a855] bg-[#d4a855]/10'
+                        : 'border-[#333] hover:border-[#555]'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className={`font-semibold truncate ${isSelected ? 'text-[#d4a855]' : 'text-white'}`}>
+                            {g.name}
+                          </h3>
+                          {bestPayTable && (
+                            <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${
+                              bestPayTable.rating === 'HUNT' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
+                              bestPayTable.rating === 'OK' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                              'border-red-500/50 text-red-400 bg-red-500/10'
+                            }`}>
+                              {bestPayTable.rating}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-[#888] mb-1">
+                          {vpCategories[g.category]?.name?.replace(' Games', '').replace(' Family', '')}
+                          {g.shortName && ` • ${g.shortName}`}
+                        </p>
+                        {g.description && <p className="text-xs text-[#666] line-clamp-1">{g.description}</p>}
+                      </div>
+                      {bestPayTable && (
+                        <div className="text-right shrink-0">
+                          <span className={`text-sm font-medium ${
+                            bestPayTable.rating === 'HUNT' ? 'text-emerald-400' :
+                            bestPayTable.rating === 'OK' ? 'text-amber-400' : 'text-red-400'
+                          }`}>
+                            {bestPayTable.return}%
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Game Card View */}
+          {vpViewMode === 'cards' && filteredGames.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 max-h-[350px] overflow-y-auto">
+              {filteredGames.map(g => {
+                const bestPayTable = g.payTables?.find(pt => pt.rating === 'HUNT') || g.payTables?.[0];
+                const isSelected = selectedGame === g.id;
+                return (
+                  <button
+                    key={g.id}
+                    onClick={() => selectVPGame(g.id)}
+                    className={`bg-[#0d0d0d] border rounded overflow-hidden text-left transition-all active:scale-[0.98] ${
+                      isSelected
+                        ? 'border-[#d4a855] ring-1 ring-[#d4a855]'
+                        : bestPayTable?.rating === 'HUNT' ? 'border-emerald-500/40 hover:border-emerald-500' :
+                          bestPayTable?.rating === 'OK' ? 'border-amber-500/40 hover:border-amber-500' :
+                          'border-red-500/40 hover:border-red-500'
+                    }`}
+                  >
+                    {/* Card Header */}
+                    <div className="aspect-[3/2] bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] relative flex flex-col items-center justify-center p-3">
+                      <span className="text-2xl font-bold text-[#444] mb-1">{g.shortName || g.name.split(' ')[0]}</span>
+                      <span className="text-[10px] text-[#555] uppercase tracking-wider">
+                        {vpCategories[g.category]?.name?.split(' ')[0]}
+                      </span>
+                      {/* Rating Badge - bottom left */}
+                      {bestPayTable && (
+                        <span className={`absolute bottom-2 left-2 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${
+                          bestPayTable.rating === 'HUNT' ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10' :
+                          bestPayTable.rating === 'OK' ? 'border-amber-500/50 text-amber-400 bg-amber-500/10' :
+                          'border-red-500/50 text-red-400 bg-red-500/10'
+                        }`}>
+                          {bestPayTable.rating}
+                        </span>
+                      )}
+                      {/* Return % - bottom right */}
+                      {bestPayTable && (
+                        <span className={`absolute bottom-2 right-2 text-xs font-medium ${
+                          bestPayTable.rating === 'HUNT' ? 'text-emerald-400' :
+                          bestPayTable.rating === 'OK' ? 'text-amber-400' : 'text-red-400'
+                        }`}>
+                          {bestPayTable.return}%
+                        </span>
+                      )}
+                    </div>
+                    {/* Card Content */}
+                    <div className="px-3 pb-3 pt-2">
+                      <h3 className={`font-semibold text-sm mb-1 line-clamp-1 ${isSelected ? 'text-[#d4a855]' : 'text-white'}`}>
+                        {g.name}
+                      </h3>
+                      {g.description && <p className="text-[11px] text-[#666] line-clamp-2">{g.description}</p>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* No Results State */}
+          {filteredGames.length === 0 && (
+            <div className="text-center py-8">
+              <div className="w-14 h-14 rounded-full bg-[#1a1a1a] flex items-center justify-center mx-auto mb-3">
+                <Search size={24} className="text-[#444]" />
               </div>
-            )}
-          </div>
+              <p className="text-white font-medium mb-1">No games found</p>
+              <p className="text-[#aaa] text-sm mb-3">
+                {gameSearch
+                  ? `No results for "${gameSearch}"`
+                  : 'Try adjusting your filters'}
+              </p>
+              <button
+                onClick={() => { setGameSearch(''); setSelectedCategory('all'); }}
+                className="text-[#d4a855] text-sm hover:underline"
+              >
+                Clear all filters
+              </button>
+            </div>
+          )}
 
           {/* Pay Table Selection */}
           {game && filteredGames.length > 0 && (

@@ -17,11 +17,11 @@ const DOMAIN_COLORS = {
 // Tier-based settings
 // Note: 'fire' effect is reserved for spicy bloody badges (set per-badge, not per-tier)
 const TIER_SETTINGS = {
-  common: { rayOpacity: 0.3, raySpeed: 8, glowIntensity: 0.3, celebration: 'none' },
-  uncommon: { rayOpacity: 0.5, raySpeed: 6, glowIntensity: 0.5, celebration: 'confetti' },
-  rare: { rayOpacity: 0.7, raySpeed: 4, glowIntensity: 0.7, celebration: 'confetti' },
-  epic: { rayOpacity: 0.9, raySpeed: 3, glowIntensity: 0.9, celebration: 'confetti' },
-  legendary: { rayOpacity: 1.0, raySpeed: 2, glowIntensity: 1.0, celebration: 'explode' },
+  common: { rayOpacity: 0.3, raySpeed: 20, glowIntensity: 0.3, celebration: 'none' },
+  uncommon: { rayOpacity: 0.5, raySpeed: 16, glowIntensity: 0.5, celebration: 'confetti' },
+  rare: { rayOpacity: 0.7, raySpeed: 12, glowIntensity: 0.7, celebration: 'confetti' },
+  epic: { rayOpacity: 0.9, raySpeed: 10, glowIntensity: 0.9, celebration: 'confetti' },
+  legendary: { rayOpacity: 1.0, raySpeed: 8, glowIntensity: 1.0, celebration: 'explode' },
 };
 
 // Badge unlock celebration modal with enhanced effects
@@ -351,9 +351,11 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         style={{
           opacity: showBadge && !isClosing ? 1 : 0,
           transition: 'opacity 0.4s ease-out',
+          transform: 'translateY(-80px)', // Offset to match badge position
         }}
       >
         <div
+          className="relative"
           style={{
             width: '150vmax',
             height: '150vmax',

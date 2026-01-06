@@ -23,7 +23,7 @@ export function BadgeDetailModal({ badge, earned, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="text-center" onClick={e => e.stopPropagation()}>
+      <div className="flex flex-col items-center text-center" onClick={e => e.stopPropagation()}>
         {/* Large hexagon badge */}
         <div
           className={`w-32 h-[140px] bg-gradient-to-b ${colors.outline} flex items-center justify-center mx-auto mb-4 ${earned ? '' : 'opacity-40'}`}

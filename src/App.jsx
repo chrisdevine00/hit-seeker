@@ -1162,9 +1162,11 @@ function VideoPokerTab({ onSpot }) {
         <div className="bg-[#161616] border border-[#333] rounded p-4 space-y-4">
           {/* Header with collapse button */}
           <div className="flex items-center justify-between">
-            <p className="text-white font-semibold">Select Game & Pay Table</p>
+            <p className="text-white font-semibold">
+              {selectedGame ? 'Select Pay Table' : 'Select Game & Pay Table'}
+            </p>
             {selectedPayTable && (
-              <button 
+              <button
                 onClick={() => setSelectorExpanded(false)}
                 className="text-[#aaa] hover:text-white p-1"
               >
@@ -1172,7 +1174,27 @@ function VideoPokerTab({ onSpot }) {
               </button>
             )}
           </div>
-          
+
+          {/* Selected Game Indicator - show when game selected */}
+          {selectedGame && (
+            <div className="flex items-center justify-between bg-[#d4a855]/10 border border-[#d4a855]/30 rounded px-3 py-2">
+              <span className="text-[#d4a855] text-sm font-medium truncate">{game?.name}</span>
+              <button
+                onClick={() => {
+                  setSelectedGame(null);
+                  setSelectedPayTable(null);
+                  setSelectedHand([null, null, null, null, null]);
+                }}
+                className="text-[#d4a855]/60 hover:text-[#d4a855] ml-2"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
+          {/* Game Selection UI - only show when no game selected */}
+          {!selectedGame && (
+            <>
           {/* Search input */}
           <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#aaa]" />
@@ -1216,23 +1238,6 @@ function VideoPokerTab({ onSpot }) {
               </button>
             ))}
           </div>
-
-          {/* Selected Game Indicator */}
-          {selectedGame && (
-            <div className="flex items-center justify-between bg-[#d4a855]/10 border border-[#d4a855]/30 rounded px-3 py-2">
-              <span className="text-[#d4a855] text-sm font-medium truncate">{game?.name}</span>
-              <button
-                onClick={() => {
-                  setSelectedGame(null);
-                  setSelectedPayTable(null);
-                  setSelectedHand([null, null, null, null, null]);
-                }}
-                className="text-[#d4a855]/60 hover:text-[#d4a855] ml-2"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          )}
 
           {/* Game List View */}
           {vpViewMode === 'list' && filteredGames.length > 0 && (
@@ -1366,9 +1371,11 @@ function VideoPokerTab({ onSpot }) {
               </button>
             </div>
           )}
+          </>
+          )}
 
           {/* Pay Table Selection */}
-          {game && filteredGames.length > 0 && (
+          {game && (
             <div className="pt-2 border-t border-[#333]">
               <p className="text-[#aaa] text-xs mb-2">{game.keyLookup || 'Select pay table'}</p>
               <div className="flex flex-wrap gap-2">

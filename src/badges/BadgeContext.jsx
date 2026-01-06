@@ -46,8 +46,9 @@ export function BadgeProvider({ children }) {
       // Mark as initialized after a short delay to allow all initial badge computations
       const timer = setTimeout(() => {
         isInitializedRef.current = true;
-        prevEarnedRef.current = earnedBadges;
       }, 1000);
+      // Always update prevEarnedRef to current state (fixes stale closure issue)
+      prevEarnedRef.current = earnedBadges;
       return () => clearTimeout(timer);
     }
 

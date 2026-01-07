@@ -21,9 +21,10 @@ import { hapticLight, hapticMedium, hapticSelection, hapticSuccess } from './lib
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider, useTrip } from './context/TripContext';
 import { UIProvider, useUI } from './context/UIContext';
+import { SlotsProvider, useSlots } from './context/SlotsContext';
 
 // Hook imports
-import { useNotes, usePhotos, useCheckIns, useDebounce, useStorage } from './hooks';
+import { useNotes, usePhotos, useCheckIns } from './hooks';
 
 // Data imports
 import { machineCategories, machines } from './data/machines';
@@ -119,17 +120,25 @@ function MainApp() {
     toggleDevMode,
   } = useUI();
 
-  // Slots state (will be moved to SlotsContext in PR 3)
-  const [selectedMachine, setSelectedMachine] = useState(null);
-  const [recentMachines, setRecentMachines] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const debouncedSearch = useDebounce(searchQuery, 300);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [machineViewMode, setMachineViewMode] = useStorage(STORAGE_KEYS.VIEW_MODE, VIEW_MODES.CARDS);
-  const [apOnly, setApOnly] = useState(false);
-  const [releaseYearFilter, setReleaseYearFilter] = useState('all');
-  const [calcCurrent, setCalcCurrent] = useState('');
-  const [calcCeiling, setCalcCeiling] = useState('');
+  // Slots Context - machine selection, filtering, and preferences
+  const {
+    selectedMachine, setSelectedMachine,
+    recentMachines,
+    selectMachine,
+    searchQuery, setSearchQuery,
+    debouncedSearch,
+    selectedCategory, setSelectedCategory,
+    machineViewMode, setMachineViewMode,
+    apOnly, setApOnly,
+    setReleaseYearFilter,
+    calcCurrent, setCalcCurrent,
+    calcCeiling, setCalcCeiling,
+    calcResult,
+    filteredMachines,
+    apCount,
+    totalCount,
+    updateViewMode,
+  } = useSlots();
 
   // Other local state
   const [recentActivity, setRecentActivity] = useState([]);
@@ -173,24 +182,12 @@ function MainApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- setters from context are stable
   }, [viewingPhoto, showTierHelp, showTripSettings, showSpotter, showNoteForm, selectedMachine, showOnboarding]);
 
-  // Track recently viewed machines
-  const selectMachine = (machine) => {
-    setSelectedMachine(machine);
-    if (machine) {
-      setRecentMachines(prev => {
-        const filtered = prev.filter(m => m.id !== machine.id);
-        return [machine, ...filtered].slice(0, 5); // Keep last 5
-      });
-    }
-  };
-
   // tierColors moved to src/constants/index.js as TIER_COLORS
   // Use getTierColors(tier) helper for safe access with fallback
 
   const currentCasinoInfo = myCheckIn ? vegasCasinos.find(c => c.id === myCheckIn.casino_id) : null;
 
-  // Settings save helpers (useStorage handles persistence automatically)
-  const updateViewMode = setMachineViewMode;
+  // Settings save helpers
   const updateLeftHandedMode = setLeftHandedMode;
 
   // Debug mode for testing check-in flows (set to null to use real geolocation)
@@ -403,27 +400,7 @@ function MainApp() {
     setShowSpotter(true);
   };
 
-  const calcResult = (() => {
-    const c = parseFloat(calcCurrent), ceil = parseFloat(calcCeiling);
-    return (!isNaN(c) && !isNaN(ceil) && ceil > 0) ? ((c / ceil) * 100).toFixed(1) : null;
-  })();
-
-  const filteredMachines = machines.filter(m => {
-    // Safeguard: ensure this is a valid machine entry with required fields
-    if (!m.id || !m.tier || !m.name) return false;
-    
-    const matchesSearch = !debouncedSearch || 
-      m.name.toLowerCase().includes(debouncedSearch.toLowerCase()) || 
-      m.shortName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
-      m.manufacturer?.toLowerCase().includes(debouncedSearch.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || m.category === selectedCategory;
-    const matchesAP = !apOnly || m.category !== 'entertainment';
-    const matchesYear = releaseYearFilter === 'all' || m.releaseYear === parseInt(releaseYearFilter);
-    return matchesSearch && matchesCategory && matchesAP && matchesYear;
-  });
-
-  // Count AP machines for toggle label
-  const apCount = machines.filter(m => m.id && m.category !== 'entertainment').length;
+  // calcResult, filteredMachines, and apCount are now from SlotsContext
 
   const filteredNotes = debouncedSearch
     ? notes.filter(n => n.machine.toLowerCase().includes(debouncedSearch.toLowerCase()) || n.casino?.toLowerCase().includes(debouncedSearch.toLowerCase()))
@@ -1142,7 +1119,7 @@ function MainApp() {
                     : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
                 }`}
               >
-                All ({apOnly ? apCount : machines.length})
+                All ({apOnly ? apCount : totalCount})
               </button>
               {Object.entries(machineCategories)
                 .filter(([key]) => !apOnly || key !== 'entertainment')
@@ -2250,7 +2227,9 @@ function AppContent() {
     <TripProvider>
       <BadgeProvider>
         <UIProvider>
-          <TripContent />
+          <SlotsProvider>
+            <TripContent />
+          </SlotsProvider>
         </UIProvider>
       </BadgeProvider>
     </TripProvider>

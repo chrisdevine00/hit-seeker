@@ -15,7 +15,7 @@ import {
 
 // Lib imports
 import { injectGlobalStyles } from './lib/theme';
-import { hapticLight, hapticMedium, hapticSelection, hapticSuccess } from './lib/haptics';
+// haptics moved to extracted components
 
 // Context imports
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -38,11 +38,11 @@ import { vegasCasinos } from './data/casinos';
 import { LoginScreen, TripSelectionScreen } from './screens';
 
 // Component imports
-import { TripHeader, DesktopSidebar } from './components/layout';
-import { StrategyValidator, DevModePanel } from './components/features';
+import { TripHeader, DesktopSidebar, BottomNavigation } from './components/layout';
+import { StrategyValidator, DevModePanel, OnboardingModal, TripSettingsModal } from './components/features';
 import { initErrorCapture } from './lib/errorCapture';
-import { ConfirmDialog, FilledMapPin, Button, PhotoViewer } from './components/ui';
-import { Toaster, toast } from 'sonner';
+import { ConfirmDialog, FilledMapPin, Button, PhotoViewer, TierHelpModal, CheckInConfirmModal } from './components/ui';
+import { Toaster } from 'sonner';
 
 // Feature imports
 import { MachineCarousel, MachineDetail, HuntTab } from './features/slots';
@@ -91,8 +91,8 @@ const NAV_TABS = [
 // MAIN APP COMPONENT
 // ============================================
 function MainApp() {
-  const { user, profile, signOut } = useAuth();
-  const { trips, currentTrip, tripMembers, clearTrip } = useTrip();
+  const { user } = useAuth();
+  const { trips, currentTrip, tripMembers } = useTrip();
   const { notes, addNote, deleteNote, refresh: refreshNotes } = useNotes();
   const { photos, deletePhoto, getPhotoUrl, getMachinePhotos } = usePhotos();
   const { checkIns, myCheckIn, checkIn } = useCheckIns();
@@ -111,11 +111,8 @@ function MainApp() {
     showTierHelp, setShowTierHelp,
     confirmDelete, setConfirmDelete,
     viewingPhoto, setViewingPhoto,
-    pendingCheckIn, setPendingCheckIn,
+    setPendingCheckIn,
     showOnboarding, setShowOnboarding,
-    onboardingStep, setOnboardingStep,
-    completeOnboarding,
-    leftHandedMode, setLeftHandedMode,
     devModeEnabled,
   } = useUI();
 
@@ -123,8 +120,6 @@ function MainApp() {
   const {
     selectedMachine, setSelectedMachine,
     debouncedSearch,
-    machineViewMode,
-    updateViewMode,
   } = useSlots();
 
   // Other local state
@@ -173,9 +168,6 @@ function MainApp() {
   // Use getTierColors(tier) helper for safe access with fallback
 
   const currentCasinoInfo = myCheckIn ? vegasCasinos.find(c => c.id === myCheckIn.casino_id) : null;
-
-  // Settings save helpers
-  const updateLeftHandedMode = setLeftHandedMode;
 
   // Debug Context - debug state and actions
   const {
@@ -257,20 +249,6 @@ function MainApp() {
       });
   };
 
-  const confirmCheckIn = () => {
-    if (pendingCheckIn) {
-      hapticSuccess();
-      handleCheckIn(pendingCheckIn);
-      setPendingCheckIn(null);
-    }
-  };
-
-  const cancelCheckIn = () => {
-    setPendingCheckIn(null);
-    setActiveTab(TAB_IDS.TRIP);
-    setTripSubTab('casinos');
-  };
-
   const handleDeletePhoto = async (machineId, photoId) => {
     await deletePhoto(machineId, photoId);
     setViewingPhoto(null);
@@ -324,136 +302,9 @@ function MainApp() {
     ? notes.filter(n => n.machine.toLowerCase().includes(debouncedSearch.toLowerCase()) || n.casino?.toLowerCase().includes(debouncedSearch.toLowerCase()))
     : notes;
 
-  // Trip Settings Modal
+  // Trip Settings Modal - extracted to TripSettingsModal component
   if (showTripSettings) {
-    return (
-      <div className="min-h-screen bg-[#0d0d0d] p-6">
-        <div className="max-w-md mx-auto">
-          <button onClick={() => setShowTripSettings(false)} className="no-animate flex items-center gap-2 text-[#d4a855] mb-6">
-            <ChevronLeft size={20} /> Back
-          </button>
-          
-          <h2 className="text-2xl font-bold text-white mb-6">{currentTrip.name}</h2>
-          
-          <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
-            <h3 className="font-semibold text-white mb-3">Share Code</h3>
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(currentTrip.share_code.toUpperCase());
-                hapticLight();
-                toast.success('Code copied to clipboard!');
-              }}
-              className="w-full bg-[#0d0d0d] px-4 py-3 rounded flex items-center justify-center gap-3 hover:bg-[#1a1a1a] transition-colors group"
-            >
-              <code className="text-white font-mono text-xl tracking-wider">
-                {currentTrip.share_code.toUpperCase()}
-              </code>
-              <Copy size={18} className="text-[#666] group-hover:text-[#d4a855] transition-colors" />
-            </button>
-            <p className="text-[#bbbbbb] text-sm text-center mt-2">Tap to copy and share with friends</p>
-          </div>
-
-          <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
-            <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
-              <Users size={18} /> Members ({tripMembers.length})
-            </h3>
-            <div className="space-y-2">
-              {tripMembers.map((member, idx) => (
-                <div key={member.user_id || `member-${idx}`} className="flex items-center gap-3 p-2 bg-[#0d0d0d]/50 rounded">
-                  {member.avatar_url ? (
-                    <img src={member.avatar_url} alt="" className="w-8 h-8 rounded-full" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-[#bbbbbb] text-sm">
-                      {member.display_name?.[0]?.toUpperCase() || '?'}
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <p className="text-white text-sm">{member.display_name || member.email}</p>
-                    <p className="text-[#aaaaaa] text-xs">{member.role}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* User Settings Section */}
-          <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
-            <h3 className="font-semibold text-white mb-4">Settings</h3>
-
-            {/* Account Info */}
-            <div className="flex items-center gap-3 p-3 bg-[#0d0d0d]/50 rounded mb-4">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="" className="w-10 h-10 rounded-full" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-[#d4a855] flex items-center justify-center text-black font-bold">
-                  {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-medium truncate">{profile?.display_name || 'User'}</p>
-                <p className="text-[#888] text-sm truncate">{user?.email}</p>
-              </div>
-            </div>
-
-            {/* Default View Mode */}
-            <div className="flex items-center justify-between py-3 border-t border-[#333]">
-              <div>
-                <p className="text-white text-sm">Default View</p>
-                <p className="text-[#666] text-xs">Card or list layout for machines</p>
-              </div>
-              <div className="flex bg-[#0d0d0d] rounded overflow-hidden">
-                <button
-                  onClick={() => updateViewMode('cards')}
-                  className={`px-3 py-1.5 text-sm transition-colors ${
-                    machineViewMode === 'cards' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#888]'
-                  }`}
-                >
-                  Cards
-                </button>
-                <button
-                  onClick={() => updateViewMode('list')}
-                  className={`px-3 py-1.5 text-sm transition-colors ${
-                    machineViewMode === 'list' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#888]'
-                  }`}
-                >
-                  List
-                </button>
-              </div>
-            </div>
-
-            {/* Left-Handed Mode */}
-            <div className="flex items-center justify-between py-3 border-t border-[#333]">
-              <div>
-                <p className="text-white text-sm">Left-Handed Mode</p>
-                <p className="text-[#666] text-xs">Move Add button to left side</p>
-              </div>
-              <button
-                onClick={() => updateLeftHandedMode(!leftHandedMode)}
-                className={`w-12 h-7 rounded-full transition-colors relative ${
-                  leftHandedMode ? 'bg-gradient-to-r from-[#d4a855] to-amber-600' : 'bg-[#333]'
-                }`}
-              >
-                <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${
-                  leftHandedMode ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
-            </div>
-          </div>
-
-          <Button
-            onClick={() => { clearTrip(); setShowTripSettings(false); }}
-            variant="secondary"
-            className="w-full py-3 flex items-center justify-center gap-2 mb-3 text-white"
-          >
-            <ChevronLeft size={18} /> Switch Trip
-          </Button>
-
-          <Button onClick={signOut} variant="secondary" className="w-full py-3 flex items-center justify-center gap-2">
-            <LogOut size={18} /> Sign Out
-          </Button>
-        </div>
-      </div>
-    );
+    return <TripSettingsModal />;
   }
 
   // Photo Viewer
@@ -495,355 +346,11 @@ function MainApp() {
         onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? handleToggleDevMode : null}
       />
 
-      {/* Onboarding Modal - 5 Step Walkthrough */}
-      {showOnboarding && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#161616] border border-[#333] rounded max-w-sm w-full p-6 max-h-[90vh] overflow-y-auto">
-            
-            {/* Progress Dots */}
-            <div className="flex justify-center gap-2 mb-6">
-              {[1, 2, 3, 4, 5, 6].map(step => (
-                <div
-                  key={step}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    step === onboardingStep ? 'bg-gradient-to-r from-[#d4a855] to-amber-600' :
-                    step < onboardingStep ? 'bg-[#d4a855]/50' : 'bg-[#333]'
-                  }`}
-                />
-              ))}
-            </div>
+      {/* Onboarding Modal - extracted component */}
+      <OnboardingModal />
 
-            {/* Step 1: Welcome + Tiers */}
-            {onboardingStep === 1 && (
-              <>
-                <div className="text-center mb-6">
-                  <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    <span className="text-white">Welcome to </span>
-                    <span className="text-[#d4a855]">Hit</span><span className="bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent">S</span><span className="text-[#d4a855]">eeker</span>
-                  </h1>
-                  <p className="text-[#aaa] text-sm">Your advantage play companion</p>
-                </div>
-
-                <p className="text-white text-center mb-4 font-medium">Machines are organized into 3 tiers:</p>
-
-                <div className="space-y-3 mb-6">
-                  <div className="bg-emerald-900/20 border border-emerald-500/30 rounded p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="bg-emerald-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">T1</span>
-                      <span className="text-emerald-400 font-semibold text-sm">Must-Hit-By</span>
-                    </div>
-                    <p className="text-[#bbb] text-xs">Jackpots that MUST hit by a ceiling amount.</p>
-                  </div>
-
-                  <div className="bg-amber-900/20 border border-amber-500/30 rounded p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="bg-amber-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">T2</span>
-                      <span className="text-amber-400 font-semibold text-sm">Persistent State</span>
-                    </div>
-                    <p className="text-[#bbb] text-xs">Machines that save progress between players.</p>
-                  </div>
-
-                  <div className="bg-red-900/20 border border-red-500/30 rounded p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">T3</span>
-                      <span className="text-red-400 font-semibold text-sm">Entertainment</span>
-                    </div>
-                    <p className="text-[#bbb] text-xs">No advantage play. Fun only!</p>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Step 2: Hunt Tab */}
-            {onboardingStep === 2 && (
-              <>
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                    <Gem size={32} className="text-[#d4a855]" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-2">Hunt Tab</h2>
-                  <p className="text-[#aaa] text-sm">Find your next play</p>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Search size={16} className="text-[#d4a855]" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Search 777 machines</p>
-                      <p className="text-[#aaa] text-xs">By name, manufacturer, or type</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Target size={16} className="text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Filter by AP Only</p>
-                      <p className="text-[#aaa] text-xs">Show only advantage play machines (T1 & T2)</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Grid size={16} className="text-[#d4a855]" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Browse by category</p>
-                      <p className="text-[#aaa] text-xs">Must-Hit-By, Persistent State, and more</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Step 3: Machine Details */}
-            {onboardingStep === 3 && (
-              <>
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                    <Calculator size={32} className="text-[#d4a855]" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-2">Machine Details</h2>
-                  <p className="text-[#aaa] text-sm">Everything you need to decide</p>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <div className="bg-emerald-900/20 border border-emerald-500/30 rounded p-3">
-                    <p className="text-emerald-400 font-medium text-sm mb-1">T1: MHB Calculator</p>
-                    <p className="text-[#aaa] text-xs">Enter current value and ceiling to see if it's worth playing</p>
-                  </div>
-
-                  <div className="bg-amber-900/20 border border-amber-500/30 rounded p-3">
-                    <p className="text-amber-400 font-medium text-sm mb-1">T2: Visual Cues</p>
-                    <p className="text-[#aaa] text-xs">See exactly what to look for on the machine</p>
-                  </div>
-
-                  <div className="flex items-start gap-3 mt-4">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Camera size={16} className="text-[#d4a855]" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Add photos & notes</p>
-                      <p className="text-[#aaa] text-xs">Remember where you found good machines</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Step 4: Trip Coordination */}
-            {onboardingStep === 4 && (
-              <>
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                    <Users size={32} className="text-[#d4a855]" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-2">Trip Tab</h2>
-                  <p className="text-[#aaa] text-sm">Coordinate with your team</p>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <FilledMapPin size={16} className="text-emerald-400" holeColor="#2a2a2a" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Check in to casinos</p>
-                      <p className="text-[#aaa] text-xs">Let teammates know where you are</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <StickyNote size={16} className="text-[#d4a855]" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Share scouting notes</p>
-                      <p className="text-[#aaa] text-xs">Team sees notes in real-time</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Target size={16} className="text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Hot Opportunities</p>
-                      <p className="text-[#aaa] text-xs">See today's best finds from the team</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Step 5: Video Poker */}
-            {onboardingStep === 5 && (
-              <>
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                    <Spade size={32} className="text-[#d4a855]" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-2">Video Poker</h2>
-                  <p className="text-[#aaa] text-sm">Find the best pay tables</p>
-                </div>
-
-                <div className="space-y-4 mb-6">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Search size={16} className="text-[#d4a855]" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">88 Game Variants</p>
-                      <p className="text-[#aaa] text-xs">Jacks or Better, Deuces Wild, Ultimate X, and more</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <Calculator size={16} className="text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Pay Table Analyzer</p>
-                      <p className="text-[#aaa] text-xs">See return % and find HUNT-worthy machines</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                      <BookOpen size={16} className="text-amber-400" />
-                    </div>
-                    <div>
-                      <p className="text-white font-medium text-sm">Hand Checker</p>
-                      <p className="text-[#aaa] text-xs">Enter your hand, get the optimal play</p>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {/* Step 6: Get Started */}
-            {onboardingStep === 6 && (
-              <>
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-[#d4a855]/20 rounded-full flex items-center justify-center">
-                    <Gem size={32} className="text-[#d4a855]" />
-                  </div>
-                  <h2 className="text-xl font-bold text-white mb-2">You're Ready!</h2>
-                  <p className="text-[#aaa] text-sm">Time to hit the floor</p>
-                </div>
-
-                <div className="bg-[#1a1a1a] rounded p-4 mb-6">
-                  <p className="text-white font-medium text-sm mb-3">Quick start tips:</p>
-                  <ul className="space-y-2 text-[#aaa] text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4a855]">1.</span>
-                      <span>Tap <strong className="text-white">Check In</strong> in the top-right</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4a855]">2.</span>
-                      <span>Turn on <strong className="text-white">AP Only</strong> to focus on plays</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-[#d4a855]">3.</span>
-                      <span>Search for machines you see on the floor</span>
-                    </li>
-                  </ul>
-                </div>
-              </>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex gap-3">
-              {onboardingStep > 1 && (
-                <button
-                  onClick={() => setOnboardingStep(onboardingStep - 1)}
-                  className="flex-1 bg-[#2a2a2a] hover:bg-[#333] text-white font-semibold py-3 rounded transition-colors"
-                >
-                  Back
-                </button>
-              )}
-              
-              {onboardingStep < 6 ? (
-                <Button
-                  onClick={() => setOnboardingStep(onboardingStep + 1)}
-                  variant="primary"
-                  className="flex-1 py-3 font-bold"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  onClick={completeOnboarding}
-                  variant="primary"
-                  className="flex-1 py-3 font-bold"
-                >
-                  Start Hunting
-                </Button>
-              )}
-            </div>
-
-            {/* Skip button */}
-            {onboardingStep < 6 && (
-              <button
-                onClick={completeOnboarding}
-                className="w-full mt-3 text-[#aaa] hover:text-[#aaa] text-sm transition-colors"
-              >
-                Skip intro
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Tier Help Modal - Can be reopened anytime */}
-      {showTierHelp && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowTierHelp(false)}>
-          <div className="bg-[#161616] border border-[#333] rounded max-w-sm w-full p-5" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Understanding Tiers</h2>
-              <button onClick={() => setShowTierHelp(false)} className="text-[#aaa] hover:text-white" aria-label="Close">
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="bg-emerald-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shrink-0 mt-0.5">T1</span>
-                <div>
-                  <p className="text-emerald-400 font-medium text-sm">Must-Hit-By Jackpots</p>
-                  <p className="text-[#aaa] text-xs">Progressive must hit before ceiling. Play when 90%+ filled.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="bg-amber-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shrink-0 mt-0.5">T2</span>
-                <div>
-                  <p className="text-amber-400 font-medium text-sm">Persistent State</p>
-                  <p className="text-[#aaa] text-xs">Banked coins, meters, collectibles. Look for machines left in good states.</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shrink-0 mt-0.5">T3</span>
-                <div>
-                  <p className="text-red-400 font-medium text-sm">Entertainment Only</p>
-                  <p className="text-[#aaa] text-xs">No edge. House always wins long-term. Play for fun only.</p>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setShowTierHelp(false)}
-              className="w-full mt-4 bg-[#2a2a2a] hover:bg-[#333] text-white py-2 rounded text-sm transition-colors"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Tier Help Modal - extracted component */}
+      <TierHelpModal />
 
       <ConfirmDialog
         isOpen={!!confirmDelete}
@@ -853,62 +360,8 @@ function MainApp() {
         onCancel={() => setConfirmDelete(null)}
       />
 
-      {/* Check-in Confirmation Modal */}
-      {pendingCheckIn && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#161616] border border-[#333] rounded p-6 max-w-sm w-full">
-            <div className="text-center mb-4">
-              <div className="w-14 h-14 mx-auto mb-3 bg-emerald-600/20 rounded-full flex items-center justify-center">
-                <FilledMapPin size={28} className="text-emerald-400" holeColor="#161616" />
-              </div>
-              <h3 className="text-lg font-bold text-white mb-1">
-                {myCheckIn ? 'Switch Location?' : 'Check In?'}
-              </h3>
-              <p className="text-[#aaa] text-sm">
-                {myCheckIn 
-                  ? `You're currently at ${myCheckIn.casino_name}` 
-                  : 'We detected you\'re near'}
-              </p>
-            </div>
-            
-            {myCheckIn && (
-              <div className="flex items-center justify-center gap-2 mb-3 text-[#888] text-sm">
-                <span>{myCheckIn.casino_name}</span>
-                <ChevronRight size={16} />
-                <span className="text-emerald-400">{pendingCheckIn.name}</span>
-              </div>
-            )}
-            
-            <div className="bg-[#0d0d0d] border border-emerald-500/30 rounded p-4 mb-4">
-              <p className="text-white font-bold text-lg">{pendingCheckIn.name}</p>
-              <p className="text-[#aaa] text-sm">{pendingCheckIn.area} • {pendingCheckIn.slots} slots</p>
-            </div>
-            
-            <div className="space-y-2">
-              <Button
-                onClick={confirmCheckIn}
-                variant="success"
-                className="w-full"
-              >
-                {myCheckIn ? `Switch to ${pendingCheckIn.name}` : 'Check In'}
-              </Button>
-              <Button
-                onClick={cancelCheckIn}
-                variant="secondary"
-                className="w-full"
-              >
-                Choose Different Casino
-              </Button>
-              <button 
-                onClick={() => setPendingCheckIn(null)}
-                className="w-full text-[#666] hover:text-[#aaa] py-2 text-sm"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Check-in Confirmation Modal - extracted component */}
+      <CheckInConfirmModal onCheckIn={handleCheckIn} />
 
       {/* Dev Mode Button - Only visible to admin when dev mode is enabled */}
       {user?.email === APP_CONFIG.DEV_EMAIL && devModeEnabled && (
@@ -1008,93 +461,8 @@ function MainApp() {
         onDismiss={dismissBadge}
       />
 
-      {/* Bottom Navigation - Mobile Only */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2 md:hidden">
-        {/* SVG gradient definitions for tab icons */}
-        <svg width="0" height="0" className="absolute">
-          <defs>
-            <linearGradient id="nav-tab-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#d4a855" />
-              <stop offset="100%" stopColor="#d97706" />
-            </linearGradient>
-            <linearGradient id="liquid-fill-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="transparent" />
-              <stop offset="45%" stopColor="transparent" />
-              <stop offset="50%" stopColor="#d4a855" />
-              <stop offset="100%" stopColor="#d97706" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="flex justify-around items-end max-w-md mx-auto relative">
-          {/* FAB spacer - first position if left-handed */}
-          {leftHandedMode && (
-            <div className="flex flex-col items-center py-2 px-5 relative">
-              <div className="w-[32px] h-[22px]" />
-              <span className="text-xs mt-1 font-medium opacity-0">Add</span>
-              <button
-                onClick={() => {
-                  hapticMedium();
-                  setSpotterData({ type: 'slot' });
-                  setShowSpotter(true);
-                }}
-                className="absolute -top-7 left-1/2 -translate-x-1/2"
-              >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#d4a855] to-amber-600 flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
-                  <Plus size={32} className="text-black" strokeWidth={2.5} />
-                </div>
-              </button>
-            </div>
-          )}
-
-          {/* All nav tabs */}
-          {NAV_TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                hapticSelection();
-                if (activeTab !== tab.id) {
-                  setAnimatingTab(tab.id);
-                }
-                setActiveTab(tab.id);
-                setSelectedMachine(null);
-                setSelectedCasino(null);
-              }}
-              className="flex flex-col items-center py-2 px-3"
-            >
-              <tab.icon
-                size={22}
-                className={animatingTab === tab.id ? 'animate-nav-pop' : ''}
-                onAnimationEnd={() => setAnimatingTab(null)}
-                stroke={activeTab === tab.id ? 'url(#nav-tab-gradient)' : '#aaaaaa'}
-                fill={activeTab === tab.id && tab.id === 'bloodies' ? 'url(#liquid-fill-gradient)' : 'none'}
-              />
-              <span className={`text-xs mt-1 font-medium ${
-                activeTab === tab.id ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent' : 'text-[#aaaaaa]'
-              }`}>{tab.label}</span>
-            </button>
-          ))}
-
-          {/* FAB spacer - last position if right-handed (default) */}
-          {!leftHandedMode && (
-            <div className="flex flex-col items-center py-2 px-5 relative">
-              <div className="w-[32px] h-[22px]" />
-              <span className="text-xs mt-1 font-medium opacity-0">Add</span>
-              <button
-                onClick={() => {
-                  hapticMedium();
-                  setSpotterData({ type: 'slot' });
-                  setShowSpotter(true);
-                }}
-                className="absolute -top-7 left-1/2 -translate-x-1/2"
-              >
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#d4a855] to-amber-600 flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
-                  <Plus size={32} className="text-black" strokeWidth={2.5} />
-                </div>
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
+      {/* Bottom Navigation - extracted component */}
+      <BottomNavigation />
     </div>
   );
 }

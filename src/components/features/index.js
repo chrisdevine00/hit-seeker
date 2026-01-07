@@ -2,4 +2,4 @@
 export { StrategyValidator } from './StrategyValidator';
 export { DevModePanel } from './DevModePanel';
 export { OnboardingModal } from './OnboardingModal';
-export { TripSettingsModal } from './TripSettingsModal';
+export { SettingsScreen } from './SettingsScreen';

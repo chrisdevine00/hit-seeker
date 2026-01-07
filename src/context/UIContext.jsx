@@ -40,6 +40,7 @@ export function UIProvider({ children }) {
   // USER PREFERENCES (persisted)
   // =============================================================================
   const [leftHandedMode, setLeftHandedMode] = useStorage(STORAGE_KEYS.LEFT_HANDED, false);
+  const [hapticsEnabled, setHapticsEnabled] = useStorage(STORAGE_KEYS.HAPTICS, true);
   const [devModeEnabled, setDevModeEnabled] = useStorage(STORAGE_KEYS.DEV_MODE, false);
 
   // =============================================================================
@@ -94,6 +95,10 @@ export function UIProvider({ children }) {
   const toggleLeftHandedMode = useCallback(() => {
     setLeftHandedMode(prev => !prev);
   }, [setLeftHandedMode]);
+
+  const toggleHaptics = useCallback(() => {
+    setHapticsEnabled(prev => !prev);
+  }, [setHapticsEnabled]);
 
   const toggleDevMode = useCallback(() => {
     setDevModeEnabled(prev => !prev);
@@ -154,6 +159,9 @@ export function UIProvider({ children }) {
     // Preferences
     leftHandedMode,
     setLeftHandedMode,
+    hapticsEnabled,
+    setHapticsEnabled,
+    toggleHaptics,
     devModeEnabled,
     setDevModeEnabled,
     toggleLeftHandedMode,

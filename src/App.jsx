@@ -39,7 +39,7 @@ import { LoginScreen, TripSelectionScreen } from './screens';
 
 // Component imports
 import { TripHeader, DesktopSidebar, BottomNavigation } from './components/layout';
-import { StrategyValidator, DevModePanel, OnboardingModal, TripSettingsModal } from './components/features';
+import { StrategyValidator, DevModePanel, OnboardingModal, SettingsScreen } from './components/features';
 import { initErrorCapture } from './lib/errorCapture';
 import { ConfirmDialog, FilledMapPin, Button, PhotoViewer, TierHelpModal, CheckInConfirmModal } from './components/ui';
 import { Toaster } from 'sonner';
@@ -302,9 +302,9 @@ function MainApp() {
     ? notes.filter(n => n.machine.toLowerCase().includes(debouncedSearch.toLowerCase()) || n.casino?.toLowerCase().includes(debouncedSearch.toLowerCase()))
     : notes;
 
-  // Trip Settings Modal - extracted to TripSettingsModal component
+  // Settings Screen - unified user + trip settings
   if (showTripSettings) {
-    return <TripSettingsModal />;
+    return <SettingsScreen />;
   }
 
   // Photo Viewer

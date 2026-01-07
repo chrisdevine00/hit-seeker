@@ -1,5 +1,6 @@
 // Haptics utility with Capacitor native support and web fallback
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics';
+import { STORAGE_KEYS } from '../constants';
 
 // Check if we're on a native platform
 const isNative = () => window.Capacitor?.isNativePlatform?.() ?? false;
@@ -7,10 +8,22 @@ const isNative = () => window.Capacitor?.isNativePlatform?.() ?? false;
 // Check if web vibration API is available
 const canVibrate = () => 'vibrate' in navigator;
 
+// Check if haptics are enabled (reads from localStorage)
+const isHapticsEnabled = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.HAPTICS);
+    // Default to true if not set
+    return stored === null ? true : JSON.parse(stored);
+  } catch {
+    return true;
+  }
+};
+
 /**
  * Light impact - for button taps, selections
  */
 export const hapticLight = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.impact({ style: ImpactStyle.Light });
@@ -26,6 +39,7 @@ export const hapticLight = async () => {
  * Medium impact - for confirmations, success actions
  */
 export const hapticMedium = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.impact({ style: ImpactStyle.Medium });
@@ -41,6 +55,7 @@ export const hapticMedium = async () => {
  * Heavy impact - for important actions, errors
  */
 export const hapticHeavy = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.impact({ style: ImpactStyle.Heavy });
@@ -56,6 +71,7 @@ export const hapticHeavy = async () => {
  * Selection changed - for picker/tab changes
  */
 export const hapticSelection = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.selectionChanged();
@@ -71,6 +87,7 @@ export const hapticSelection = async () => {
  * Success notification - for completed actions
  */
 export const hapticSuccess = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.notification({ type: NotificationType.Success });
@@ -86,6 +103,7 @@ export const hapticSuccess = async () => {
  * Warning notification - for warnings
  */
 export const hapticWarning = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.notification({ type: NotificationType.Warning });
@@ -101,6 +119,7 @@ export const hapticWarning = async () => {
  * Error notification - for errors
  */
 export const hapticError = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       await Haptics.notification({ type: NotificationType.Error });
@@ -116,6 +135,7 @@ export const hapticError = async () => {
  * Celebration - for badge unlocks, achievements
  */
 export const hapticCelebration = async () => {
+  if (!isHapticsEnabled()) return;
   try {
     if (isNative()) {
       // Double heavy impact for celebration

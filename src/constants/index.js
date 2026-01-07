@@ -11,6 +11,7 @@ export const STORAGE_KEYS = {
   ONBOARDED: 'hitseeker_onboarded',
   VIEW_MODE: 'hitseeker_view_mode',
   LEFT_HANDED: 'hitseeker_left_handed',
+  HAPTICS: 'hitseeker_haptics',
   DEV_MODE: 'devModeEnabled',
   LAST_TRIP: 'hitSeeker_lastTrip', // Keep original casing for backwards compatibility
   BLOODIES: 'hitseeker_bloodies',

@@ -1,21 +1,45 @@
 import React, { useState } from 'react';
 import { Camera, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useSlots } from '../../../context/SlotsContext';
+import { usePhotos } from '../../../hooks';
+
+// Tier color schemes
+const TIER_COLORS = {
+  1: {
+    bg: 'bg-emerald-900/20',
+    border: 'border-emerald-500/30',
+    text: 'text-emerald-400',
+  },
+  2: {
+    bg: 'bg-amber-900/20',
+    border: 'border-amber-500/30',
+    text: 'text-amber-400',
+  },
+  3: {
+    bg: 'bg-red-900/20',
+    border: 'border-red-500/30',
+    text: 'text-red-400',
+  },
+};
 
 /**
  * MachineCarousel - Displays a carousel of slot machines for a specific tier
+ * Uses SlotsContext for machine data and selection
+ * Uses usePhotos for photo display
  *
- * @param {Object[]} machines - Array of all machines
- * @param {Object} tierColors - Color scheme object for each tier
- * @param {Function} onSelect - Callback when a machine is selected
  * @param {number} tier - The tier to filter machines by (1, 2, or 3)
- * @param {Function} getLatestPhoto - Function to get the latest photo for a machine
- * @param {Function} getPhotoUrl - Function to get the URL for a photo
  */
-export function MachineCarousel({ machines, tierColors, onSelect, tier, getLatestPhoto, getPhotoUrl }) {
+export function MachineCarousel({ tier = 1 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const safeTier = tier || 1;
-  const tierMachines = machines.filter(m => m.tier === safeTier);
-  const colors = tierColors[safeTier] || tierColors[1];
+
+  // Slots Context
+  const { machines, selectMachine } = useSlots();
+
+  // Photos
+  const { getLatestPhoto, getPhotoUrl } = usePhotos();
+
+  const tierMachines = machines.filter(m => m.tier === tier);
+  const colors = TIER_COLORS[tier] || TIER_COLORS[1];
 
   const goTo = (index) => {
     if (index < 0) index = tierMachines.length - 1;
@@ -73,7 +97,7 @@ export function MachineCarousel({ machines, tierColors, onSelect, tier, getLates
         </div>
 
         <button
-          onClick={() => onSelect(machine)}
+          onClick={() => selectMachine(machine)}
           className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 rounded text-sm font-medium"
         >
           View Details

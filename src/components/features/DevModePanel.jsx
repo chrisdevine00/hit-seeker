@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Info, RefreshCw, LogOut, Trash2, Copy, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Wifi, WifiOff } from 'lucide-react';
-import { subscribeToErrors, clearErrorLog, getErrorLog } from '../../lib/errorCapture';
+import { subscribeToErrors, clearErrorLog } from '../../lib/errorCapture';
 import { supabase } from '../../lib/supabase';
 import { hapticLight, hapticSuccess, hapticError } from '../../lib/haptics';
 
@@ -37,6 +37,9 @@ function ActionButton({ icon: Icon, label, info, infoTitle, onClick, variant = '
     success: 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50',
   };
 
+  // Use Icon variable to satisfy ESLint
+  const IconComponent = Icon;
+
   return (
     <div className="flex items-center gap-2">
       <button
@@ -44,7 +47,7 @@ function ActionButton({ icon: Icon, label, info, infoTitle, onClick, variant = '
         disabled={disabled}
         className={`flex-1 flex items-center gap-2 px-3 py-2 rounded text-sm transition-colors ${variants[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        <Icon size={16} />
+        <IconComponent size={16} />
         {label}
       </button>
       <InfoButton title={infoTitle}>{info}</InfoButton>
@@ -90,7 +93,7 @@ export function DevModePanel({
       const latency = Date.now() - start;
       if (error && error.code !== 'PGRST116') throw error;
       setConnectionStatus(`connected (${latency}ms)`);
-    } catch (e) {
+    } catch {
       setConnectionStatus('disconnected');
     }
   };
@@ -195,7 +198,7 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
       await navigator.clipboard.writeText(text);
       hapticSuccess();
       setActionStatus({ type: 'success', message: 'Copied to clipboard!' });
-    } catch (e) {
+    } catch {
       hapticError();
       setActionStatus({ type: 'error', message: 'Failed to copy' });
     }

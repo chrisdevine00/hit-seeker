@@ -317,12 +317,12 @@ function analyzeHandForWoO(cards) {
   suits.forEach((s, i) => { if (!suitCounts[s]) suitCounts[s] = []; suitCounts[s].push(i); });
   
   // Find pairs, trips, quads
-  const pairs = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 2);
-  const tripsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 3);
-  const quads = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 4);
-  
+  const pairs = Object.entries(rankCounts).filter(([, arr]) => arr.length === 2);
+  const tripsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 3);
+  const quads = Object.entries(rankCounts).filter(([, arr]) => arr.length === 4);
+
   // Flush check
-  const flushSuit = Object.entries(suitCounts).find(([s, arr]) => arr.length === 5)?.[0];
+  const flushSuit = Object.entries(suitCounts).find(([, arr]) => arr.length === 5)?.[0];
   const isFlush = !!flushSuit;
   
   // Straight check
@@ -380,7 +380,7 @@ function analyzeHandForWoO(cards) {
   };
   
   // Check for royal/SF draws
-  for (const [suit, indices] of Object.entries(suitCounts)) {
+  for (const [, indices] of Object.entries(suitCounts)) {
     if (indices.length >= 4) {
       const suitedCards = indices.map(i => cards[i]);
       const suitedRanks = suitedCards.map(c => c.rank);
@@ -462,7 +462,7 @@ function analyzeHandForWoO(cards) {
   }
   
   // Check suited high card pairs
-  for (const [suit, indices] of Object.entries(suitCounts)) {
+  for (const [, indices] of Object.entries(suitCounts)) {
     if (indices.length >= 2) {
       const suitedRanks = indices.map(i => cards[i].rank);
       if (suitedRanks.includes('Q') && suitedRanks.includes('J')) {
@@ -650,27 +650,27 @@ const getWoOStrategyRecommendation = (cards, payTable = null, gameType = 'jacks-
   // Handle Deuces Wild games
   const deucesWildGames = ['deuces-wild', 'double-deuces'];
   if (deucesWildGames.includes(gameType)) {
-    return getDeucesWildWoORecommendation(cards, payTable);
+    return getDeucesWildWoORecommendation(cards);
   }
   
   // Handle Loose Deuces (4 deuces = 500!)
   if (gameType === 'loose-deuces') {
-    return getLooseDeucesWoORecommendation(cards, payTable);
+    return getLooseDeucesWoORecommendation(cards);
   }
   
   // Handle Bonus Deuces Wild (has different pay table and strategy)
   if (gameType === 'bonus-deuces-wild') {
-    return getBonusDeucesWildWoORecommendation(cards, payTable);
+    return getBonusDeucesWildWoORecommendation(cards);
   }
   
   // Handle Joker Poker Kings or Better (53-card deck, min hand: Kings+)
   if (gameType === 'joker-poker-kings') {
-    return getJokerPokerKingsWoORecommendation(cards, payTable);
+    return getJokerPokerKingsWoORecommendation(cards);
   }
   
   // Handle Joker Poker Two Pair (53-card deck, min hand: Two Pair)
   if (gameType === 'joker-poker-twopair') {
-    return getJokerPokerTwoPairWoORecommendation(cards, payTable);
+    return getJokerPokerTwoPairWoORecommendation(cards);
   }
   
   // Handle Ultimate X variants - route to base game strategies
@@ -702,14 +702,14 @@ const getWoOStrategyRecommendation = (cards, payTable = null, gameType = 'jacks-
     return result;
   }
   if (gameType === 'ultimate-x-joker') {
-    const result = getJokerPokerKingsWoORecommendation(cards, payTable);
+    const result = getJokerPokerKingsWoORecommendation(cards);
     if (result) result.note = 'Ultimate X: Same strategy as base Joker Poker Kings (multipliers add ~0.2%)';
     return result;
   }
   
   // Handle other Joker Poker games (fallback to Kings strategy)
   if (gameType.includes('joker')) {
-    return getJokerPokerWoORecommendation(cards, payTable);
+    return getJokerPokerWoORecommendation(cards);
   }
   
   // Get strategy hierarchy
@@ -743,11 +743,10 @@ const getWoOStrategyRecommendation = (cards, payTable = null, gameType = 'jacks-
 };
 
 // Deuces Wild WoO recommendation
-const getDeucesWildWoORecommendation = (cards, payTable) => {
+const getDeucesWildWoORecommendation = (cards) => {
   const deuceCount = cards.filter(c => c.rank === '2').length;
   const deuceIndices = cards.map((c, i) => c.rank === '2' ? i : -1).filter(i => i >= 0);
   const nonDeuceCards = cards.filter(c => c.rank !== '2');
-  const nonDeuceIndices = cards.map((c, i) => c.rank !== '2' ? i : -1).filter(i => i >= 0);
   
   // Analyze non-deuce cards
   const ranks = cards.map(c => c.rank);
@@ -760,15 +759,13 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
   });
   
   // Find pairs/trips among non-deuces
-  const pairsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 2);
-  const tripsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 3);
-  const quadsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 4);
+  const pairsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 2);
+  const tripsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 3);
+  const quadsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 4);
   
   // Check for suited NON-DEUCE cards (deuces are wild and can be any suit!)
   const nonDeuceSuitCounts = {};
-  nonDeuceCards.forEach((c, origIdx) => {
-    const realIdx = nonDeuceIndices[nonDeuceCards.indexOf(c)] !== undefined ? 
-      cards.findIndex((card, i) => card === c && card.rank !== '2') : -1;
+  nonDeuceCards.forEach((c) => {
     // Find the actual index in original cards array
     const actualIdx = cards.indexOf(c);
     if (!nonDeuceSuitCounts[c.suit]) nonDeuceSuitCounts[c.suit] = [];
@@ -784,7 +781,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
   
   if (deuceCount === 3) {
     // Check for wild royal (3 deuces + 2 royal cards same suit among non-deuces)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 25.00 • Keep it!', payout: 25, source: 'wizardofodds.com' };
@@ -799,14 +796,14 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
   
   if (deuceCount === 2) {
     // Check for wild royal (2 deuces + 3 royal cards same suit among non-deuces)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 3) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 25.00 • Keep it!', payout: 25, source: 'wizardofodds.com' };
       }
     }
     // Check for straight flush (2 deuces + 3 suited cards that can make SF)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 3) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 3) {
@@ -828,7 +825,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [...deuceIndices, ...pairIndices], name: 'Four of a Kind', reason: 'EV: 5.76 • Draw 1 for 5K', payout: 5.76, source: 'wizardofodds.com' };
     }
     // Check for 4 to wild royal (2 deuces + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [...deuceIndices, ...royalInSuit.slice(0, 2)], name: '4 to Wild Royal', reason: 'EV: 14.89 • Draw 1', payout: 14.89, source: 'wizardofodds.com' };
@@ -841,7 +838,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
     const deuceIdx = deuceIndices[0];
     
     // Check for wild royal (1 deuce + 4 royal cards same suit among NON-DEUCES)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length === 4) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 25.00 • Keep it!', payout: 25, source: 'wizardofodds.com' };
@@ -852,7 +849,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Five of a Kind', reason: 'EV: 15.00 • Keep it!', payout: 15, source: 'wizardofodds.com' };
     }
     // Check for straight flush (1 deuce + 4 suited cards that form SF)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 4) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 4) {
@@ -870,7 +867,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [...deuceIndices, ...tripIndices], name: 'Four of a Kind', reason: 'EV: 5.76 • Draw 1 for 5K', payout: 5.76, source: 'wizardofodds.com' };
     }
     // Check for 4 to wild royal (1 deuce + 3 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 3) {
         return { hold: [deuceIdx, ...royalInSuit.slice(0, 3)], name: '4 to Wild Royal', reason: 'EV: 3.40 • Draw 1', payout: 3.40, source: 'wizardofodds.com' };
@@ -881,7 +878,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Full House', reason: 'EV: 3.00 • Keep it!', payout: 3, source: 'wizardofodds.com' };
     }
     // Flush check (deuce + 4 same suit non-deuces, but not SF)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 4) {
         return { hold: [0,1,2,3,4], name: 'Flush', reason: 'EV: 2.00 • Keep it!', payout: 2, source: 'wizardofodds.com' };
       }
@@ -907,7 +904,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [...deuceIndices, ...pairIndices], name: 'Three of a Kind', reason: 'EV: 1.51 • Draw 2 for Quads+', payout: 1.51, source: 'wizardofodds.com' };
     }
     // 4 to straight flush (1 deuce + 3 suited that can make SF)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 3) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 3) {
@@ -919,7 +916,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
       }
     }
     // 3 to wild royal (1 deuce + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [deuceIdx, ...royalInSuit.slice(0, 2)], name: '3 to Wild Royal', reason: 'EV: 1.17 • Draw 2', payout: 1.17, source: 'wizardofodds.com' };
@@ -960,7 +957,7 @@ const getDeucesWildWoORecommendation = (cards, payTable) => {
 };
 
 // Joker Poker WoO recommendation
-const getJokerPokerWoORecommendation = (cards, payTable) => {
+const getJokerPokerWoORecommendation = (cards) => {
   const hasJoker = cards.some(c => c.rank === 'JOKER' || c.isJoker);
   if (hasJoker) {
     const jokerIndices = cards.map((c, i) => (c.rank === 'JOKER' || c.isJoker) ? i : -1).filter(i => i >= 0);
@@ -1007,24 +1004,23 @@ const getJokerPokerWoORecommendation = (cards, payTable) => {
 //   - 5 of 3s/4s/5s = 40
 //   - 5 of 6s-Ks = 20
 // ============================================
-const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
+const getBonusDeucesWildWoORecommendation = (cards) => {
   const deuceCount = cards.filter(c => c.rank === '2').length;
   const deuceIndices = cards.map((c, i) => c.rank === '2' ? i : -1).filter(i => i >= 0);
   const nonDeuceCards = cards.filter(c => c.rank !== '2');
-  const nonDeuceIndices = cards.map((c, i) => c.rank !== '2' ? i : -1).filter(i => i >= 0);
-  
+
   // Analyze non-deuce cards
   const rankCounts = {};
-  cards.forEach((c, i) => { 
+  cards.forEach((c, i) => {
     if (c.rank !== '2') {
-      if (!rankCounts[c.rank]) rankCounts[c.rank] = []; 
-      rankCounts[c.rank].push(i); 
+      if (!rankCounts[c.rank]) rankCounts[c.rank] = [];
+      rankCounts[c.rank].push(i);
     }
   });
-  
-  const pairsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 2);
-  const tripsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 3);
-  const quadsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 4);
+
+  const pairsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 2);
+  const tripsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 3);
+  const quadsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 4);
   
   // Check for Aces among non-deuces
   const aceIndices = rankCounts['A'] || [];
@@ -1053,7 +1049,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
   // === 3 DEUCES ===
   if (deuceCount === 3) {
     // Check for wild royal (3 deuces + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 25.00 • Keep it!', payout: 25, source: 'wizardofodds.com' };
@@ -1080,7 +1076,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
   // === 2 DEUCES ===
   if (deuceCount === 2) {
     // Check for wild royal
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 3) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 25.00 • Keep it!', payout: 25, source: 'wizardofodds.com' };
@@ -1098,7 +1094,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Five of a Kind', reason: 'EV: 20.00', payout: 20, source: 'wizardofodds.com' };
     }
     // Check for straight flush
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 3) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 3) {
@@ -1111,19 +1107,18 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
     }
     // 4 of a kind (2 deuces + pair)
     if (pairsArr.length > 0) {
-      const pairRank = pairsArr[0][0];
       const pairIndices = pairsArr[0][1];
       return { hold: [...deuceIndices, ...pairIndices], name: 'Four of a Kind', reason: 'EV: ~6 • Draw 1 for 5K', payout: 6, source: 'wizardofodds.com' };
     }
     // 4 to wild royal (2 deuces + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [...deuceIndices, ...royalInSuit.slice(0, 2)], name: '4 to Wild Royal', reason: 'EV: 14.89 • Draw 1', payout: 14.89, source: 'wizardofodds.com' };
       }
     }
     // 4 to SF with specific patterns (WoO: deuces + 45/56/57/67/68/78/79/89/8T/9T/9J)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 2) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 2) {
@@ -1147,7 +1142,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
     const deuceIdx = deuceIndices[0];
     
     // Check for wild royal (1 deuce + 4 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length === 4) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 25.00 • Keep it!', payout: 25, source: 'wizardofodds.com' };
@@ -1165,7 +1160,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Five of a Kind', reason: 'EV: 20.00', payout: 20, source: 'wizardofodds.com' };
     }
     // Check for straight flush
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 4) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 4) {
@@ -1190,7 +1185,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [...deuceIndices, ...tripIndices], name: 'Four of a Kind', reason: 'EV: ~5 • Draw 1 for 5K', payout: 5, source: 'wizardofodds.com' };
     }
     // 4 to wild royal
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 3) {
         return { hold: [deuceIdx, ...royalInSuit.slice(0, 3)], name: '4 to Wild Royal', reason: 'EV: 3.40 • Draw 1', payout: 3.40, source: 'wizardofodds.com' };
@@ -1201,13 +1196,13 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Full House', reason: 'EV: 3.00 • Keep it!', payout: 3, source: 'wizardofodds.com' };
     }
     // Flush
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 4) {
         return { hold: [0,1,2,3,4], name: 'Flush', reason: 'EV: 3.00 • Keep it!', payout: 3, source: 'wizardofodds.com' };
       }
     }
     // 4 to SF (1 deuce + 3 suited)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 3) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 3) {
@@ -1238,7 +1233,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [...deuceIndices, ...pairIndices], name: 'Three of a Kind', reason: 'EV: ~1.5 • Draw 2', payout: 1.5, source: 'wizardofodds.com' };
     }
     // 3 to wild royal (1 deuce + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         const royalRanksHeld = royalInSuit.map(i => cards[i].rank);
@@ -1256,7 +1251,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Straight', reason: 'EV: 1.00 • Keep it!', payout: 1, source: 'wizardofodds.com' };
     }
     // 3 to SF with good connectors
-    for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+    for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
       if (indices.length >= 2) {
         const vals = indices.map(i => WOO_RANK_VALUES_DW[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 2) {
@@ -1320,7 +1315,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
   }
   
   // 2 to Royal (TJ, TQ, JQ, TK, JK, QK)
-  for (const [suit, indices] of Object.entries(nonDeuceSuitCounts)) {
+  for (const [, indices] of Object.entries(nonDeuceSuitCounts)) {
     const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
     if (royalInSuit.length >= 2) {
       const royalRanksHeld = royalInSuit.map(i => cards[i].rank).sort();
@@ -1342,7 +1337,7 @@ const getBonusDeucesWildWoORecommendation = (cards, payTable) => {
 // Key difference from regular DW: 4 Deuces pays 500!
 // Strategy is nearly identical to Full-Pay Deuces Wild
 // ============================================
-const getLooseDeucesWoORecommendation = (cards, payTable) => {
+const getLooseDeucesWoORecommendation = (cards) => {
   // Loose Deuces has VERY different strategy due to 4 deuces paying 500!
   // Key difference: With 3 deuces, ALWAYS hold just deuces (no exceptions!)
   // In regular DW you'd keep wild royal/5K, but in LD the 4D payout is too high
@@ -1363,7 +1358,7 @@ const getLooseDeucesWoORecommendation = (cards, payTable) => {
   }
   
   // For 0-2 deuces, use regular DW strategy with adjusted payouts
-  const result = getDeucesWildWoORecommendation(cards, payTable);
+  const result = getDeucesWildWoORecommendation(cards);
   
   // Adjust messaging for Loose Deuces specific payouts
   if (result.name === 'Four Deuces') {
@@ -1388,24 +1383,24 @@ const getLooseDeucesWoORecommendation = (cards, payTable) => {
 // 53-card deck with 1 Joker wild
 // Min paying hand: Kings or Better
 // ============================================
-const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
+const getJokerPokerKingsWoORecommendation = (cards) => {
   const hasJoker = cards.some(c => c.rank === 'JOKER' || c.isJoker);
   const jokerIndices = cards.map((c, i) => (c.rank === 'JOKER' || c.isJoker) ? i : -1).filter(i => i >= 0);
   const nonJokerCards = cards.filter(c => c.rank !== 'JOKER' && !c.isJoker);
   const nonJokerIndices = cards.map((c, i) => (c.rank !== 'JOKER' && !c.isJoker) ? i : -1).filter(i => i >= 0);
-  
+
   // Rank counts for non-joker cards
   const rankCounts = {};
-  cards.forEach((c, i) => { 
+  cards.forEach((c, i) => {
     if (c.rank !== 'JOKER' && !c.isJoker) {
-      if (!rankCounts[c.rank]) rankCounts[c.rank] = []; 
-      rankCounts[c.rank].push(i); 
+      if (!rankCounts[c.rank]) rankCounts[c.rank] = [];
+      rankCounts[c.rank].push(i);
     }
   });
-  
-  const pairsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 2);
-  const tripsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 3);
-  const quadsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 4);
+
+  const pairsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 2);
+  const tripsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 3);
+  const quadsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 4);
   
   // Suit counts for non-joker cards
   const nonJokerSuitCounts = {};
@@ -1423,7 +1418,7 @@ const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
     const jokerIdx = jokerIndices[0];
     
     // Natural Royal is impossible with joker, check for Wild Royal
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length === 4) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 100.00 • Keep it!', payout: 100, source: 'wizardofodds.com' };
@@ -1434,7 +1429,7 @@ const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Five of a Kind', reason: 'EV: 200.00 • Keep it!', payout: 200, source: 'wizardofodds.com' };
     }
     // Straight Flush (joker + 4 SF cards)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 4) {
         const vals = indices.map(i => WOO_RANK_VALUES[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 4) {
@@ -1451,7 +1446,7 @@ const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
       return { hold: [...jokerIndices, ...tripIndices], name: 'Four of a Kind', reason: 'EV: 20.00 • Draw 1 for 5K', payout: 20, source: 'wizardofodds.com' };
     }
     // 4 to Wild Royal (joker + 3 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 3) {
         return { hold: [jokerIdx, ...royalInSuit.slice(0, 3)], name: '4 to Wild Royal', reason: 'EV: ~12 • Draw 1', payout: 12, source: 'wizardofodds.com' };
@@ -1462,13 +1457,13 @@ const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Full House', reason: 'EV: 7.00 • Keep it!', payout: 7, source: 'wizardofodds.com' };
     }
     // Flush (joker + 4 suited)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 4) {
         return { hold: [0,1,2,3,4], name: 'Flush', reason: 'EV: 5.00 • Keep it!', payout: 5, source: 'wizardofodds.com' };
       }
     }
     // 4 to Straight Flush (joker + 3 SF cards)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 3) {
         const vals = indices.map(i => WOO_RANK_VALUES[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 3) {
@@ -1491,14 +1486,14 @@ const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
       return { hold: [...jokerIndices, ...pairIndices], name: 'Three of a Kind', reason: 'EV: 2.00 • Draw 2', payout: 2, source: 'wizardofodds.com' };
     }
     // 3 to Wild Royal (joker + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [jokerIdx, ...royalInSuit.slice(0, 2)], name: '3 to Wild Royal', reason: 'EV: ~1.5 • Draw 2', payout: 1.5, source: 'wizardofodds.com' };
       }
     }
     // 4 to Flush (joker + 3 suited)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 3) {
         return { hold: [jokerIdx, ...indices.slice(0, 3)], name: '4 to Flush', reason: 'EV: ~1.0 • Draw 1', payout: 1.0, source: 'wizardofodds.com' };
       }
@@ -1570,24 +1565,23 @@ const getJokerPokerKingsWoORecommendation = (cards, payTable) => {
 // 53-card deck with 1 Joker wild
 // Min paying hand: Two Pair (NO PAIRS PAY!)
 // ============================================
-const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
+const getJokerPokerTwoPairWoORecommendation = (cards) => {
   const hasJoker = cards.some(c => c.rank === 'JOKER' || c.isJoker);
   const jokerIndices = cards.map((c, i) => (c.rank === 'JOKER' || c.isJoker) ? i : -1).filter(i => i >= 0);
   const nonJokerCards = cards.filter(c => c.rank !== 'JOKER' && !c.isJoker);
-  const nonJokerIndices = cards.map((c, i) => (c.rank !== 'JOKER' && !c.isJoker) ? i : -1).filter(i => i >= 0);
-  
+
   // Rank counts for non-joker cards
   const rankCounts = {};
-  cards.forEach((c, i) => { 
+  cards.forEach((c, i) => {
     if (c.rank !== 'JOKER' && !c.isJoker) {
-      if (!rankCounts[c.rank]) rankCounts[c.rank] = []; 
-      rankCounts[c.rank].push(i); 
+      if (!rankCounts[c.rank]) rankCounts[c.rank] = [];
+      rankCounts[c.rank].push(i);
     }
   });
-  
-  const pairsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 2);
-  const tripsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 3);
-  const quadsArr = Object.entries(rankCounts).filter(([r, arr]) => arr.length === 4);
+
+  const pairsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 2);
+  const tripsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 3);
+  const quadsArr = Object.entries(rankCounts).filter(([, arr]) => arr.length === 4);
   
   // Suit counts for non-joker cards
   const nonJokerSuitCounts = {};
@@ -1605,7 +1599,7 @@ const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
     const jokerIdx = jokerIndices[0];
     
     // Wild Royal (joker + 4 royal cards)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length === 4) {
         return { hold: [0,1,2,3,4], name: 'Wild Royal', reason: 'EV: 50.00 • Keep it!', payout: 50, source: 'wizardofodds.com' };
@@ -1616,7 +1610,7 @@ const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Five of a Kind', reason: 'EV: 100.00 • Keep it!', payout: 100, source: 'wizardofodds.com' };
     }
     // Straight Flush (joker + 4 SF cards)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 4) {
         const vals = indices.map(i => WOO_RANK_VALUES[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 4) {
@@ -1633,7 +1627,7 @@ const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
       return { hold: [...jokerIndices, ...tripIndices], name: 'Four of a Kind', reason: 'EV: 20.00 • Draw 1 for 5K', payout: 20, source: 'wizardofodds.com' };
     }
     // 4 to Wild Royal (joker + 3 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 3) {
         return { hold: [jokerIdx, ...royalInSuit.slice(0, 3)], name: '4 to Wild Royal', reason: 'EV: ~6.5 • Draw 1', payout: 6.5, source: 'wizardofodds.com' };
@@ -1644,13 +1638,13 @@ const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
       return { hold: [0,1,2,3,4], name: 'Full House', reason: 'EV: 10.00 • Keep it!', payout: 10, source: 'wizardofodds.com' };
     }
     // Flush (joker + 4 suited)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 4) {
         return { hold: [0,1,2,3,4], name: 'Flush', reason: 'EV: 6.00 • Keep it!', payout: 6, source: 'wizardofodds.com' };
       }
     }
     // 4 to Straight Flush (joker + 3 SF cards)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 3) {
         const vals = indices.map(i => WOO_RANK_VALUES[cards[i].rank]).filter(v => v).sort((a,b) => a-b);
         if (vals.length >= 3) {
@@ -1673,13 +1667,13 @@ const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
       return { hold: [...jokerIndices, ...pairIndices], name: 'Three of a Kind', reason: 'EV: 2.00 • Draw 2', payout: 2, source: 'wizardofodds.com' };
     }
     // 4 to Flush (joker + 3 suited)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       if (indices.length >= 3) {
         return { hold: [jokerIdx, ...indices.slice(0, 3)], name: '4 to Flush', reason: 'EV: ~1.5 • Draw 1', payout: 1.5, source: 'wizardofodds.com' };
       }
     }
     // 3 to Wild Royal (joker + 2 royal cards same suit)
-    for (const [suit, indices] of Object.entries(nonJokerSuitCounts)) {
+    for (const [, indices] of Object.entries(nonJokerSuitCounts)) {
       const royalInSuit = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalInSuit.length >= 2) {
         return { hold: [jokerIdx, ...royalInSuit.slice(0, 2)], name: '3 to Wild Royal', reason: 'EV: ~1.3 • Draw 2', payout: 1.3, source: 'wizardofodds.com' };
@@ -1742,365 +1736,10 @@ const getJokerPokerTwoPairWoORecommendation = (cards, payTable) => {
 // END WoO STRATEGY ENGINE
 // ============================================
 
-// JoB Strategy engine based on optimal play (LEGACY - keeping for comparison)
-// payTable parameter allows for future strategy adjustments based on pay table
-// Strategy recommendation engine - works for JoB-family games
-// Different bonus games have nuances, but core strategy is similar
-const getStrategyRecommendation = (cards, payTable = null, gameType = 'jacks-or-better') => {
-  if (!cards || cards.length !== 5 || cards.some(c => !c)) return null;
-  
-  const hand = evaluateHand(cards, gameType);
-  const draws = analyzeDraws(cards);
-  
-  // Get pay table values (default to 9/6 if not provided)
-  const flushPay = payTable?.fl || 6;
-  const fullHousePay = payTable?.fh || 9;
-  
-  // Game-specific adjustments
-  const isHighFlushGame = flushPay >= 7; // TDB, some DB variants
-  const isBonusGame = ['bonus-poker', 'double-bonus', 'double-double-bonus', 'triple-double-bonus'].includes(gameType);
-  // Check if this is a deuces wild variant (any game where 2s are wild)
-  const deucesWildGames = ['deuces-wild', 'bonus-deuces-wild', 'double-bonus-deuces-wild', 'super-bonus-deuces-wild', 'loose-deuces', 'double-deuces', 'deuces-and-joker', 'faces-n-deuces', 'acey-deucey'];
-  const isDeucesWild = deucesWildGames.includes(gameType);
-  
-  // Deuces Wild has completely different strategy
-  if (isDeucesWild) {
-    const deuceCount = cards.filter(c => c.rank === '2').length;
-    const deuceIndices = cards.map((c, i) => c.rank === '2' ? i : -1).filter(i => i >= 0);
-    
-    if (deuceCount >= 3) {
-      return {
-        hold: deuceIndices,
-        name: `${deuceCount} Deuces`,
-        reason: 'Hold only the deuces, draw for 5 of a kind',
-        payout: 'Drawing for wild royal or 5K'
-      };
-    }
-    if (deuceCount === 2) {
-      const ranks = cards.map(c => c.rank);
-      const rankCounts = {};
-      ranks.forEach((r, i) => { if (!rankCounts[r]) rankCounts[r] = []; rankCounts[r].push(i); });
-      
-      // Check for trips (2 deuces + trips = 5 of a kind) - KEEP
-      const tripRank = Object.keys(rankCounts).find(r => r !== '2' && rankCounts[r].length === 3);
-      if (tripRank) {
-        return { hold: [0,1,2,3,4], name: 'Five of a Kind', reason: 'Keep your 5 of a kind!', payout: 15 };
-      }
-      
-      // Check if we have a wild royal (2 deuces + 3 royals of same suit)
-      const nonDeuceCards = cards.filter(c => c.rank !== '2');
-      const suitCounts = {};
-      nonDeuceCards.forEach(c => { suitCounts[c.suit] = (suitCounts[c.suit] || 0) + 1; });
-      const flushSuit = Object.keys(suitCounts).find(s => suitCounts[s] === 3);
-      if (flushSuit) {
-        const royalRanks = ['A', 'K', 'Q', 'J', '10'];
-        const suitedCards = nonDeuceCards.filter(c => c.suit === flushSuit);
-        if (suitedCards.every(c => royalRanks.includes(c.rank))) {
-          return { hold: [0,1,2,3,4], name: 'Wild Royal Flush', reason: 'Keep your Wild Royal!', payout: 25 };
-        }
-      }
-      
-      // Check for a pair (which becomes quads with 2 deuces) - DRAW 1 for 5K
-      const pairRank = Object.keys(rankCounts).find(r => r !== '2' && rankCounts[r].length === 2);
-      if (pairRank) {
-        return { 
-          hold: [...rankCounts[pairRank], ...deuceIndices], 
-          name: 'Quads (draw for 5K)', 
-          reason: 'Draw 1 for five of a kind!', 
-          payout: 'Drawing for 5K' 
-        };
-      }
-      
-      // 4 to a Royal
-      if (draws.fourToRoyal) {
-        return { hold: [...draws.fourToRoyal.indices], name: '4 to Royal w/ deuces', reason: 'Go for the wild royal', payout: 'Drawing for 25x' };
-      }
-      
-      // Just hold both deuces
-      return { hold: deuceIndices, name: '2 Deuces', reason: 'Hold deuces, draw 3', payout: 'Drawing for quads+' };
-    }
-    if (deuceCount === 1) {
-      const ranks = cards.map(c => c.rank);
-      const rankCounts = {};
-      ranks.forEach((r, i) => { if (!rankCounts[r]) rankCounts[r] = []; rankCounts[r].push(i); });
-      
-      // Check for made hands first (flush or better)
-      if (hand.rank <= 5) { // Flush or better
-        return { hold: [0,1,2,3,4], name: hand.name, reason: 'Keep it!', payout: hand.payout };
-      }
-      
-      // 4 to a Royal with deuce
-      if (draws.fourToRoyal) {
-        return { hold: [...draws.fourToRoyal.indices], name: '4 to Royal w/ deuce', reason: 'Go for the wild royal', payout: 'Drawing for 25x' };
-      }
-      
-      // Check for pair (which becomes trips with deuce)
-      const pairRank = Object.keys(rankCounts).find(r => r !== '2' && rankCounts[r].length === 2);
-      if (pairRank) {
-        return { 
-          hold: [...rankCounts[pairRank], ...deuceIndices], 
-          name: 'Trips (pair + deuce)', 
-          reason: 'Hold pair + deuce for 3 of a kind', 
-          payout: 'Drawing for quads+' 
-        };
-      }
-      
-      // Check for 4 to a straight flush
-      if (draws.fourToStraightFlush) {
-        return { hold: draws.fourToStraightFlush.indices, name: '4 to Straight Flush', reason: 'Draw for SF', payout: 'Drawing for 50x' };
-      }
-      
-      // Check for 4 to a flush
-      if (draws.fourToFlush) {
-        return { hold: draws.fourToFlush.indices, name: '4 to Flush w/ deuce', reason: 'Draw for flush', payout: 'Drawing for flush' };
-      }
-      
-      // Check for 4 to an open-ended straight
-      if (draws.fourToStraight?.open) {
-        return { hold: draws.fourToStraight.indices, name: '4 to Straight w/ deuce', reason: 'Draw for straight', payout: 'Drawing for straight' };
-      }
-      
-      // Just hold the deuce
-      return { hold: deuceIndices, name: '1 Deuce', reason: 'Hold deuce, draw 4', payout: 'Drawing for trips+' };
-    }
-    // 0 deuces - fall through to normal strategy but adjust for DW pays
-  }
-  
-  // 1. Royal Flush and Straight Flush - always keep
-  if (hand.rank <= 2) { // Royal or Straight Flush only
-    return {
-      hold: [0, 1, 2, 3, 4],
-      name: hand.name,
-      reason: `Keep your ${hand.name}!`,
-      payout: hand.payout
-    };
-  }
-  
-  // 2. Four to a Royal - beats flush, straight, and even quads (EV is higher)
-  // This is BEFORE other pat hands because breaking a flush for royal draw is correct
-  if (draws.fourToRoyal) {
-    return {
-      hold: draws.fourToRoyal.indices,
-      name: '4 to Royal Flush',
-      reason: 'Break anything for Royal draw!',
-      payout: 'Drawing for 800x'
-    };
-  }
-  
-  // 3. Pat hands - Four of a Kind through Straight
-  if (hand.rank <= 6) { // Quads, Full House, Flush, Straight
-    return {
-      hold: [0, 1, 2, 3, 4],
-      name: hand.name,
-      reason: `Keep your ${hand.name}!`,
-      payout: hand.payout
-    };
-  }
-  
-  // 3.5 Four to a Straight Flush - BEFORE high pair! (EV 3.53 vs 1.54)
-  // Check this before trips/two pair/high pair because 4-SF beats high pair
-  const suits = cards.map(c => c.suit);
-  const suitCounts = {};
-  suits.forEach((s, i) => {
-    if (!suitCounts[s]) suitCounts[s] = [];
-    suitCounts[s].push(i);
-  });
-  
-  for (const [suit, indices] of Object.entries(suitCounts)) {
-    if (indices.length >= 4) {
-      const suitedCards = indices.map(i => cards[i]);
-      const suitedValues = suitedCards.map(c => RANK_VALUES[c.rank]).sort((a, b) => a - b);
-      // Check if these 4 cards could make a straight flush (span of 4 or less)
-      const gaps = suitedValues[suitedValues.length-1] - suitedValues[0];
-      if (gaps <= 4 && indices.length === 4) {
-        return {
-          hold: indices,
-          name: '4 to Straight Flush',
-          reason: '4-SF (EV 3.53) beats high pair (EV 1.54)!',
-          payout: 'Drawing for 50x'
-        };
-      }
-    }
-  }
-  
-  // 4. Made paying hands (trips, two pair, high pair)
-  if (hand.rank <= 9) { // Three of kind through Jacks+
-    const holdIndices = [];
-    const ranks = cards.map(c => c.rank);
-    const rankCounts = {};
-    ranks.forEach((r, i) => {
-      if (!rankCounts[r]) rankCounts[r] = [];
-      rankCounts[r].push(i);
-    });
-    
-    if (hand.rank === 7) { // Trips
-      const tripRank = Object.keys(rankCounts).find(r => rankCounts[r].length === 3);
-      return {
-        hold: rankCounts[tripRank],
-        name: 'Three of a Kind',
-        reason: 'Hold the trips, draw 2',
-        payout: hand.payout
-      };
-    }
-    if (hand.rank === 8) { // Two pair
-      Object.values(rankCounts).forEach(indices => {
-        if (indices.length === 2) holdIndices.push(...indices);
-      });
-      return {
-        hold: holdIndices,
-        name: 'Two Pair',
-        reason: 'Hold both pairs, draw 1',
-        payout: hand.payout
-      };
-    }
-    if (hand.rank === 9) { // High pair
-      const pairRank = Object.keys(rankCounts).find(r => rankCounts[r].length === 2 && HIGH_CARDS.includes(r));
-      return {
-        hold: rankCounts[pairRank],
-        name: `Pair of ${pairRank}s`,
-        reason: 'Hold the high pair, draw 3',
-        payout: hand.payout
-      };
-    }
-  }
-  
-  // 5. Three to a Royal
-  if (draws.threeToRoyal) {
-    return {
-      hold: draws.threeToRoyal.indices,
-      name: '3 to Royal Flush',
-      reason: 'Strong draw to Royal',
-      payout: 'Drawing for 800x'
-    };
-  }
-  
-  // 6. Four to a Flush vs Low Pair
-  // This decision is affected by pay table!
-  // On standard JoB (flush=6): low pair is better
-  // On high-flush games like TDB (flush=7): 4-flush is better
-  if (draws.fourToFlush) {
-    if (draws.lowPair) {
-      // High flush pay (7+) makes 4-flush better than low pair
-      if (isHighFlushGame) {
-        return {
-          hold: draws.fourToFlush.indices,
-          name: '4 to Flush',
-          reason: `4-flush beats low pair when flush pays ${flushPay}`,
-          payout: `Drawing for ${flushPay}x`
-        };
-      }
-      // Standard flush pay - low pair wins
-      return {
-        hold: draws.lowPair.indices,
-        name: `Low Pair (${draws.lowPair.rank}s)`,
-        reason: `Low pair beats 4-flush on ${fullHousePay}/${flushPay}`,
-        payout: 'Drawing for trips or better'
-      };
-    }
-    return {
-      hold: draws.fourToFlush.indices,
-      name: '4 to Flush',
-      reason: `Draw to the Flush (pays ${flushPay}x)`,
-      payout: `Drawing for ${flushPay}x`
-    };
-  }
-  
-  // 7. Low pair
-  if (draws.lowPair) {
-    return {
-      hold: draws.lowPair.indices,
-      name: `Low Pair (${draws.lowPair.rank}s)`,
-      reason: 'Hold the pair, draw 3',
-      payout: 'Drawing for trips or better'
-    };
-  }
-  
-  // 8. Four to a Straight (open-ended)
-  // Simplified check - look for 4 consecutive values
-  const values = cards.map(c => RANK_VALUES[c.rank]);
-  const sortedUniqueValues = [...new Set(values)].sort((a, b) => a - b);
-  if (sortedUniqueValues.length >= 4) {
-    for (let i = 0; i <= sortedUniqueValues.length - 4; i++) {
-      const span = sortedUniqueValues.slice(i, i + 4);
-      if (span[3] - span[0] === 3) {
-        const holdIndices = span.map(v => values.indexOf(v));
-        return {
-          hold: holdIndices,
-          name: '4 to Straight',
-          reason: 'Open-ended straight draw',
-          payout: 'Drawing for 4x'
-        };
-      }
-    }
-  }
-  
-  // 9. Three to a Straight Flush
-  for (const [suit, indices] of Object.entries(suitCounts)) {
-    if (indices.length >= 3) {
-      const suitedValues = indices.map(i => RANK_VALUES[cards[i].rank]).sort((a, b) => a - b);
-      const gaps = suitedValues[suitedValues.length-1] - suitedValues[0];
-      if (gaps <= 4) {
-        return {
-          hold: indices.slice(0, 3),
-          name: '3 to Straight Flush',
-          reason: 'Draw to Straight Flush',
-          payout: 'Long shot for 50x'
-        };
-      }
-    }
-  }
-  
-  // 10. Two suited high cards
-  for (const [suit, indices] of Object.entries(suitCounts)) {
-    if (indices.length >= 2) {
-      const highIndices = indices.filter(i => HIGH_CARDS.includes(cards[i].rank));
-      if (highIndices.length >= 2) {
-        return {
-          hold: highIndices.slice(0, 2),
-          name: '2 Suited High Cards',
-          reason: 'Keep suited high cards',
-          payout: 'Drawing for Royal/Flush/Pair'
-        };
-      }
-    }
-  }
-  
-  // 11. AKQJ unsuited (4 to broadway)
-  const highCardIndices = cards.map((c, i) => ['A', 'K', 'Q', 'J'].includes(c.rank) ? i : -1).filter(i => i >= 0);
-  if (highCardIndices.length === 4) {
-    return {
-      hold: highCardIndices,
-      name: 'AKQJ (4 High Cards)',
-      reason: 'Draw to Broadway straight',
-      payout: 'Drawing for straight or pair'
-    };
-  }
-  
-  // 12. Any high cards
-  if (draws.highCards && draws.highCards.indices.length > 0) {
-    // Prefer fewer high cards (2 > 3)
-    const keep = draws.highCards.indices.slice(0, Math.min(2, draws.highCards.indices.length));
-    const cardNames = keep.map(i => cards[i].rank).join('-');
-    return {
-      hold: keep,
-      name: `High Card${keep.length > 1 ? 's' : ''} (${cardNames})`,
-      reason: keep.length === 1 ? 'Keep the high card, draw 4' : 'Keep high cards, draw 3',
-      payout: 'Drawing for high pair'
-    };
-  }
-  
-  // 13. Nothing - draw all 5
-  return {
-    hold: [],
-    name: 'No Hold',
-    reason: 'Draw all 5 cards',
-    payout: 'Starting fresh'
-  };
-};
+/* LEGACY CODE REMOVED - was using undefined functions (evaluateHand, analyzeDraws, RANK_VALUES, HIGH_CARDS)
+   The WoO-based strategy engine above is the active implementation.
+*/
 
-// ============================================
-// STRATEGY VALIDATOR - Test Suite
-// ============================================
 // Helper to create card objects from shorthand notation
 const parseCard = (str) => {
   // Handle formats like "A♠", "As", "A-s", "10h", "10♥"
@@ -2111,7 +1750,7 @@ const parseCard = (str) => {
     'c': '♣', 'C': '♣', '♣': '♣'
   };
   const colorMap = { '♠': 'text-black', '♣': 'text-black', '♥': 'text-red-500', '♦': 'text-red-500' };
-  
+
   // Extract rank and suit
   let rank, suit;
   if (str.length === 2) {
@@ -2126,10 +1765,13 @@ const parseCard = (str) => {
     rank = str.slice(0, -1);
     suit = suitMap[suitChar] || suitChar;
   }
-  
+
   return { rank, suit, color: colorMap[suit] || 'text-black' };
 };
 
 const parseHand = (handStr) => handStr.split(' ').map(parseCard);
 
-export { PAY_TABLE_STRATEGIES, STRATEGY_HIERARCHIES, WOO_RANK_VALUES, WOO_HIGH_CARDS, analyzeHandForWoO, getWoOStrategyRecommendation, getDeucesWildWoORecommendation, getJokerPokerWoORecommendation, getBonusDeucesWildWoORecommendation, getLooseDeucesWoORecommendation, getJokerPokerKingsWoORecommendation };
+export { PAY_TABLE_STRATEGIES, STRATEGY_HIERARCHIES, WOO_RANK_VALUES, WOO_HIGH_CARDS, analyzeHandForWoO, getWoOStrategyRecommendation, getDeucesWildWoORecommendation, getJokerPokerWoORecommendation, getBonusDeucesWildWoORecommendation, getLooseDeucesWoORecommendation, getJokerPokerKingsWoORecommendation, parseCard, parseHand };
+
+// LEGACY CODE REMOVED - was using undefined functions (evaluateHand, analyzeDraws, RANK_VALUES, HIGH_CARDS)
+// The WoO-based strategy engine above is the active implementation.

@@ -3425,8 +3425,7 @@ const machines = [
     thresholdSummary: '2+ stars in any container',
     thresholdDetail: 'When 3 stars are collected in a container, hero feature activates on next spin giving better chance at 8-symbol trigger.',
     notes: 'Unique scatter-only mechanic. Look for partially filled star containers.',
-    hasCalculator: false,
-    releaseYear: 2023
+    hasCalculator: false
   },
 
   {

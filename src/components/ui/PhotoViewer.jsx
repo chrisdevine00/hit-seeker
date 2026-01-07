@@ -13,9 +13,8 @@ import { formatRelativeTime } from '../../utils/formatRelativeTime';
  * @param {Function} onDelete - Callback to delete a photo (receives photo id)
  * @param {Object[]} allPhotos - Array of all photos for navigation
  * @param {Function} onNavigate - Callback when navigating to another photo
- * @param {Function} getPhotoUrl - Function to get URL for a photo
  */
-export function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhotos, onNavigate, getPhotoUrl }) {
+export function PhotoViewer({ photo, photoUrl, machineName, onClose, onDelete, allPhotos, onNavigate }) {
   const currentIndex = allPhotos.findIndex(p => p.id === photo.id);
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < allPhotos.length - 1;

@@ -17,7 +17,7 @@ export const hapticLight = async () => {
     } else if (canVibrate()) {
       navigator.vibrate(10);
     }
-  } catch (e) {
+  } catch {
     // Silently fail - haptics are non-critical
   }
 };
@@ -32,7 +32,7 @@ export const hapticMedium = async () => {
     } else if (canVibrate()) {
       navigator.vibrate(20);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };
@@ -47,7 +47,7 @@ export const hapticHeavy = async () => {
     } else if (canVibrate()) {
       navigator.vibrate(30);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };
@@ -62,7 +62,7 @@ export const hapticSelection = async () => {
     } else if (canVibrate()) {
       navigator.vibrate(5);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };
@@ -77,7 +77,7 @@ export const hapticSuccess = async () => {
     } else if (canVibrate()) {
       navigator.vibrate([10, 50, 10]);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };
@@ -92,7 +92,7 @@ export const hapticWarning = async () => {
     } else if (canVibrate()) {
       navigator.vibrate([20, 50, 20]);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };
@@ -107,7 +107,7 @@ export const hapticError = async () => {
     } else if (canVibrate()) {
       navigator.vibrate([30, 50, 30, 50, 30]);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };
@@ -126,7 +126,7 @@ export const hapticCelebration = async () => {
     } else if (canVibrate()) {
       navigator.vibrate([50, 30, 50, 30, 100]);
     }
-  } catch (e) {
+  } catch {
     // Silently fail
   }
 };

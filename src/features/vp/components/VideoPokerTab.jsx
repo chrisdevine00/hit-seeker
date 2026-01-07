@@ -5,6 +5,84 @@ import { vpCategories, vpGames } from '../../../data/vpGames';
 import { getWoOStrategyRecommendation } from '../../../data/vpStrategies';
 import { SUITS, evaluateHand } from '../../../utils/vpAnalysis';
 
+// Card picker component - extracted outside VideoPokerTab to avoid re-creation during render
+function CardPicker({ onSelect, onClose, excludeCards, selectedGame }) {
+  const excludeSet = new Set(excludeCards.filter(Boolean).map(c => c.rank === 'JOKER' ? 'JOKER' : `${c.rank}${c.suit}`));
+
+  // Check if this is a Joker Poker game (53-card deck with 1 Joker)
+  const isJokerGame = selectedGame?.startsWith('joker-poker');
+  const jokerExcluded = excludeSet.has('JOKER');
+
+  // Split ranks into two rows: A-8 (high) and 7-2 (low)
+  const ranksRow1 = ['A', 'K', 'Q', 'J', '10', '9', '8'];
+  const ranksRow2 = ['7', '6', '5', '4', '3', '2'];
+
+  const renderCard = (rank, suit) => {
+    const cardKey = `${rank}${suit.symbol}`;
+    const isExcluded = excludeSet.has(cardKey);
+    return (
+      <button
+        key={cardKey}
+        disabled={isExcluded}
+        onClick={() => onSelect({ rank, suit: suit.symbol, color: suit.color })}
+        className={`aspect-[2.5/3.5] rounded border-2 flex flex-col items-center justify-center font-bold transition-colors ${
+          isExcluded
+            ? 'bg-[#0d0d0d] border-[#1a1a1a] text-[#333] cursor-not-allowed'
+            : 'bg-[#1a1a1a] border-[#333] hover:border-[#d4a855] hover:bg-[#222] ' + suit.pickerColor
+        }`}
+      >
+        <span className="text-base font-bold leading-none">{rank}</span>
+        <span className="text-lg leading-none">{suit.symbol}</span>
+      </button>
+    );
+  };
+
+  return (
+    <div className="fixed inset-0 bg-[#0d0d0d] z-50 flex flex-col" style={{ paddingTop: 'var(--sat, 0px)', paddingBottom: 'var(--sab, 0px)' }}>
+      {/* Header */}
+      <div className="flex justify-between items-center px-4 py-3 border-b border-[#333]">
+        <h3 className="text-white font-semibold text-lg">Select Card</h3>
+        <button onClick={onClose} className="no-animate text-[#aaa] hover:text-white p-1" aria-label="Close">
+          <X size={24} />
+        </button>
+      </div>
+
+      {/* Cards grid - fills remaining space */}
+      <div className="flex-1 flex flex-col justify-center px-2 py-2 gap-1">
+        {/* Joker option for Joker Poker games */}
+        {isJokerGame && (
+          <button
+            disabled={jokerExcluded}
+            onClick={() => onSelect({ rank: 'JOKER', suit: '★', color: 'text-purple-500', isJoker: true })}
+            className={`py-2 rounded font-bold transition-colors mb-1 ${
+              jokerExcluded
+                ? 'bg-[#0d0d0d] border border-[#222] text-[#333] cursor-not-allowed'
+                : 'bg-[#2a1a2a] border border-purple-500/50 hover:bg-[#3a2a3a] text-purple-400'
+            }`}
+          >
+            ★ JOKER ★
+          </button>
+        )}
+
+        {SUITS.map(suit => (
+          <div key={suit.name} className="flex flex-col gap-1">
+            {/* Row 1: A-7 */}
+            <div className="grid grid-cols-7 gap-1">
+              {ranksRow1.map(rank => renderCard(rank, suit))}
+            </div>
+            {/* Row 2: 8-K */}
+            <div className="grid grid-cols-7 gap-1">
+              {ranksRow2.map(rank => renderCard(rank, suit))}
+              {/* Empty cell to balance the grid */}
+              <div></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /**
  * VideoPokerTab - Video Poker game and pay table selector with hand checker
  *
@@ -136,84 +214,6 @@ export function VideoPokerTab({ onSpot }) {
       case 'AVOID': return 'text-red-400';
       default: return 'text-gray-400';
     }
-  };
-
-  // Card picker component
-  const CardPicker = ({ onSelect, onClose, excludeCards }) => {
-    const excludeSet = new Set(excludeCards.filter(Boolean).map(c => c.rank === 'JOKER' ? 'JOKER' : `${c.rank}${c.suit}`));
-
-    // Check if this is a Joker Poker game (53-card deck with 1 Joker)
-    const isJokerGame = selectedGame?.startsWith('joker-poker');
-    const jokerExcluded = excludeSet.has('JOKER');
-
-    // Split ranks into two rows: A-8 (high) and 7-2 (low)
-    const ranksRow1 = ['A', 'K', 'Q', 'J', '10', '9', '8'];
-    const ranksRow2 = ['7', '6', '5', '4', '3', '2'];
-
-    const renderCard = (rank, suit) => {
-      const cardKey = `${rank}${suit.symbol}`;
-      const isExcluded = excludeSet.has(cardKey);
-      return (
-        <button
-          key={cardKey}
-          disabled={isExcluded}
-          onClick={() => onSelect({ rank, suit: suit.symbol, color: suit.color })}
-          className={`aspect-[2.5/3.5] rounded border-2 flex flex-col items-center justify-center font-bold transition-colors ${
-            isExcluded
-              ? 'bg-[#0d0d0d] border-[#1a1a1a] text-[#333] cursor-not-allowed'
-              : 'bg-[#1a1a1a] border-[#333] hover:border-[#d4a855] hover:bg-[#222] ' + suit.pickerColor
-          }`}
-        >
-          <span className="text-base font-bold leading-none">{rank}</span>
-          <span className="text-lg leading-none">{suit.symbol}</span>
-        </button>
-      );
-    };
-
-    return (
-      <div className="fixed inset-0 bg-[#0d0d0d] z-50 flex flex-col" style={{ paddingTop: 'var(--sat, 0px)', paddingBottom: 'var(--sab, 0px)' }}>
-        {/* Header */}
-        <div className="flex justify-between items-center px-4 py-3 border-b border-[#333]">
-          <h3 className="text-white font-semibold text-lg">Select Card</h3>
-          <button onClick={onClose} className="no-animate text-[#aaa] hover:text-white p-1" aria-label="Close">
-            <X size={24} />
-          </button>
-        </div>
-
-        {/* Cards grid - fills remaining space */}
-        <div className="flex-1 flex flex-col justify-center px-2 py-2 gap-1">
-          {/* Joker option for Joker Poker games */}
-          {isJokerGame && (
-            <button
-              disabled={jokerExcluded}
-              onClick={() => onSelect({ rank: 'JOKER', suit: '★', color: 'text-purple-500', isJoker: true })}
-              className={`py-2 rounded font-bold transition-colors mb-1 ${
-                jokerExcluded
-                  ? 'bg-[#0d0d0d] border border-[#222] text-[#333] cursor-not-allowed'
-                  : 'bg-[#2a1a2a] border border-purple-500/50 hover:bg-[#3a2a3a] text-purple-400'
-              }`}
-            >
-              ★ JOKER ★
-            </button>
-          )}
-
-          {SUITS.map(suit => (
-            <div key={suit.name} className="flex flex-col gap-1">
-              {/* Row 1: A-7 */}
-              <div className="grid grid-cols-7 gap-1">
-                {ranksRow1.map(rank => renderCard(rank, suit))}
-              </div>
-              {/* Row 2: 8-K */}
-              <div className="grid grid-cols-7 gap-1">
-                {ranksRow2.map(rank => renderCard(rank, suit))}
-                {/* Empty cell to balance the grid */}
-                <div></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -762,6 +762,7 @@ export function VideoPokerTab({ onSpot }) {
           }}
           onClose={() => setShowCardPicker(null)}
           excludeCards={selectedHand}
+          selectedGame={selectedGame}
         />
       )}
     </div>

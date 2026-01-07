@@ -35,7 +35,7 @@ export function Button({
   const shouldAnimate = animate && animatedVariants.includes(variant);
 
   const handleClick = (e) => {
-    try { hapticLight(); } catch (err) { /* ignore haptic errors */ }
+    try { hapticLight(); } catch { /* ignore haptic errors */ }
     if (shouldAnimate) {
       setIsAnimating(true);
     }

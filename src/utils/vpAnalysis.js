@@ -186,7 +186,6 @@ const analyzeDraws = (cards) => {
     }
     if (indices.length >= 3) {
       // Check for royal draw
-      const flushCards = indices.map(i => cards[i]);
       const royalRanks = ['A', 'K', 'Q', 'J', '10'];
       const royalIndices = indices.filter(i => royalRanks.includes(cards[i].rank));
       if (royalIndices.length === 4) {
@@ -198,14 +197,12 @@ const analyzeDraws = (cards) => {
   });
   
   // Check for straight draws
-  const sortedValues = [...new Set(values)].sort((a, b) => a - b);
   // 4 to a straight (open-ended or inside)
   for (let i = 1; i <= 10; i++) {
     const straightValues = [i, i+1, i+2, i+3, i+4];
     if (i === 10) straightValues[4] = 14; // 10-J-Q-K-A
     const matchingIndices = [];
     straightValues.forEach(v => {
-      const idx = values.indexOf(v === 14 && !values.includes(14) ? 1 : v);
       if (values.includes(v)) {
         matchingIndices.push(values.indexOf(v));
       }

@@ -81,7 +81,7 @@ export function checkSlotBadges(slotNotes, photos = {}) {
 
   slotNotes.forEach(n => {
     const category = getMachineCategory(n.machine);
-    if (category && categoryCount.hasOwnProperty(category)) {
+    if (category && Object.hasOwn(categoryCount, category)) {
       categoryCount[category]++;
     }
   });

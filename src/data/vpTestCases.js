@@ -1,6 +1,8 @@
 // Video Poker Strategy Test Cases
 // Comprehensive test suite based on Wizard of Odds optimal strategy charts
 
+import { parseHand, getWoOStrategyRecommendation } from './vpStrategies';
+
 const strategyTestCases = {
   'jacks-or-better': [
     // ==========================================
@@ -303,7 +305,7 @@ const strategyTestCases = {
 // Run a single test case
 const runStrategyTest = (testCase, gameType) => {
   const cards = parseHand(testCase.hand);
-  const recommendation = getStrategyRecommendation(cards, null, gameType);
+  const recommendation = getWoOStrategyRecommendation(cards, null, gameType);
   
   // Sort both arrays for comparison
   const actualHold = [...(recommendation?.hold || [])].sort((a,b) => a-b);

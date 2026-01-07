@@ -24,6 +24,9 @@ const TIER_SETTINGS = {
   legendary: { rayOpacity: 1.0, raySpeed: 8, glowIntensity: 1.0, celebration: 'explode' },
 };
 
+// Pre-generated ray opacity multipliers (avoids Math.random() during render)
+const RAY_OPACITIES = [0.72, 0.85, 0.63, 0.91, 0.78, 0.55, 0.88, 0.67, 0.94, 0.59, 0.82, 0.71, 0.96, 0.64, 0.87, 0.76];
+
 // Badge unlock celebration modal with enhanced effects
 export function BadgeUnlockModal({ badges, onDismiss }) {
   const [showBadge, setShowBadge] = useState(false);
@@ -71,7 +74,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
   }, []);
 
   // Fire confetti burst - colors match badge
-  const fireConfetti = useCallback((badgeColor, effect) => {
+  const fireConfetti = useCallback((badgeColor) => {
     const duration = 3500;
     const end = Date.now() + duration;
     const colors = getColorPalette(badgeColor);
@@ -204,8 +207,9 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
 
   // Respawn sparkles
   const sparkleIntervalRef = useRef(null);
+  const hasSparkles = sparkles.length > 0;
   useEffect(() => {
-    if (sparkles.length > 0) {
+    if (hasSparkles) {
       sparkleIntervalRef.current = setInterval(() => {
         setSparkles(prev => prev.map(sparkle => {
           if (Math.random() < 0.2) {
@@ -229,7 +233,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
         clearInterval(sparkleIntervalRef.current);
       }
     };
-  }, [sparkles.length > 0]);
+  }, [hasSparkles]);
 
   // Reset state when badge changes
   useEffect(() => {
@@ -253,7 +257,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
 
       // Fire confetti for confetti effect type
       if (effectType === 'confetti') {
-        fireConfetti(badge.color, effectType);
+        fireConfetti(badge.color);
         generateSparkles();
       }
     }, 100);
@@ -377,7 +381,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
                   height: '50%',
                   background: `linear-gradient(to bottom, transparent 10%, ${rayColor} 30%, ${rayColorEnd} 60%, transparent 100%)`,
                   transform: `translate(-50%, 0) rotate(${i * (360 / rayCount)}deg)`,
-                  opacity: tierSettings.rayOpacity * (0.5 + Math.random() * 0.5),
+                  opacity: tierSettings.rayOpacity * RAY_OPACITIES[i],
                   filter: `blur(${(tier === 'legendary' || domainColors.rainbow) ? 2 : 1}px)`,
                 }}
               />

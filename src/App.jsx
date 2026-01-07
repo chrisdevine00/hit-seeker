@@ -21,8 +21,8 @@ import { hapticLight, hapticMedium, hapticSelection, hapticSuccess } from './lib
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider, useTrip } from './context/TripContext';
 
-// Hook imports  
-import { useNotes, usePhotos, useCheckIns, useDebounce } from './hooks';
+// Hook imports
+import { useNotes, usePhotos, useCheckIns, useDebounce, useStorage } from './hooks';
 
 // Data imports
 import { machineCategories, machines } from './data/machines';
@@ -113,22 +113,16 @@ function MainApp() {
   const [calcCurrent, setCalcCurrent] = useState('');
   const [calcCeiling, setCalcCeiling] = useState('');
   const [showTripSettings, setShowTripSettings] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(() => {
-    // Check if user has seen onboarding
-    return !localStorage.getItem(STORAGE_KEYS.ONBOARDED);
-  });
+  const [hasOnboarded, setHasOnboarded] = useStorage(STORAGE_KEYS.ONBOARDED, false);
+  const [showOnboarding, setShowOnboarding] = useState(!hasOnboarded);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [showTierHelp, setShowTierHelp] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [geoStatus, setGeoStatus] = useState('idle');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [machineViewMode, setMachineViewMode] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.VIEW_MODE) || VIEW_MODES.CARDS;
-  }); // 'list' or 'cards'
-  const [leftHandedMode, setLeftHandedMode] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.LEFT_HANDED) === 'true';
-  });
+  const [machineViewMode, setMachineViewMode] = useStorage(STORAGE_KEYS.VIEW_MODE, VIEW_MODES.CARDS);
+  const [leftHandedMode, setLeftHandedMode] = useStorage(STORAGE_KEYS.LEFT_HANDED, false);
   const [apOnly, setApOnly] = useState(false); // AP machines only toggle
   const [releaseYearFilter, setReleaseYearFilter] = useState('all'); // 'all', '2024', '2023', etc.
 
@@ -183,16 +177,9 @@ function MainApp() {
 
   const currentCasinoInfo = myCheckIn ? vegasCasinos.find(c => c.id === myCheckIn.casino_id) : null;
 
-  // Settings save helpers
-  const updateViewMode = (mode) => {
-    setMachineViewMode(mode);
-    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
-  };
-
-  const updateLeftHandedMode = (enabled) => {
-    setLeftHandedMode(enabled);
-    localStorage.setItem(STORAGE_KEYS.LEFT_HANDED, enabled ? 'true' : 'false');
-  };
+  // Settings save helpers (useStorage handles persistence automatically)
+  const updateViewMode = setMachineViewMode;
+  const updateLeftHandedMode = setLeftHandedMode;
 
   // Debug mode for testing check-in flows (set to null to use real geolocation)
   // Options: 'near-casino' | 'not-near' | 'error' | null
@@ -228,14 +215,11 @@ function MainApp() {
   };
 
   // Dev mode visibility - persisted in localStorage, toggled via long-press on logo
-  const [devModeEnabled, setDevModeEnabled] = useState(() => {
-    return localStorage.getItem(STORAGE_KEYS.DEV_MODE) === 'true';
-  });
+  const [devModeEnabled, setDevModeEnabled] = useStorage(STORAGE_KEYS.DEV_MODE, false);
 
   const toggleDevMode = () => {
     const newValue = !devModeEnabled;
     setDevModeEnabled(newValue);
-    localStorage.setItem(STORAGE_KEYS.DEV_MODE, newValue.toString());
     if (!newValue) setShowDebugMenu(false); // Close menu when disabling
     hapticMedium(); // Feedback for toggle
   };
@@ -892,7 +876,7 @@ function MainApp() {
               ) : (
                 <Button
                   onClick={() => {
-                    localStorage.setItem(STORAGE_KEYS.ONBOARDED, 'true');
+                    setHasOnboarded(true);
                     setShowOnboarding(false);
                     setOnboardingStep(1);
                   }}
@@ -908,7 +892,7 @@ function MainApp() {
             {onboardingStep < 6 && (
               <button
                 onClick={() => {
-                  localStorage.setItem(STORAGE_KEYS.ONBOARDED, 'true');
+                  setHasOnboarded(true);
                   setShowOnboarding(false);
                   setOnboardingStep(1);
                 }}

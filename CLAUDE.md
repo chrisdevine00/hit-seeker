@@ -105,3 +105,8 @@ Unified settings screen in `src/components/features/SettingsScreen.jsx`:
 - Delete account option (GDPR/privacy compliance)
 - TypeScript migration (optional)
 - Code splitting for bundle size optimization
+
+### iOS Testing Needed
+- Test badge galleries and unlock celebrations on device
+- Verify haptics toggle works with native vibration
+- Test settings screen layout on various device sizes

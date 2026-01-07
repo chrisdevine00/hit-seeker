@@ -13,6 +13,7 @@ export function useCheckIns() {
 
   useEffect(() => {
     if (!currentTrip) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset state when no trip
       setCheckIns([]);
       setMyCheckIn(null);
       setLoading(false);

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import {
   Droplet, Droplets, Rocket, Zap, Hand, Home, Compass, MapPinned, MapPin, Dices, Star,
   ThumbsDown, Flame, Milk, Rainbow, Shield, Sunrise, Moon, Beer,

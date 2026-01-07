@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { BLOODY_BADGES, SLOT_BADGES, VP_BADGES, TRIP_BADGES } from './definitions';
 import { checkBloodyBadges, checkSlotBadges, checkVPBadges, checkTripBadges } from './checkers';
@@ -67,6 +68,7 @@ export function BadgeProvider({ children }) {
   // Compute bloody badges when bloodies change
   useEffect(() => {
     const newEarned = checkBloodyBadges(bloodies);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from bloodies
     setEarnedBadges(prev => ({ ...prev, bloody: newEarned }));
   }, [bloodies]);
 
@@ -106,6 +108,7 @@ export function BadgeProvider({ children }) {
 
     // Add newly earned to unlock queue
     if (newlyEarned.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- queue new badges for celebration
       setUnlockQueue(prev => [...prev, ...newlyEarned]);
     }
 

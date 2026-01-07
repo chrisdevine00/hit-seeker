@@ -12,6 +12,7 @@ export function usePhotos() {
 
   useEffect(() => {
     if (!currentTrip) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset state when no trip
       setPhotos({});
       setLoading(false);
       return;

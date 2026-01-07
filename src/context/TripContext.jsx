@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // Trip Context
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
@@ -16,6 +17,7 @@ export function TripProvider({ children }) {
   // Fetch user's trips
   useEffect(() => {
     if (!user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset state when user logs out
       setTrips([]);
       setCurrentTrip(null);
       setLoading(false);
@@ -61,6 +63,7 @@ export function TripProvider({ children }) {
   // Fetch trip members when trip changes
   useEffect(() => {
     if (!currentTrip) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset members when no trip
       setTripMembers([]);
       return;
     }

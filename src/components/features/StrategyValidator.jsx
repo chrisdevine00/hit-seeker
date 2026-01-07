@@ -8,6 +8,7 @@ export function StrategyValidator({ onClose }) {
   const [showOnlyFailed, setShowOnlyFailed] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- run tests on mount
     setResults(runAllStrategyTests());
   }, []);
 

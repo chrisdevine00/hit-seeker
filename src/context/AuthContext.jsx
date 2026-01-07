@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 // Auth Context
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
@@ -84,6 +85,7 @@ export function AuthProvider({ children }) {
         appUrlListener.removeAllListeners();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only initialization
   }, []);
 
   const fetchProfile = async (userId) => {

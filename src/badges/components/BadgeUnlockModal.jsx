@@ -309,6 +309,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
       }
       if (heatInterval) clearInterval(heatInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- badge?.id and badge?.color are sufficient, explosionPositions is a constant
   }, [badge?.id, badge?.color, effectType, fireConfetti, fireHeatParticles, generateSparkles]);
 
   // Handle dismiss with fade out

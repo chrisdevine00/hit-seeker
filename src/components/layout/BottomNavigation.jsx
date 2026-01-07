@@ -42,7 +42,14 @@ export function BottomNavigation() {
 
   const handleAddSpot = () => {
     hapticMedium();
-    setSpotterData({ type: 'slot' });
+    // Pre-select type based on active tab
+    const typeMap = {
+      [TAB_IDS.HUNT]: 'slot',
+      [TAB_IDS.VP]: 'vp',
+      [TAB_IDS.BLOODIES]: 'bloody',
+      [TAB_IDS.TRIP]: 'slot',
+    };
+    setSpotterData({ type: typeMap[activeTab] || 'slot' });
     setShowSpotter(true);
   };
 

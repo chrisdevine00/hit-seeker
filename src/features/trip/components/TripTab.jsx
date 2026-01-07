@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Navigation,
   Loader2,
   MapPin,
@@ -9,6 +11,7 @@ import {
   Target,
   RefreshCw,
   Copy,
+  Award,
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useTrip } from '../../../context/TripContext';
@@ -17,6 +20,14 @@ import { useSlots } from '../../../context/SlotsContext';
 import { useNotes, useCheckIns } from '../../../hooks';
 import { Button, FilledMapPin } from '../../../components/ui';
 import { NoteForm, NoteCard } from '../../spots';
+import {
+  HexBadge,
+  BadgeDetailModal,
+  SLOT_BADGES,
+  VP_BADGES,
+  TRIP_BADGES,
+  useBadges,
+} from '../../../badges';
 import { machines } from '../../../data/machines';
 import { vegasCasinos } from '../../../data/casinos';
 import { getTierColors, TAB_IDS } from '../../../constants';
@@ -65,6 +76,11 @@ export function TripTab({
   const { selectMachine } = useSlots();
   const { notes, loading: notesLoading, addNote, refresh: refreshNotes } = useNotes();
   const { myCheckIn, checkOut, getMembersAtCasino } = useCheckIns();
+  const { earnedBadges } = useBadges();
+
+  // Local state for badge UI
+  const [selectedBadge, setSelectedBadge] = useState(null);
+  const [expandedBadgeSection, setExpandedBadgeSection] = useState(null);
 
   const handleAddNote = async (noteData) => {
     await addNote(noteData);
@@ -385,6 +401,107 @@ export function TripTab({
                 </div>
               )}
             </div>
+
+            {/* Badges Section */}
+            <div className="bg-[#161616] border border-[#333] rounded p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Award size={16} className="text-[#d4a855]" />
+                <p className="text-[#aaa] text-xs uppercase tracking-wider">Achievements</p>
+              </div>
+
+              {/* Slot Badges */}
+              <div className="mb-2">
+                <button
+                  onClick={() => setExpandedBadgeSection(expandedBadgeSection === 'slot' ? null : 'slot')}
+                  className="w-full flex items-center justify-between py-2 text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm font-medium">Slot Badges</span>
+                    <span className="text-[#666] text-xs">{earnedBadges.slot?.size || 0}/{SLOT_BADGES.length}</span>
+                  </div>
+                  {expandedBadgeSection === 'slot' ? (
+                    <ChevronUp size={18} className="text-[#888]" />
+                  ) : (
+                    <ChevronDown size={18} className="text-[#888]" />
+                  )}
+                </button>
+                {expandedBadgeSection === 'slot' && (
+                  <div className="grid grid-cols-5 gap-2 pt-2 pb-3">
+                    {SLOT_BADGES.map(badge => (
+                      <HexBadge
+                        key={badge.id}
+                        badge={badge}
+                        earned={earnedBadges.slot?.has(badge.id)}
+                        size="small"
+                        onClick={() => setSelectedBadge(badge)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* VP Badges */}
+              <div className="border-t border-[#333] mb-2">
+                <button
+                  onClick={() => setExpandedBadgeSection(expandedBadgeSection === 'vp' ? null : 'vp')}
+                  className="w-full flex items-center justify-between py-2 text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm font-medium">VP Badges</span>
+                    <span className="text-[#666] text-xs">{earnedBadges.vp?.size || 0}/{VP_BADGES.length}</span>
+                  </div>
+                  {expandedBadgeSection === 'vp' ? (
+                    <ChevronUp size={18} className="text-[#888]" />
+                  ) : (
+                    <ChevronDown size={18} className="text-[#888]" />
+                  )}
+                </button>
+                {expandedBadgeSection === 'vp' && (
+                  <div className="grid grid-cols-5 gap-2 pt-2 pb-3">
+                    {VP_BADGES.map(badge => (
+                      <HexBadge
+                        key={badge.id}
+                        badge={badge}
+                        earned={earnedBadges.vp?.has(badge.id)}
+                        size="small"
+                        onClick={() => setSelectedBadge(badge)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Trip Badges */}
+              <div className="border-t border-[#333]">
+                <button
+                  onClick={() => setExpandedBadgeSection(expandedBadgeSection === 'trip' ? null : 'trip')}
+                  className="w-full flex items-center justify-between py-2 text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm font-medium">Trip Badges</span>
+                    <span className="text-[#666] text-xs">{earnedBadges.trip?.size || 0}/{TRIP_BADGES.length}</span>
+                  </div>
+                  {expandedBadgeSection === 'trip' ? (
+                    <ChevronUp size={18} className="text-[#888]" />
+                  ) : (
+                    <ChevronDown size={18} className="text-[#888]" />
+                  )}
+                </button>
+                {expandedBadgeSection === 'trip' && (
+                  <div className="grid grid-cols-5 gap-2 pt-2 pb-3">
+                    {TRIP_BADGES.map(badge => (
+                      <HexBadge
+                        key={badge.id}
+                        badge={badge}
+                        earned={earnedBadges.trip?.has(badge.id)}
+                        size="small"
+                        onClick={() => setSelectedBadge(badge)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </>
         )}
 
@@ -458,6 +575,13 @@ export function TripTab({
           </>
         )}
       </div>
+
+      {/* Badge Detail Modal */}
+      <BadgeDetailModal
+        badge={selectedBadge}
+        earned={selectedBadge && earnedBadges[selectedBadge.domain]?.has(selectedBadge.id)}
+        onClose={() => setSelectedBadge(null)}
+      />
     </div>
   );
 }

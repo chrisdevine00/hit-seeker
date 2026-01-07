@@ -90,7 +90,7 @@ const NAV_TABS = [
 function MainApp() {
   const { user, profile, signOut } = useAuth();
   const { trips, currentTrip, tripMembers, clearTrip } = useTrip();
-  const { notes, loading: notesLoading, addNote, updateNote, deleteNote, refresh: refreshNotes } = useNotes();
+  const { notes, loading: notesLoading, addNote, deleteNote, refresh: refreshNotes } = useNotes();
   const { photos, addPhoto, deletePhoto, getPhotoUrl, getMachinePhotos, getLatestPhoto } = usePhotos();
   const { checkIns, myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
   const { updateSlotBadges, updateVPBadges, updateTripBadges, unlockQueue, dismissBadge } = useBadges();
@@ -103,15 +103,12 @@ function MainApp() {
   const [recentActivity, setRecentActivity] = useState([]); // Unified activity tracking
   const [previousTab, setPreviousTab] = useState(null); // Track where we came from
   const [selectedCasino, setSelectedCasino] = useState(null);
-  const [casinoAreaFilter, setCasinoAreaFilter] = useState('all'); // Casino area filter
-  const [casinoSearch, setCasinoSearch] = useState(''); // Casino search
-  const [currentTier, setCurrentTier] = useState(1);
   const [showNoteForm, setShowNoteForm] = useState(false);
   const [showSpotter, setShowSpotter] = useState(false); // Unified spotter form
   const [spotterData, setSpotterData] = useState(null); // { type: 'slot'|'vp', ...prefillData }
   const [prefillMachine, setPrefillMachine] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
-  const [editingNote, setEditingNote] = useState(null);
+  const [_editingNote, setEditingNote] = useState(null); // TODO: implement edit modal
   const [viewingPhoto, setViewingPhoto] = useState(null);
   const [calcCurrent, setCalcCurrent] = useState('');
   const [calcCeiling, setCalcCeiling] = useState('');
@@ -346,23 +343,10 @@ function MainApp() {
     setTripSubTab('casinos');
   };
 
-  const getWalkTime = (casinoId) => {
-    if (!myCheckIn) return '?';
-    const fromCasino = vegasCasinos.find(c => c.id === myCheckIn.casino_id);
-    return fromCasino?.walkTimes[casinoId] || '?';
-  };
-
   const handleAddNote = async (noteData) => {
     await addNote(noteData);
     setShowNoteForm(false);
     setPrefillMachine(null);
-  };
-
-  const handleQuickNote = (machineName) => {
-    setPrefillMachine(machineName);
-    setShowNoteForm(true);
-    setActiveTab(TAB_IDS.TRIP);
-    setSelectedMachine(null);
   };
 
   const [photoUploading, setPhotoUploading] = useState(false);
@@ -390,12 +374,8 @@ function MainApp() {
       timestamp: new Date().toISOString(),
     };
     setRecentActivity(prev => [activityItem, ...prev].slice(0, 20)); // Keep last 20
-    
+
     // Also add as a note (persisted)
-    const noteContent = spotData.type === 'vp' 
-      ? `${spotData.vpGameName} ${spotData.vpPayTable} (${spotData.vpReturn}%)${spotData.denomination ? ` - ${spotData.denomination}` : ''}`
-      : spotData.state || 'Spotted';
-    
     await addNote({
       machine: spotData.type === 'vp' ? `VP: ${spotData.vpGameName}` : spotData.machine,
       casino: spotData.casino,
@@ -438,9 +418,6 @@ function MainApp() {
     return (!isNaN(c) && !isNaN(ceil) && ceil > 0) ? ((c / ceil) * 100).toFixed(1) : null;
   })();
 
-  // Get unique release years for filter dropdown
-  const releaseYears = [...new Set(machines.filter(m => m.releaseYear).map(m => m.releaseYear))].sort((a, b) => b - a);
-
   const filteredMachines = machines.filter(m => {
     // Safeguard: ensure this is a valid machine entry with required fields
     if (!m.id || !m.tier || !m.name) return false;
@@ -455,9 +432,8 @@ function MainApp() {
     return matchesSearch && matchesCategory && matchesAP && matchesYear;
   });
 
-  // Count AP vs Entertainment for toggle label
+  // Count AP machines for toggle label
   const apCount = machines.filter(m => m.id && m.category !== 'entertainment').length;
-  const entertainmentCount = machines.filter(m => m.id && m.category === 'entertainment').length;
 
   const filteredNotes = debouncedSearch
     ? notes.filter(n => n.machine.toLowerCase().includes(debouncedSearch.toLowerCase()) || n.casino?.toLowerCase().includes(debouncedSearch.toLowerCase()))

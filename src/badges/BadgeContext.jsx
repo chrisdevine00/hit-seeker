@@ -11,19 +11,38 @@ export function BadgeProvider({ children }) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Load earned badges from localStorage
+  const loadEarnedBadges = () => {
+    try {
+      const saved = localStorage.getItem('hitseeker_earned_badges');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          bloody: new Set(parsed.bloody || []),
+          slot: new Set(parsed.slot || []),
+          vp: new Set(parsed.vp || []),
+          trip: new Set(parsed.trip || []),
+        };
+      }
+    } catch (e) {
+      console.error('Failed to load earned badges:', e);
+    }
+    return {
+      bloody: new Set(),
+      slot: new Set(),
+      vp: new Set(),
+      trip: new Set(),
+    };
+  };
+
   // Track earned badges for each domain
-  const [earnedBadges, setEarnedBadges] = useState({
-    bloody: new Set(),
-    slot: new Set(),
-    vp: new Set(),
-    trip: new Set(),
-  });
+  const [earnedBadges, setEarnedBadges] = useState(loadEarnedBadges);
 
   // Queue of badges to show unlock modal for
   const [unlockQueue, setUnlockQueue] = useState([]);
 
-  // Previous earned badges for detecting new unlocks
-  const prevEarnedRef = useRef(earnedBadges);
+  // Previous earned badges for detecting new unlocks - initialize from storage
+  const prevEarnedRef = useRef(loadEarnedBadges());
 
   // Track if initial load is complete (skip unlock celebrations on first load)
   const isInitializedRef = useRef(false);
@@ -32,6 +51,17 @@ export function BadgeProvider({ children }) {
   useEffect(() => {
     localStorage.setItem('hitseeker_bloodies', JSON.stringify(bloodies));
   }, [bloodies]);
+
+  // Save earned badges to localStorage
+  useEffect(() => {
+    const toSave = {
+      bloody: Array.from(earnedBadges.bloody || []),
+      slot: Array.from(earnedBadges.slot || []),
+      vp: Array.from(earnedBadges.vp || []),
+      trip: Array.from(earnedBadges.trip || []),
+    };
+    localStorage.setItem('hitseeker_earned_badges', JSON.stringify(toSave));
+  }, [earnedBadges]);
 
   // Compute bloody badges when bloodies change
   useEffect(() => {

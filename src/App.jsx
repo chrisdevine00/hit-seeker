@@ -2014,7 +2014,12 @@ function MainApp() {
   const debouncedSearch = useDebounce(searchQuery, 300);
   const [geoStatus, setGeoStatus] = useState('idle');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [machineViewMode, setMachineViewMode] = useState('cards'); // 'list' or 'cards'
+  const [machineViewMode, setMachineViewMode] = useState(() => {
+    return localStorage.getItem('hitseeker_view_mode') || 'cards';
+  }); // 'list' or 'cards'
+  const [leftHandedMode, setLeftHandedMode] = useState(() => {
+    return localStorage.getItem('hitseeker_left_handed') === 'true';
+  });
   const [apOnly, setApOnly] = useState(false); // AP machines only toggle
   const [releaseYearFilter, setReleaseYearFilter] = useState('all'); // 'all', '2024', '2023', etc.
 
@@ -2071,6 +2076,17 @@ function MainApp() {
   };
 
   const currentCasinoInfo = myCheckIn ? vegasCasinos.find(c => c.id === myCheckIn.casino_id) : null;
+
+  // Settings save helpers
+  const updateViewMode = (mode) => {
+    setMachineViewMode(mode);
+    localStorage.setItem('hitseeker_view_mode', mode);
+  };
+
+  const updateLeftHandedMode = (enabled) => {
+    setLeftHandedMode(enabled);
+    localStorage.setItem('hitseeker_left_handed', enabled ? 'true' : 'false');
+  };
 
   // Debug mode for testing check-in flows (set to null to use real geolocation)
   // Options: 'near-casino' | 'not-near' | 'error' | null
@@ -2351,10 +2367,20 @@ function MainApp() {
           
           <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
             <h3 className="font-semibold text-white mb-3">Share Code</h3>
-            <code className="block bg-[#0d0d0d] px-4 py-3 rounded text-white font-mono text-xl tracking-widerr text-center">
-              {currentTrip.share_code.toUpperCase()}
-            </code>
-            <p className="text-[#bbbbbb] text-sm text-center mt-2">Share this with friends to invite them</p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(currentTrip.share_code.toUpperCase());
+                hapticLight();
+                toast.success('Code copied to clipboard!');
+              }}
+              className="w-full bg-[#0d0d0d] px-4 py-3 rounded flex items-center justify-center gap-3 hover:bg-[#1a1a1a] transition-colors group"
+            >
+              <code className="text-white font-mono text-xl tracking-wider">
+                {currentTrip.share_code.toUpperCase()}
+              </code>
+              <Copy size={18} className="text-[#666] group-hover:text-[#d4a855] transition-colors" />
+            </button>
+            <p className="text-[#bbbbbb] text-sm text-center mt-2">Tap to copy and share with friends</p>
           </div>
 
           <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
@@ -2377,6 +2403,70 @@ function MainApp() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* User Settings Section */}
+          <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
+            <h3 className="font-semibold text-white mb-4">Settings</h3>
+
+            {/* Account Info */}
+            <div className="flex items-center gap-3 p-3 bg-[#0d0d0d]/50 rounded mb-4">
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" className="w-10 h-10 rounded-full" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#d4a855] flex items-center justify-center text-black font-bold">
+                  {profile?.display_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || '?'}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium truncate">{profile?.display_name || 'User'}</p>
+                <p className="text-[#888] text-sm truncate">{user?.email}</p>
+              </div>
+            </div>
+
+            {/* Default View Mode */}
+            <div className="flex items-center justify-between py-3 border-t border-[#333]">
+              <div>
+                <p className="text-white text-sm">Default View</p>
+                <p className="text-[#666] text-xs">Card or list layout for machines</p>
+              </div>
+              <div className="flex bg-[#0d0d0d] rounded overflow-hidden">
+                <button
+                  onClick={() => updateViewMode('cards')}
+                  className={`px-3 py-1.5 text-sm transition-colors ${
+                    machineViewMode === 'cards' ? 'bg-[#d4a855] text-black' : 'text-[#888]'
+                  }`}
+                >
+                  Cards
+                </button>
+                <button
+                  onClick={() => updateViewMode('list')}
+                  className={`px-3 py-1.5 text-sm transition-colors ${
+                    machineViewMode === 'list' ? 'bg-[#d4a855] text-black' : 'text-[#888]'
+                  }`}
+                >
+                  List
+                </button>
+              </div>
+            </div>
+
+            {/* Left-Handed Mode */}
+            <div className="flex items-center justify-between py-3 border-t border-[#333]">
+              <div>
+                <p className="text-white text-sm">Left-Handed Mode</p>
+                <p className="text-[#666] text-xs">Move Add button to left side</p>
+              </div>
+              <button
+                onClick={() => updateLeftHandedMode(!leftHandedMode)}
+                className={`w-12 h-7 rounded-full transition-colors relative ${
+                  leftHandedMode ? 'bg-[#d4a855]' : 'bg-[#333]'
+                }`}
+              >
+                <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${
+                  leftHandedMode ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </button>
             </div>
           </div>
 
@@ -3957,6 +4047,26 @@ function MainApp() {
       {/* Bottom Navigation - Mobile Only */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2 md:hidden">
         <div className="flex justify-around items-end max-w-md mx-auto relative">
+          {/* FAB spacer - first position if left-handed */}
+          {leftHandedMode && (
+            <div className="flex flex-col items-center py-2 px-5 relative">
+              <div className="w-[32px] h-[22px]" />
+              <span className="text-xs mt-1 font-medium opacity-0">Add</span>
+              <button
+                onClick={() => {
+                  hapticMedium();
+                  setSpotterData({ type: 'slot' });
+                  setShowSpotter(true);
+                }}
+                className="absolute -top-7 left-1/2 -translate-x-1/2"
+              >
+                <div className="w-16 h-16 rounded-full bg-[#d4a855] flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
+                  <Plus size={32} className="text-black" strokeWidth={2.5} />
+                </div>
+              </button>
+            </div>
+          )}
+
           {/* All nav tabs */}
           {NAV_TABS.map(tab => (
             <button
@@ -3983,26 +4093,25 @@ function MainApp() {
             </button>
           ))}
 
-          {/* 5th spot spacer + FAB floating above */}
-          <div className="flex flex-col items-center py-2 px-5 relative">
-            {/* Invisible spacer to reserve space */}
-            <div className="w-[32px] h-[22px]" />
-            <span className="text-xs mt-1 font-medium opacity-0">Add</span>
-
-            {/* FAB positioned above the spacer */}
-            <button
-              onClick={() => {
-                hapticMedium();
-                setSpotterData({ type: 'slot' });
-                setShowSpotter(true);
-              }}
-              className="absolute -top-7 left-1/2 -translate-x-1/2"
-            >
-              <div className="w-16 h-16 rounded-full bg-[#d4a855] flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
-                <Plus size={32} className="text-black" strokeWidth={2.5} />
-              </div>
-            </button>
-          </div>
+          {/* FAB spacer - last position if right-handed (default) */}
+          {!leftHandedMode && (
+            <div className="flex flex-col items-center py-2 px-5 relative">
+              <div className="w-[32px] h-[22px]" />
+              <span className="text-xs mt-1 font-medium opacity-0">Add</span>
+              <button
+                onClick={() => {
+                  hapticMedium();
+                  setSpotterData({ type: 'slot' });
+                  setShowSpotter(true);
+                }}
+                className="absolute -top-7 left-1/2 -translate-x-1/2"
+              >
+                <div className="w-16 h-16 rounded-full bg-[#d4a855] flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
+                  <Plus size={32} className="text-black" strokeWidth={2.5} />
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </nav>
     </div>

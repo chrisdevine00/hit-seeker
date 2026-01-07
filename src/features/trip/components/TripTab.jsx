@@ -175,7 +175,7 @@ export function TripTab({
             )}
 
             {/* Current Trip Info */}
-            <div className="bg-gradient-to-br from-[#1a1a2e] to-[#161616] border border-[#333] rounded p-4">
+            <div className="card-3d-trip p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[#aaa] text-xs uppercase tracking-wider mb-1">Current Trip</p>
@@ -196,7 +196,7 @@ export function TripTab({
               </div>
 
               {/* Trip Stats */}
-              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#333]">
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#222]">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-white">{demoMembers.length}</p>
                   <p className="text-[#aaa] text-xs">Members</p>
@@ -278,7 +278,7 @@ export function TripTab({
 
             {/* Team Locations */}
             {demoMembers.length > 1 && (
-              <div className="bg-[#161616] border border-[#333] rounded p-4">
+              <div className="card-3d p-4">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Locations</p>
                   <span className="text-[#aaa] text-xs">{demoMembers.length} members</span>
@@ -317,7 +317,7 @@ export function TripTab({
             )}
 
             {/* Recent Activity */}
-            <div className="bg-[#161616] border border-[#333] rounded p-4">
+            <div className="card-3d p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-[#aaa] text-xs uppercase tracking-wider">Recent Activity</p>
                 <button onClick={() => setTripSubTab('notes')} className="text-[#d4a855] text-xs">View All</button>
@@ -403,7 +403,7 @@ export function TripTab({
             </div>
 
             {/* Badges Section */}
-            <div className="bg-[#161616] border border-[#333] rounded p-4">
+            <div className="card-3d p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Award size={16} className="text-[#d4a855]" />
                 <p className="text-[#aaa] text-xs uppercase tracking-wider">Achievements</p>
@@ -441,7 +441,7 @@ export function TripTab({
               </div>
 
               {/* VP Badges */}
-              <div className="border-t border-[#333] mb-2">
+              <div className="border-t border-[#222] mb-2">
                 <button
                   onClick={() => setExpandedBadgeSection(expandedBadgeSection === 'vp' ? null : 'vp')}
                   className="w-full flex items-center justify-between py-2 text-left"
@@ -472,7 +472,7 @@ export function TripTab({
               </div>
 
               {/* Trip Badges */}
-              <div className="border-t border-[#333]">
+              <div className="border-t border-[#222]">
                 <button
                   onClick={() => setExpandedBadgeSection(expandedBadgeSection === 'trip' ? null : 'trip')}
                   className="w-full flex items-center justify-between py-2 text-left"

@@ -259,7 +259,7 @@ export function VideoPokerTab({ onSpot }) {
                 <button
                   key={g.id}
                   onClick={() => selectVPGame(g.id)}
-                  className="shrink-0 bg-[#161616] border border-[#333] rounded px-3 py-2 flex items-center gap-2 hover:border-[#d4a855] transition-colors"
+                  className="shrink-0 card-3d px-3 py-2 flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   {bestPayTable && (
                     <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${
@@ -284,10 +284,10 @@ export function VideoPokerTab({ onSpot }) {
         /* Collapsed Summary Bar - resembles slot machine list item */
         <button
           onClick={() => setSelectorExpanded(true)}
-          className={`w-full bg-[#161616] border rounded p-3 text-left transition-colors ${
-            selectedPayTable.rating === 'HUNT' ? 'border-emerald-500/40 hover:border-emerald-500' :
-            selectedPayTable.rating === 'OK' ? 'border-amber-500/40 hover:border-amber-500' :
-            'border-red-500/40 hover:border-red-500'
+          className={`w-full p-3 text-left transition-colors ${
+            selectedPayTable.rating === 'HUNT' ? 'card-3d-tier1' :
+            selectedPayTable.rating === 'OK' ? 'card-3d-tier2' :
+            'card-3d-tier3'
           }`}
         >
           <div className="flex items-center gap-3">
@@ -313,7 +313,7 @@ export function VideoPokerTab({ onSpot }) {
         </button>
       ) : (
         /* Expanded Selector */
-        <div className="bg-[#161616] border border-[#333] rounded p-4 space-y-4">
+        <div className="card-3d-vp p-4 space-y-4">
           {/* Header with collapse button */}
           <div className="flex items-center justify-between">
             <p className="text-white font-semibold">
@@ -458,12 +458,12 @@ export function VideoPokerTab({ onSpot }) {
                   <button
                     key={g.id}
                     onClick={() => selectVPGame(g.id)}
-                    className={`bg-[#0d0d0d] border rounded overflow-hidden text-left transition-all active:scale-[0.98] ${
+                    className={`overflow-hidden text-left transition-all active:scale-[0.98] ${
                       isSelected
-                        ? 'border-[#d4a855] ring-1 ring-[#d4a855]'
-                        : bestPayTable?.rating === 'HUNT' ? 'border-emerald-500/40 hover:border-emerald-500' :
-                          bestPayTable?.rating === 'OK' ? 'border-amber-500/40 hover:border-amber-500' :
-                          'border-red-500/40 hover:border-red-500'
+                        ? 'card-3d-slot ring-1 ring-[#d4a855]'
+                        : bestPayTable?.rating === 'HUNT' ? 'card-3d-tier1' :
+                          bestPayTable?.rating === 'OK' ? 'card-3d-tier2' :
+                          'card-3d-tier3'
                     }`}
                   >
                     {/* Card Header */}
@@ -585,7 +585,7 @@ export function VideoPokerTab({ onSpot }) {
         const currentHand = isComplete ? evaluateHand(selectedHand, selectedGame) : null;
 
         return (
-          <div className="bg-[#161616] border border-[#333] rounded p-4">
+          <div className="card-3d-vp p-4">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <p className="text-white font-semibold text-lg">Hand Checker</p>
@@ -691,7 +691,7 @@ export function VideoPokerTab({ onSpot }) {
 
       {/* Strategy Quick Reference - Collapsible */}
       {game && (
-        <details className="bg-[#161616] border border-[#333] rounded overflow-hidden group">
+        <details className="card-3d overflow-hidden group">
           <summary className="p-4 cursor-pointer flex items-center justify-between list-none">
             <div className="flex items-center gap-2">
               <BookOpen size={20} className="text-[#d4a855]" />

@@ -88,11 +88,11 @@ export function BloodiesTab() {
       <div className="space-y-4">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-[#1a1a1a] rounded p-4 text-center border border-[#333]">
+        <div className="card-3d p-4 text-center">
           <div className="text-4xl font-bold text-white">{bloodies.length}</div>
           <div className="text-gray-500 text-sm">Lifetime</div>
         </div>
-        <div className="bg-[#1a1a1a] rounded p-4 text-center border border-[#333]">
+        <div className="card-3d p-4 text-center">
           <div className="text-4xl font-bold text-[#d4a855]">{todayCount}</div>
           <div className="text-gray-500 text-sm">Today</div>
         </div>
@@ -136,7 +136,7 @@ export function BloodiesTab() {
       <div>
         <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
         {bloodies.length === 0 ? (
-          <div className="text-center py-8 bg-[#1a1a1a] rounded border border-[#333]">
+          <div className="text-center py-8 card-3d">
             <GlassWater size={40} className="mx-auto text-[#444] mb-3" />
             <p className="text-[#888] mb-1">No bloodies logged yet</p>
             <p className="text-[#666] text-sm">Tap the button above to log your first!</p>
@@ -144,7 +144,7 @@ export function BloodiesTab() {
         ) : (
           <div className="space-y-2">
             {bloodies.slice(-5).reverse().map(bloody => (
-              <div key={bloody.id} className="bg-[#1a1a1a] rounded p-3 border border-[#333]">
+              <div key={bloody.id} className="card-3d-bloody p-3">
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-white font-medium">{bloody.location}</div>

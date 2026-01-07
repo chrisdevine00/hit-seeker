@@ -160,7 +160,7 @@ export function HuntTab() {
                 <button
                   key={machine.id}
                   onClick={() => selectMachine(machine)}
-                  className="shrink-0 bg-[#161616] border border-[#333] rounded px-3 py-2 flex items-center gap-2 hover:border-[#d4a855] transition-colors"
+                  className="shrink-0 card-3d px-3 py-2 flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(machine.tier).badgeOutline}`}>
                     Tier {machine.tier}
@@ -209,10 +209,10 @@ export function HuntTab() {
                 <button
                   key={machine.id}
                   onClick={() => selectMachine(machine)}
-                  className={`bg-[#161616] border rounded overflow-hidden text-left transition-all active:scale-[0.98] ${
-                    machine.tier === 1 ? 'border-emerald-500/40 hover:border-emerald-500' :
-                    machine.tier === 2 ? 'border-amber-500/40 hover:border-amber-500' :
-                    'border-red-500/40 hover:border-red-500'
+                  className={`overflow-hidden text-left transition-all active:scale-[0.98] ${
+                    machine.tier === 1 ? 'card-3d-tier1' :
+                    machine.tier === 2 ? 'card-3d-tier2' :
+                    'card-3d-tier3'
                   }`}
                 >
                   {/* Image or Placeholder */}
@@ -261,10 +261,10 @@ export function HuntTab() {
               <button
                 key={machine.id}
                 onClick={() => selectMachine(machine)}
-                className={`w-full bg-[#161616] border rounded p-3 text-left transition-colors ${
-                  machine.tier === 1 ? 'border-emerald-500/30 hover:border-emerald-500' :
-                  machine.tier === 2 ? 'border-amber-500/30 hover:border-amber-500' :
-                  'border-red-500/30 hover:border-red-500'
+                className={`w-full p-3 text-left transition-colors ${
+                  machine.tier === 1 ? 'card-3d-tier1' :
+                  machine.tier === 2 ? 'card-3d-tier2' :
+                  'card-3d-tier3'
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">

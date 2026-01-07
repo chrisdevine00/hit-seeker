@@ -25,8 +25,16 @@ export function NoteCard({ note, onEdit, onDelete, isOwn }) {
     return 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black';
   };
 
+  // Get 3D card class based on type
+  const getCardClass = () => {
+    if (note.playable) return 'card-3d-tier1';
+    if (isBloody) return 'card-3d-bloody';
+    if (isVP) return 'card-3d-vp';
+    return 'card-3d-slot';
+  };
+
   return (
-    <div className={`bg-[#161616] border rounded overflow-hidden ${note.playable ? 'border-emerald-500/50' : 'border-[#333]'}`}>
+    <div className={`${getCardClass()} overflow-hidden`}>
       <button onClick={() => setExpanded(!expanded)} className="w-full p-4 text-left">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -67,7 +75,7 @@ export function NoteCard({ note, onEdit, onDelete, isOwn }) {
       </button>
 
       {expanded && (
-        <div className="px-4 pb-4 border-t border-[#333] pt-3">
+        <div className="px-4 pb-4 border-t border-[#222] pt-3">
           {note.location && <p className="text-sm text-[#ccc] mb-2"><span className="text-[#888]">Location:</span> {note.location}</p>}
           {note.state && <p className="text-sm text-[#ccc] mb-3"><span className="text-[#888]">{isBloody ? 'Notes:' : isVP ? 'Notes:' : 'State:'}</span> {note.state}</p>}
           {isOwn && (

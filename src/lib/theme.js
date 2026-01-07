@@ -115,9 +115,19 @@ export const tw = {
   btnGold: 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black font-semibold',
   btnGoldHover: 'hover:from-[#c49745] hover:to-amber-500',
 
-  // Card styles
+  // Legacy card styles (deprecated - use card3d classes)
   card: 'bg-[#161616] border border-[#333] rounded',
   cardHover: 'hover:bg-[#1a1a1a] transition-colors',
+
+  // 3D Card styles - gradient borders with depth effect
+  card3d: 'card-3d p-4',           // Neutral gradient border
+  card3dSlot: 'card-3d-slot p-4',  // Gold gradient border
+  card3dVp: 'card-3d-vp p-4',      // Green gradient border
+  card3dBloody: 'card-3d-bloody p-4', // Red gradient border
+  card3dTrip: 'card-3d-trip p-4', // Purple gradient border
+  card3dTier1: 'card-3d-tier1 p-4', // Emerald gradient border (playable)
+  card3dTier2: 'card-3d-tier2 p-4', // Amber gradient border (persistent state)
+  card3dTier3: 'card-3d-tier3 p-4', // Red gradient border (entertainment)
 };
 
 // Inject global styles for fonts and scrollbars
@@ -188,6 +198,170 @@ export function injectGlobalStyles() {
       @keyframes confetti-fall {
         0% { transform: translateY(0) rotate(0deg); opacity: 1; }
         100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+      }
+
+      /* =================================================================
+         3D CARD STYLES - Gradient borders with depth effect
+         ================================================================= */
+
+      /* Base 3D card - neutral gradient border */
+      .card-3d {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #666666 0%, #222222 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Slot domain - gold gradient border */
+      .card-3d-slot {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-slot::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #d4a855 0%, #5c4a2a 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* VP domain - green gradient border */
+      .card-3d-vp {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-vp::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #22c55e 0%, #14532d 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Bloody domain - red gradient border */
+      .card-3d-bloody {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-bloody::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Trip domain - purple gradient border */
+      .card-3d-trip {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-trip::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #a855f7 0%, #581c87 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Tier 1 - emerald gradient border (for playable slots) */
+      .card-3d-tier1 {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-tier1::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #34d399 0%, #065f46 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Tier 2 - amber gradient border (persistent state) */
+      .card-3d-tier2 {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-tier2::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #f59e0b 0%, #78350f 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+
+      /* Tier 3 - red gradient border (entertainment) */
+      .card-3d-tier3 {
+        position: relative;
+        background: linear-gradient(135deg, #2a2a2a 0%, #141414 100%);
+        border-radius: 0.5rem;
+      }
+      .card-3d-tier3::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 0.5rem;
+        padding: 1px;
+        background: linear-gradient(135deg, #ef4444 0%, #7f1d1d 100%);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
       }
     `;
     document.head.appendChild(style);

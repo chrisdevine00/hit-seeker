@@ -46,7 +46,7 @@ export function SettingsScreen() {
         </div>
 
         {/* ACCOUNT SECTION */}
-        <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
+        <div className="card-3d p-4 mb-4">
           <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3">Account</h3>
           <div className="flex items-center gap-3">
             {profile?.avatar_url ? (
@@ -64,7 +64,7 @@ export function SettingsScreen() {
         </div>
 
         {/* PREFERENCES SECTION */}
-        <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
+        <div className="card-3d p-4 mb-4">
           <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3">Preferences</h3>
 
           {/* Default View Mode */}
@@ -94,7 +94,7 @@ export function SettingsScreen() {
           </div>
 
           {/* Left-Handed Mode */}
-          <div className="flex items-center justify-between py-3 border-t border-[#333]">
+          <div className="flex items-center justify-between py-3 border-t border-[#222]">
             <div>
               <p className="text-white text-sm">Left-Handed Mode</p>
               <p className="text-[#666] text-xs">Move Add button to left side</p>
@@ -112,7 +112,7 @@ export function SettingsScreen() {
           </div>
 
           {/* Haptics Toggle */}
-          <div className="flex items-center justify-between py-3 border-t border-[#333]">
+          <div className="flex items-center justify-between py-3 border-t border-[#222]">
             <div className="flex items-center gap-2">
               <Smartphone size={16} className="text-[#888]" />
               <div>
@@ -134,7 +134,7 @@ export function SettingsScreen() {
         </div>
 
         {/* TRIP SECTION */}
-        <div className="bg-[#161616] rounded p-4 mb-4 border border-[#333]">
+        <div className="card-3d-trip p-4 mb-4">
           <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3">
             Trip: {currentTrip.name}
           </h3>
@@ -174,7 +174,7 @@ export function SettingsScreen() {
           </button>
 
           {showMembers && (
-            <div className="space-y-2 mt-2 pt-2 border-t border-[#333]">
+            <div className="space-y-2 mt-2 pt-2 border-t border-[#222]">
               {tripMembers.map((member, idx) => (
                 <div key={member.user_id || `member-${idx}`} className="flex items-center gap-3 p-2 bg-[#0d0d0d]/50 rounded">
                   {member.avatar_url ? (

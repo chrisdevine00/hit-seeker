@@ -22,6 +22,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider, useTrip } from './context/TripContext';
 import { UIProvider, useUI } from './context/UIContext';
 import { SlotsProvider, useSlots } from './context/SlotsContext';
+import { DebugProvider, useDebug } from './context/DebugContext';
 
 // Hook imports
 import { useNotes, usePhotos, useCheckIns } from './hooks';
@@ -117,7 +118,6 @@ function MainApp() {
     completeOnboarding,
     leftHandedMode, setLeftHandedMode,
     devModeEnabled,
-    toggleDevMode,
   } = useUI();
 
   // Slots Context - machine selection, filtering, and preferences
@@ -190,45 +190,16 @@ function MainApp() {
   // Settings save helpers
   const updateLeftHandedMode = setLeftHandedMode;
 
-  // Debug mode for testing check-in flows (set to null to use real geolocation)
-  // Options: 'near-casino' | 'not-near' | 'error' | null
-  const [debugGeoMode, setDebugGeoMode] = useState(null);
-  const [showDebugMenu, setShowDebugMenu] = useState(false);
-  const [showStrategyValidator, setShowStrategyValidator] = useState(false);
-  const [previewBadges, setPreviewBadges] = useState([]);
-
-  // Test badges for previewing effects - organized by domain and tier
-  const TEST_BADGES = {
-    // By tier (slot domain)
-    'common': { id: 'test-common', name: 'First Spot', description: 'Log your first slot spot', icon: 'target', color: 'amber', effect: 'none', tier: 'common', domain: 'slot' },
-    'uncommon': { id: 'test-uncommon', name: 'Sharp Eye', description: 'Log 10 slot spots', icon: 'eye', color: 'amber', effect: 'confetti', tier: 'uncommon', domain: 'slot' },
-    'rare': { id: 'test-rare', name: 'Quarter Century', description: 'Log 25 slot spots', icon: 'hash', color: 'gold', effect: 'confetti', tier: 'rare', domain: 'slot' },
-    'epic': { id: 'test-epic', name: 'Half Ton', description: 'Log 50 slot spots', icon: 'trophy', color: 'gold', effect: 'confetti', tier: 'epic', domain: 'slot' },
-    'legendary': { id: 'test-legendary', name: 'Centurion', description: 'Log 100 slot spots', icon: 'crown', color: 'gold', effect: 'explode', tier: 'legendary', domain: 'slot' },
-    // By domain
-    'slot': { id: 'test-slot', name: 'Golden Eye', description: 'Mark 25 spots as Playable', icon: 'sparkles', color: 'gold', effect: 'confetti', tier: 'epic', domain: 'slot' },
-    'vp': { id: 'test-vp', name: 'Holy Grail', description: 'Find a 100%+ return table', icon: 'gem', color: 'green', effect: 'confetti', tier: 'epic', domain: 'vp' },
-    'bloody': { id: 'test-bloody', name: 'Strip Crawler', description: '5 different Strip casinos', icon: 'dices', color: 'red', effect: 'confetti', tier: 'epic', domain: 'bloody' },
-    'trip': { id: 'test-trip', name: 'Vegas Regular', description: 'Trip in consecutive months', icon: 'calendar-check', color: 'emerald', effect: 'confetti', tier: 'epic', domain: 'trip' },
-    // Spicy badge (fire effect)
-    'spicy': { id: 'test-spicy', name: 'First Flame', description: 'Log your first spicy bloody', icon: 'flame', color: 'red', effect: 'fire', tier: 'common', domain: 'bloody' },
-  };
-
-  const handlePreviewBadge = (badgeKey) => {
-    console.log('Preview badge triggered:', badgeKey, TEST_BADGES[badgeKey]);
-    setShowDebugMenu(false);
-    const badge = TEST_BADGES[badgeKey];
-    if (badge) {
-      setPreviewBadges([badge]);
-    }
-  };
-
-  // Local wrapper for toggleDevMode that also closes debug menu
-  const handleToggleDevMode = () => {
-    toggleDevMode();
-    if (devModeEnabled) setShowDebugMenu(false); // Close menu when disabling
-    hapticMedium();
-  };
+  // Debug Context - debug state and actions
+  const {
+    debugGeoMode, setDebugGeoMode,
+    showDebugMenu, setShowDebugMenu,
+    showStrategyValidator, setShowStrategyValidator,
+    previewBadges, setPreviewBadges,
+    handlePreviewBadge,
+    handleToggleDevMode,
+    simulateGeolocation,
+  } = useDebug();
 
   const handleCheckIn = (casino) => {
     checkIn(casino.id, casino.name);
@@ -255,23 +226,6 @@ function MainApp() {
       () => setGeoStatus('error'),
       { enableHighAccuracy: true, timeout: 10000 }
     );
-  };
-
-  // Simulated geolocation for testing
-  const simulateGeolocation = (mode) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (mode === 'near-casino') {
-          // Simulate being at Bellagio
-          resolve({ coords: { latitude: 36.1129, longitude: -115.1765 } });
-        } else if (mode === 'not-near') {
-          // Simulate being far from any casino
-          resolve({ coords: { latitude: 40.7128, longitude: -74.0060 } }); // NYC
-        } else if (mode === 'error') {
-          reject(new Error('Geolocation error'));
-        }
-      }, 800); // Simulate network delay
-    });
   };
 
   // Header check-in: try to detect location, ask to confirm, or fall back to casino list
@@ -2228,7 +2182,9 @@ function AppContent() {
       <BadgeProvider>
         <UIProvider>
           <SlotsProvider>
-            <TripContent />
+            <DebugProvider>
+              <TripContent />
+            </DebugProvider>
           </SlotsProvider>
         </UIProvider>
       </BadgeProvider>

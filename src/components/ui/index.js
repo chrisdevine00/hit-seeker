@@ -3,3 +3,4 @@ export { ConfirmDialog } from './ConfirmDialog';
 export { FilledMapPin } from './FilledMapPin';
 export { AnimatedButton } from './AnimatedButton';
 export { Button } from './Button';
+export { PhotoViewer } from './PhotoViewer';

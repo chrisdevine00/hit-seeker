@@ -1,20 +1,21 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { BLOODY_BADGES, SLOT_BADGES, VP_BADGES, TRIP_BADGES } from './definitions';
 import { checkBloodyBadges, checkSlotBadges, checkVPBadges, checkTripBadges } from './checkers';
+import { STORAGE_KEYS } from '../constants';
 
 const BadgeContext = createContext(null);
 
 export function BadgeProvider({ children }) {
   // Bloodies state (stored in localStorage)
   const [bloodies, setBloodies] = useState(() => {
-    const saved = localStorage.getItem('hitseeker_bloodies');
+    const saved = localStorage.getItem(STORAGE_KEYS.BLOODIES);
     return saved ? JSON.parse(saved) : [];
   });
 
   // Load earned badges from localStorage
   const loadEarnedBadges = () => {
     try {
-      const saved = localStorage.getItem('hitseeker_earned_badges');
+      const saved = localStorage.getItem(STORAGE_KEYS.EARNED_BADGES);
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
@@ -49,7 +50,7 @@ export function BadgeProvider({ children }) {
 
   // Save bloodies to localStorage
   useEffect(() => {
-    localStorage.setItem('hitseeker_bloodies', JSON.stringify(bloodies));
+    localStorage.setItem(STORAGE_KEYS.BLOODIES, JSON.stringify(bloodies));
   }, [bloodies]);
 
   // Save earned badges to localStorage
@@ -60,7 +61,7 @@ export function BadgeProvider({ children }) {
       vp: Array.from(earnedBadges.vp || []),
       trip: Array.from(earnedBadges.trip || []),
     };
-    localStorage.setItem('hitseeker_earned_badges', JSON.stringify(toSave));
+    localStorage.setItem(STORAGE_KEYS.EARNED_BADGES, JSON.stringify(toSave));
   }, [earnedBadges]);
 
   // Compute bloody badges when bloodies change

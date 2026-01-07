@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from './AuthContext';
+import { STORAGE_KEYS } from '../constants';
 
 const TripContext = createContext(null);
 
@@ -43,7 +44,7 @@ export function TripProvider({ children }) {
         setTrips(userTrips);
 
         // Auto-select first trip or last used
-        const lastTripId = localStorage.getItem('hitSeeker_lastTrip');
+        const lastTripId = localStorage.getItem(STORAGE_KEYS.LAST_TRIP);
         const lastTrip = userTrips.find(t => t.id === lastTripId);
         if (lastTrip) {
           setCurrentTrip(lastTrip);
@@ -64,7 +65,7 @@ export function TripProvider({ children }) {
       return;
     }
 
-    localStorage.setItem('hitSeeker_lastTrip', currentTrip.id);
+    localStorage.setItem(STORAGE_KEYS.LAST_TRIP, currentTrip.id);
 
     const fetchMembers = async () => {
       const { data, error } = await supabase

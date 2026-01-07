@@ -1,8 +1,47 @@
 @import "tailwindcss";
 
+/* =============================================================================
+   HIT SEEKER THEME TOKENS (Tailwind v4)
+   ============================================================================= */
+@theme {
+  /* Brand Colors */
+  --color-gold: #d4a855;
+  --color-gold-dim: #a67c3d;
+  --color-gold-hover: #c49745;
+
+  /* Surface Colors */
+  --color-surface-base: #0d0d0d;
+  --color-surface-raised: #161616;
+  --color-surface-elevated: #1a1a1a;
+  --color-surface-overlay: #1c1c1c;
+
+  /* Border Colors */
+  --color-border: #333333;
+  --color-border-muted: #2a2a2a;
+  --color-border-subtle: #222222;
+
+  /* Text Colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #bbbbbb;
+  --color-text-tertiary: #aaaaaa;
+  --color-text-muted: #888888;
+  --color-text-disabled: #666666;
+
+  /* Tier Colors */
+  --color-tier-1: #34c759;
+  --color-tier-2: #f5a623;
+  --color-tier-3: #ff4757;
+
+  /* Domain Colors (Badges) */
+  --color-domain-slot: #d4a855;
+  --color-domain-vp: #22c55e;
+  --color-domain-bloody: #ef4444;
+  --color-domain-trip: #3b82f6;
+}
+
 html, body, #root {
   min-height: 100vh;
-  background-color: #0d0d0d;
+  background-color: var(--color-surface-base);
 }
 
 /* Card animations for hand checker */

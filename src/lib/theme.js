@@ -1,24 +1,123 @@
-// Hit Seeker Theme - Dark Gold
-export const theme = {
-  bg: {
-    primary: '#0d0d0d',
-    card: '#161616',
-    cardHover: '#1c1c1c',
-    input: '#1a1a1a',
+// =============================================================================
+// HIT SEEKER DESIGN TOKENS
+// =============================================================================
+// Single source of truth for all color values in the application.
+// Use these tokens instead of hardcoding hex values.
+
+/**
+ * Core color palette - raw hex values
+ * Use these for CSS-in-JS or when Tailwind classes aren't available
+ */
+export const colors = {
+  // Brand
+  gold: {
+    DEFAULT: '#d4a855',
+    dim: '#a67c3d',
+    hover: '#c49745',
   },
-  accent: '#d4a855',
-  accentDim: '#a67c3d',
+
+  // Surfaces (dark theme)
+  surface: {
+    base: '#0d0d0d',      // Main background
+    raised: '#161616',     // Cards, modals
+    elevated: '#1a1a1a',   // Inputs, hover states
+    overlay: '#1c1c1c',    // Overlay backgrounds
+  },
+
+  // Borders
+  border: {
+    DEFAULT: '#333333',    // Primary border
+    muted: '#2a2a2a',      // Subtle borders
+    subtle: '#222222',     // Very subtle borders
+  },
+
+  // Text
   text: {
     primary: '#ffffff',
-    secondary: '#999999',
-    muted: '#666666',
+    secondary: '#bbbbbb',
+    tertiary: '#aaaaaa',
+    muted: '#888888',
+    disabled: '#666666',
   },
-  border: '#2a2a2a',
+
+  // Tier colors (for slot machines)
   tier: {
-    1: '#34c759',
-    2: '#f5a623',
-    3: '#ff4757',
-  }
+    1: '#34c759',  // Emerald/Green - Must Hit By
+    2: '#f5a623',  // Amber/Orange - Persistent State
+    3: '#ff4757',  // Red - Entertainment
+  },
+
+  // Status colors
+  status: {
+    success: '#22c55e',
+    warning: '#f59e0b',
+    error: '#ef4444',
+    info: '#3b82f6',
+  },
+
+  // Domain colors (for badges)
+  domain: {
+    slot: '#d4a855',    // Gold
+    vp: '#22c55e',      // Green
+    bloody: '#ef4444',  // Red
+    trip: '#3b82f6',    // Blue
+  },
+};
+
+/**
+ * Theme object - backwards compatible with existing code
+ * @deprecated Use `colors` export instead for new code
+ */
+export const theme = {
+  bg: {
+    primary: colors.surface.base,
+    card: colors.surface.raised,
+    cardHover: colors.surface.overlay,
+    input: colors.surface.elevated,
+  },
+  accent: colors.gold.DEFAULT,
+  accentDim: colors.gold.dim,
+  text: {
+    primary: colors.text.primary,
+    secondary: colors.text.tertiary,
+    muted: colors.text.disabled,
+  },
+  border: colors.border.muted,
+  tier: colors.tier,
+};
+
+/**
+ * Tailwind class presets for common patterns
+ * Use these to maintain consistency across components
+ */
+export const tw = {
+  // Backgrounds
+  bgBase: 'bg-[#0d0d0d]',
+  bgRaised: 'bg-[#161616]',
+  bgElevated: 'bg-[#1a1a1a]',
+
+  // Text colors
+  textPrimary: 'text-white',
+  textSecondary: 'text-[#bbb]',
+  textMuted: 'text-[#888]',
+  textDisabled: 'text-[#666]',
+  textGold: 'text-[#d4a855]',
+
+  // Borders
+  borderDefault: 'border-[#333]',
+  borderMuted: 'border-[#222]',
+
+  // Gold gradient (used frequently)
+  goldGradient: 'bg-gradient-to-r from-[#d4a855] to-amber-600',
+  goldGradientText: 'bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent',
+
+  // Common button styles
+  btnGold: 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black font-semibold',
+  btnGoldHover: 'hover:from-[#c49745] hover:to-amber-500',
+
+  // Card styles
+  card: 'bg-[#161616] border border-[#333] rounded',
+  cardHover: 'hover:bg-[#1a1a1a] transition-colors',
 };
 
 // Inject global styles for fonts and scrollbars

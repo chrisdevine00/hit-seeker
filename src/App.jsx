@@ -47,6 +47,16 @@ import { VideoPokerTab } from './features/vp';
 import { BloodiesTab } from './features/bloodies';
 import { SpotterForm, NoteForm, NoteCard } from './features/spots';
 
+// Constants imports
+import {
+  STORAGE_KEYS,
+  TAB_IDS,
+  TIER_COLORS,
+  getTierColors,
+  VIEW_MODES,
+  APP_CONFIG,
+} from './constants';
+
 // Initialize global styles
 injectGlobalStyles();
 
@@ -55,10 +65,10 @@ initErrorCapture();
 
 // Tab navigation configuration (shared between mobile and desktop nav)
 const NAV_TABS = [
-  { id: 'hunt', icon: Gem, label: 'Slots' },
-  { id: 'vp', icon: Spade, label: 'Video Poker' },
-  { id: 'bloodies', icon: GlassWater, label: 'Bloodies' },
-  { id: 'trip', icon: Map, label: 'Trip' }
+  { id: TAB_IDS.HUNT, icon: Gem, label: 'Slots' },
+  { id: TAB_IDS.VP, icon: Spade, label: 'Video Poker' },
+  { id: TAB_IDS.BLOODIES, icon: GlassWater, label: 'Bloodies' },
+  { id: TAB_IDS.TRIP, icon: Map, label: 'Trip' }
 ];
 
 // SpotterForm extracted to src/features/spots/components/SpotterForm.jsx
@@ -85,7 +95,7 @@ function MainApp() {
   const { checkIns, myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
   const { updateSlotBadges, updateVPBadges, updateTripBadges, unlockQueue, dismissBadge } = useBadges();
 
-  const [activeTab, setActiveTab] = useState('hunt');
+  const [activeTab, setActiveTab] = useState(TAB_IDS.HUNT);
   const [animatingTab, setAnimatingTab] = useState(null); // Track tab animation
   const [tripSubTab, setTripSubTab] = useState('overview'); // 'overview', 'casinos', 'notes', 'team'
   const [selectedMachine, setSelectedMachine] = useState(null);
@@ -108,7 +118,7 @@ function MainApp() {
   const [showTripSettings, setShowTripSettings] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(() => {
     // Check if user has seen onboarding
-    return !localStorage.getItem('hitseeker_onboarded');
+    return !localStorage.getItem(STORAGE_KEYS.ONBOARDED);
   });
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [showTierHelp, setShowTierHelp] = useState(false);
@@ -117,10 +127,10 @@ function MainApp() {
   const [geoStatus, setGeoStatus] = useState('idle');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [machineViewMode, setMachineViewMode] = useState(() => {
-    return localStorage.getItem('hitseeker_view_mode') || 'cards';
+    return localStorage.getItem(STORAGE_KEYS.VIEW_MODE) || VIEW_MODES.CARDS;
   }); // 'list' or 'cards'
   const [leftHandedMode, setLeftHandedMode] = useState(() => {
-    return localStorage.getItem('hitseeker_left_handed') === 'true';
+    return localStorage.getItem(STORAGE_KEYS.LEFT_HANDED) === 'true';
   });
   const [apOnly, setApOnly] = useState(false); // AP machines only toggle
   const [releaseYearFilter, setReleaseYearFilter] = useState('all'); // 'all', '2024', '2023', etc.
@@ -171,23 +181,20 @@ function MainApp() {
     }
   };
 
-  const tierColors = {
-    1: { bg: 'bg-emerald-900/40', border: 'border-emerald-500', text: 'text-emerald-400', badge: 'bg-emerald-600', badgeOutline: 'border-emerald-500 text-emerald-400 bg-[#0d0d0d]' },
-    2: { bg: 'bg-amber-900/40', border: 'border-amber-500', text: 'text-amber-400', badge: 'bg-amber-600', badgeOutline: 'border-amber-500 text-amber-400 bg-[#0d0d0d]' },
-    3: { bg: 'bg-red-900/40', border: 'border-red-500', text: 'text-red-400', badge: 'bg-red-600', badgeOutline: 'border-red-500 text-red-400 bg-[#0d0d0d]' }
-  };
+  // tierColors moved to src/constants/index.js as TIER_COLORS
+  // Use getTierColors(tier) helper for safe access with fallback
 
   const currentCasinoInfo = myCheckIn ? vegasCasinos.find(c => c.id === myCheckIn.casino_id) : null;
 
   // Settings save helpers
   const updateViewMode = (mode) => {
     setMachineViewMode(mode);
-    localStorage.setItem('hitseeker_view_mode', mode);
+    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
   };
 
   const updateLeftHandedMode = (enabled) => {
     setLeftHandedMode(enabled);
-    localStorage.setItem('hitseeker_left_handed', enabled ? 'true' : 'false');
+    localStorage.setItem(STORAGE_KEYS.LEFT_HANDED, enabled ? 'true' : 'false');
   };
 
   // Debug mode for testing check-in flows (set to null to use real geolocation)
@@ -225,13 +232,13 @@ function MainApp() {
 
   // Dev mode visibility - persisted in localStorage, toggled via long-press on logo
   const [devModeEnabled, setDevModeEnabled] = useState(() => {
-    return localStorage.getItem('devModeEnabled') === 'true';
+    return localStorage.getItem(STORAGE_KEYS.DEV_MODE) === 'true';
   });
 
   const toggleDevMode = () => {
     const newValue = !devModeEnabled;
     setDevModeEnabled(newValue);
-    localStorage.setItem('devModeEnabled', newValue.toString());
+    localStorage.setItem(STORAGE_KEYS.DEV_MODE, newValue.toString());
     if (!newValue) setShowDebugMenu(false); // Close menu when disabling
     hapticMedium(); // Feedback for toggle
   };
@@ -312,14 +319,14 @@ function MainApp() {
           setGeoStatus('idle');
         } else {
           // Not near a casino - go to casino list
-          setActiveTab('trip');
+          setActiveTab(TAB_IDS.TRIP);
           setTripSubTab('casinos');
           setGeoStatus('idle');
         }
       })
       .catch(() => {
         // Geolocation error - go to casino list
-        setActiveTab('trip');
+        setActiveTab(TAB_IDS.TRIP);
         setTripSubTab('casinos');
         setGeoStatus('idle');
       });
@@ -335,7 +342,7 @@ function MainApp() {
 
   const cancelCheckIn = () => {
     setPendingCheckIn(null);
-    setActiveTab('trip');
+    setActiveTab(TAB_IDS.TRIP);
     setTripSubTab('casinos');
   };
 
@@ -354,7 +361,7 @@ function MainApp() {
   const handleQuickNote = (machineName) => {
     setPrefillMachine(machineName);
     setShowNoteForm(true);
-    setActiveTab('trip');
+    setActiveTab(TAB_IDS.TRIP);
     setSelectedMachine(null);
   };
 
@@ -618,13 +625,13 @@ function MainApp() {
         onTabChange={(id) => { setActiveTab(id); setSelectedMachine(null); setSelectedCasino(null); }}
         animatingTab={animatingTab}
         setAnimatingTab={setAnimatingTab}
-        onLogoLongPress={user?.email === 'christopher.devine@gmail.com' ? toggleDevMode : null}
+        onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? toggleDevMode : null}
       />
       <TripHeader
         onOpenSettings={() => setShowTripSettings(true)}
         onLocationClick={handleHeaderCheckIn}
         myCheckIn={myCheckIn}
-        onLogoLongPress={user?.email === 'christopher.devine@gmail.com' ? toggleDevMode : null}
+        onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? toggleDevMode : null}
       />
 
       {/* Onboarding Modal - 5 Step Walkthrough */}
@@ -909,7 +916,7 @@ function MainApp() {
               ) : (
                 <Button
                   onClick={() => {
-                    localStorage.setItem('hitseeker_onboarded', 'true');
+                    localStorage.setItem(STORAGE_KEYS.ONBOARDED, 'true');
                     setShowOnboarding(false);
                     setOnboardingStep(1);
                   }}
@@ -925,7 +932,7 @@ function MainApp() {
             {onboardingStep < 6 && (
               <button
                 onClick={() => {
-                  localStorage.setItem('hitseeker_onboarded', 'true');
+                  localStorage.setItem(STORAGE_KEYS.ONBOARDED, 'true');
                   setShowOnboarding(false);
                   setOnboardingStep(1);
                 }}
@@ -1051,7 +1058,7 @@ function MainApp() {
       )}
 
       {/* Dev Mode Button - Only visible to admin when dev mode is enabled */}
-      {user?.email === 'christopher.devine@gmail.com' && devModeEnabled && (
+      {user?.email === APP_CONFIG.DEV_EMAIL && devModeEnabled && (
         <button
           onClick={() => setShowDebugMenu(true)}
           className="fixed bottom-24 right-4 w-10 h-10 bg-purple-600 hover:bg-purple-700 text-white rounded-full flex items-center justify-center text-xs font-bold z-40 shadow-lg md:bottom-4"
@@ -1103,7 +1110,7 @@ function MainApp() {
 
       <div className="p-4">
         {/* HUNT TAB - Merged with Catalog */}
-        {activeTab === 'hunt' && !selectedMachine && (
+        {activeTab === TAB_IDS.HUNT && !selectedMachine && (
           <div className="pb-24">
             {/* Header */}
             <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
@@ -1219,7 +1226,7 @@ function MainApp() {
                       onClick={() => selectMachine(machine)}
                       className="shrink-0 bg-[#161616] border border-[#333] rounded px-3 py-2 flex items-center gap-2 hover:border-[#d4a855] transition-colors"
                     >
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${tierColors[machine.tier]?.badgeOutline || 'border-gray-500 text-gray-400 bg-[#0d0d0d]'}`}>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(machine.tier).badgeOutline}`}>
                         Tier {machine.tier}
                       </span>
                       <span className="text-white text-sm whitespace-nowrap">{machine.shortName}</span>
@@ -1294,7 +1301,7 @@ function MainApp() {
                         {/* Gradient overlay - tall and gradual blend into card bg */}
                         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#161616] from-10% via-[#161616]/60 via-40% to-transparent" />
                         {/* Tier Badge - bottom left */}
-                        <span className={`absolute bottom-2 left-2 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${tierColors[machine.tier]?.badgeOutline || 'border-gray-500 text-gray-400 bg-[#0d0d0d]'}`}>
+                        <span className={`absolute bottom-2 left-2 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(machine.tier).badgeOutline}`}>
                           Tier {machine.tier}
                         </span>
                       </div>
@@ -1333,7 +1340,7 @@ function MainApp() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold text-white truncate">{machine.shortName}</h3>
-                          <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${tierColors[machine.tier]?.badgeOutline || 'border-gray-500 text-gray-400 bg-[#0d0d0d]'}`}>
+                          <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(machine.tier).badgeOutline}`}>
                             Tier {machine.tier}
                           </span>
                         </div>
@@ -1357,7 +1364,7 @@ function MainApp() {
         )}
 
         {/* Machine Detail (Hunt) - with context-aware calculator */}
-        {activeTab === 'hunt' && selectedMachine && (
+        {activeTab === TAB_IDS.HUNT && selectedMachine && (
           <div className="pb-24 space-y-4">
             {/* Back Button */}
             <button 
@@ -1381,7 +1388,7 @@ function MainApp() {
               'bg-gradient-to-br from-red-900/40 to-[#161616] border border-red-500/50'
             }`}>
               <div className="flex items-start justify-between mb-3">
-                <span className={`text-xs px-3 py-1 rounded border font-semibold ${tierColors[selectedMachine.tier]?.badgeOutline || 'border-gray-500 text-gray-400 bg-[#0d0d0d]'}`}>
+                <span className={`text-xs px-3 py-1 rounded border font-semibold ${getTierColors(selectedMachine.tier).badgeOutline}`}>
                   {selectedMachine.tier === 1 ? 'Tier 1 - Must Hit By' : 
                    selectedMachine.tier === 2 ? 'Tier 2 - Persistent State' : 
                    'Tier 3 - Entertainment'}
@@ -1626,7 +1633,7 @@ function MainApp() {
         {/* Notes tab removed - consolidated into Trip tab */}
 
         {/* TRIP TAB */}
-        {activeTab === 'trip' && !selectedCasino && (
+        {activeTab === TAB_IDS.TRIP && !selectedCasino && (
           <div className="pb-24">
             {/* Header */}
             <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
@@ -1791,9 +1798,9 @@ function MainApp() {
                                     onClick={() => {
                                       if (!isVP && noteMachine) {
                                         selectMachine(noteMachine);
-                                        setActiveTab('hunt');
+                                        setActiveTab(TAB_IDS.HUNT);
                                       } else if (isVP) {
-                                        setActiveTab('vp');
+                                        setActiveTab(TAB_IDS.VP);
                                       }
                                     }}
                                     className="w-full bg-[#0d0d0d] rounded p-3 text-left hover:bg-[#1a1a1a] transition-colors"
@@ -1804,7 +1811,7 @@ function MainApp() {
                                           {isVP ? 'VP' : 'SLOT'}
                                         </span>
                                         {!isVP && noteMachine && (
-                                          <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${tierColors[noteMachine?.tier]?.badgeOutline || 'border-gray-500 text-gray-400 bg-[#0d0d0d]'}`}>
+                                          <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(noteMachine?.tier).badgeOutline}`}>
                                             Tier {noteMachine?.tier}
                                           </span>
                                         )}
@@ -1933,7 +1940,7 @@ function MainApp() {
                                         {isVP ? 'VP' : 'SLOT'}
                                       </span>
                                       {!isVP && noteMachine && (
-                                        <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${tierColors[noteMachine.tier]?.badgeOutline || 'border-gray-500 text-gray-400 bg-[#0d0d0d]'}`}>
+                                        <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(noteMachine.tier).badgeOutline}`}>
                                           Tier {noteMachine.tier}
                                         </span>
                                       )}
@@ -2035,7 +2042,7 @@ function MainApp() {
         )}
 
         {/* Casino Detail */}
-        {activeTab === 'trip' && selectedCasino && (
+        {activeTab === TAB_IDS.TRIP && selectedCasino && (
           <div className="pb-24 space-y-4">
             <button onClick={() => setSelectedCasino(null)} className="no-animate flex items-center gap-2 text-[#d4a855]">
               <ChevronLeft size={20} /> Back
@@ -2130,12 +2137,12 @@ function MainApp() {
         )}
 
         {/* VIDEO POKER TAB */}
-        {activeTab === 'vp' && (
+        {activeTab === TAB_IDS.VP && (
           <VideoPokerTab onSpot={openVPSpotter} />
         )}
 
         {/* BLOODIES TAB */}
-        {activeTab === 'bloodies' && (
+        {activeTab === TAB_IDS.BLOODIES && (
           <BloodiesTab />
         )}
       </div>

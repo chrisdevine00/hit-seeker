@@ -7,6 +7,7 @@ import { vegasCasinos } from '../../../data/casinos';
 import { formatRelativeTime } from '../../../utils';
 import { hapticSuccess, hapticCelebration } from '../../../lib/haptics';
 import { LogBloodyModal } from './LogBloodyModal';
+import { STORAGE_KEYS } from '../../../constants';
 
 /**
  * BloodiesTab - Bloody Mary tracking tab with stats, badges, and history
@@ -14,7 +15,7 @@ import { LogBloodyModal } from './LogBloodyModal';
 export function BloodiesTab() {
   // Load bloodies from localStorage
   const [bloodies, setBloodies] = useState(() => {
-    const saved = localStorage.getItem('hitseeker_bloodies');
+    const saved = localStorage.getItem(STORAGE_KEYS.BLOODIES);
     return saved ? JSON.parse(saved) : [];
   });
 
@@ -24,7 +25,7 @@ export function BloodiesTab() {
 
   // Save bloodies to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('hitseeker_bloodies', JSON.stringify(bloodies));
+    localStorage.setItem(STORAGE_KEYS.BLOODIES, JSON.stringify(bloodies));
   }, [bloodies]);
 
   // Calculate earned badges

@@ -165,7 +165,7 @@ export function TripSelectionScreen() {
                 <AnimatedButton
                   onClick={handleCreate}
                   disabled={!newTripName.trim() || creating}
-                  className="flex-1 bg-[#d4a855] hover:bg-[#a67c3d] disabled:opacity-50 text-white py-2 rounded flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-[#d4a855] to-amber-600 hover:from-[#c49745] hover:to-amber-500 disabled:opacity-50 text-black py-2 rounded flex items-center justify-center gap-2 font-semibold"
                 >
                   {creating && <Loader2 className="w-4 h-4 animate-spin" />}
                   Create
@@ -197,7 +197,7 @@ export function TripSelectionScreen() {
                 <AnimatedButton
                   onClick={handleJoin}
                   disabled={!joinCode.trim() || creating}
-                  className="flex-1 bg-[#d4a855] hover:bg-[#a67c3d] disabled:opacity-50 text-white py-2 rounded flex items-center justify-center gap-2"
+                  className="flex-1 bg-gradient-to-r from-[#d4a855] to-amber-600 hover:from-[#c49745] hover:to-amber-500 disabled:opacity-50 text-black py-2 rounded flex items-center justify-center gap-2 font-semibold"
                 >
                   {creating && <Loader2 className="w-4 h-4 animate-spin" />}
                   Join

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { hapticLight } from '../../lib/haptics';
 
 const variants = {
-  primary: 'bg-[#d4a855] hover:bg-[#c49745] text-black font-semibold',
+  primary: 'bg-gradient-to-r from-[#d4a855] to-amber-600 hover:from-[#c49745] hover:to-amber-500 text-black font-semibold shadow-lg shadow-[#d4a855]/20',
   secondary: 'bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] border border-[#333]',
   success: 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold',
   danger: 'bg-red-600 hover:bg-red-500 text-white font-semibold',

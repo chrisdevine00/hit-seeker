@@ -155,7 +155,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             onClick={() => setActiveType('slot')}
             className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
               activeType === 'slot'
-                ? 'bg-[#d4a855] text-black'
+                ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                 : 'text-[#aaa] hover:text-white'
             }`}
           >
@@ -165,7 +165,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             onClick={() => setActiveType('vp')}
             className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
               activeType === 'vp'
-                ? 'bg-[#d4a855] text-black'
+                ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                 : 'text-[#aaa] hover:text-white'
             }`}
           >
@@ -175,7 +175,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
             onClick={() => setActiveType('bloody')}
             className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
               activeType === 'bloody'
-                ? 'bg-[#d4a855] text-black'
+                ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                 : 'text-[#aaa] hover:text-white'
             }`}
           >
@@ -202,7 +202,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                 {selectedVPGame ? (
                   <button
                     onClick={() => { setSelectedVPGame(''); setSelectedVPPayTable(null); }}
-                    className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+                    className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
                   >
                     <span className="truncate">{vpGames[selectedVPGame]?.name || selectedVPGame}</span>
                     <X size={18} className="shrink-0 ml-2 opacity-60" />
@@ -242,7 +242,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                         onClick={() => setSelectedVPPayTable(pt)}
                         className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
                           selectedVPPayTable?.id === pt.id
-                            ? 'bg-[#d4a855] text-black'
+                            ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                             : 'bg-[#0d0d0d] text-[#aaa] hover:text-white border border-[#333]'
                         }`}
                       >
@@ -299,13 +299,13 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         <div>
           <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Machine <span className="text-red-500">*</span></label>
           {prefillData?.machine ? (
-            <div className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium">
+            <div className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 border border-[#d4a855] rounded px-4 py-3 text-black font-medium">
               {prefillData.machine}
             </div>
           ) : machine ? (
             <button
               onClick={() => setMachine('')}
-              className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+              className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
             >
               <span className="truncate">{machine}</span>
               <X size={18} className="shrink-0 ml-2 opacity-60" />
@@ -331,7 +331,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
         {casino ? (
           <button
             onClick={() => setCasino('')}
-            className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+            className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
           >
             <span className="truncate">{casino}</span>
             <X size={18} className="shrink-0 ml-2 opacity-60" />
@@ -374,7 +374,7 @@ function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, prefillDat
                 onClick={() => setDenomination(denomination === denom ? '' : denom)}
                 className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
                   denomination === denom
-                    ? 'bg-[#d4a855] text-black'
+                    ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                     : 'bg-[#0d0d0d] text-[#aaa] hover:text-white border border-[#333]'
                 }`}
               >
@@ -481,7 +481,7 @@ function NoteCard({ note, onEdit, onDelete, isOwn }) {
   const getBadgeClass = () => {
     if (isBloody) return 'bg-red-600 text-white';
     if (isVP) return 'bg-blue-600 text-white';
-    return 'bg-[#d4a855] text-black';
+    return 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black';
   };
 
   return (
@@ -1079,14 +1079,14 @@ function VideoPokerTab({ onSpot }) {
         <div className="flex bg-[#161616] border border-[#333] rounded overflow-hidden">
           <button
             onClick={() => setVpViewMode('list')}
-            className={`p-2 transition-colors ${vpViewMode === 'list' ? 'bg-[#d4a855] text-black' : 'text-[#aaaaaa] hover:text-white'}`}
+            className={`p-2 transition-colors ${vpViewMode === 'list' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#aaaaaa] hover:text-white'}`}
             title="List view"
           >
             <LayoutList size={18} />
           </button>
           <button
             onClick={() => setVpViewMode('cards')}
-            className={`p-2 transition-colors ${vpViewMode === 'cards' ? 'bg-[#d4a855] text-black' : 'text-[#aaaaaa] hover:text-white'}`}
+            className={`p-2 transition-colors ${vpViewMode === 'cards' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#aaaaaa] hover:text-white'}`}
             title="Card view"
           >
             <Grid size={18} />
@@ -1221,7 +1221,7 @@ function VideoPokerTab({ onSpot }) {
             <button
               onClick={() => setSelectedCategory('all')}
               className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                selectedCategory === 'all' ? 'bg-[#d4a855] text-black' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
+                selectedCategory === 'all' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
               }`}
             >
               All ({Object.values(vpGames).filter(g => g.category).length})
@@ -1231,7 +1231,7 @@ function VideoPokerTab({ onSpot }) {
                 key={key}
                 onClick={() => setSelectedCategory(key)}
                 className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                  selectedCategory === key ? 'bg-[#d4a855] text-black' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
+                  selectedCategory === key ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
                 }`}
               >
                 {cat.name.replace(' Games', '').replace(' Family', '').replace(' Bonus', '')} ({categoryCounts[key] || 0})
@@ -1385,7 +1385,7 @@ function VideoPokerTab({ onSpot }) {
                     onClick={() => setSelectedPayTable(pt)}
                     className={`px-4 py-2.5 rounded text-sm font-medium transition-colors flex flex-col items-center min-w-[70px] ${
                       selectedPayTable?.id === pt.id
-                        ? 'bg-[#d4a855] text-black'
+                        ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                         : 'bg-[#0d0d0d] border border-[#333] text-white hover:border-[#444]'
                     }`}
                   >
@@ -1678,7 +1678,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
           {location && location !== 'custom' ? (
             <button
               onClick={() => setLocation('')}
-              className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+              className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
             >
               <span className="truncate">{location}</span>
               <X size={18} className="shrink-0 ml-2 opacity-60" />
@@ -1687,7 +1687,7 @@ function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
             <div>
               <button
                 onClick={() => { setLocation(''); setCustomLocation(''); }}
-                className="w-full bg-[#d4a855] border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
+                className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 border border-[#d4a855] rounded px-4 py-3 text-black font-medium text-left flex items-center justify-between"
               >
                 <span className="truncate">Other (custom)</span>
                 <X size={18} className="shrink-0 ml-2 opacity-60" />
@@ -2435,7 +2435,7 @@ function MainApp() {
                 <button
                   onClick={() => updateViewMode('cards')}
                   className={`px-3 py-1.5 text-sm transition-colors ${
-                    machineViewMode === 'cards' ? 'bg-[#d4a855] text-black' : 'text-[#888]'
+                    machineViewMode === 'cards' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#888]'
                   }`}
                 >
                   Cards
@@ -2443,7 +2443,7 @@ function MainApp() {
                 <button
                   onClick={() => updateViewMode('list')}
                   className={`px-3 py-1.5 text-sm transition-colors ${
-                    machineViewMode === 'list' ? 'bg-[#d4a855] text-black' : 'text-[#888]'
+                    machineViewMode === 'list' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#888]'
                   }`}
                 >
                   List
@@ -2460,7 +2460,7 @@ function MainApp() {
               <button
                 onClick={() => updateLeftHandedMode(!leftHandedMode)}
                 className={`w-12 h-7 rounded-full transition-colors relative ${
-                  leftHandedMode ? 'bg-[#d4a855]' : 'bg-[#333]'
+                  leftHandedMode ? 'bg-gradient-to-r from-[#d4a855] to-amber-600' : 'bg-[#333]'
                 }`}
               >
                 <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${
@@ -2536,7 +2536,7 @@ function MainApp() {
                 <div
                   key={step}
                   className={`w-2 h-2 rounded-full transition-colors ${
-                    step === onboardingStep ? 'bg-[#d4a855]' : 
+                    step === onboardingStep ? 'bg-gradient-to-r from-[#d4a855] to-amber-600' :
                     step < onboardingStep ? 'bg-[#d4a855]/50' : 'bg-[#333]'
                   }`}
                 />
@@ -2549,7 +2549,7 @@ function MainApp() {
                 <div className="text-center mb-6">
                   <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
                     <span className="text-white">Welcome to </span>
-                    <span className="text-[#d4a855]">HitSeeker</span>
+                    <span className="text-[#d4a855]">Hit</span><span className="bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent">S</span><span className="text-[#d4a855]">eeker</span>
                   </h1>
                   <p className="text-[#aaa] text-sm">Your advantage play companion</p>
                 </div>
@@ -3035,14 +3035,14 @@ function MainApp() {
               <div className="flex bg-[#161616] border border-[#333] rounded overflow-hidden">
                 <button
                   onClick={() => setMachineViewMode('list')}
-                  className={`p-3 transition-colors ${machineViewMode === 'list' ? 'bg-[#d4a855] text-black' : 'text-[#aaaaaa] hover:text-white'}`}
+                  className={`p-3 transition-colors ${machineViewMode === 'list' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#aaaaaa] hover:text-white'}`}
                   title="List view"
                 >
                   <LayoutList size={20} />
                 </button>
                 <button
                   onClick={() => setMachineViewMode('cards')}
-                  className={`p-3 transition-colors ${machineViewMode === 'cards' ? 'bg-[#d4a855] text-black' : 'text-[#aaaaaa] hover:text-white'}`}
+                  className={`p-3 transition-colors ${machineViewMode === 'cards' ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black' : 'text-[#aaaaaa] hover:text-white'}`}
                   title="Card view"
                 >
                   <Grid size={20} />
@@ -3071,7 +3071,7 @@ function MainApp() {
                 onClick={() => setSelectedCategory('all')}
                 className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                   selectedCategory === 'all'
-                    ? 'bg-[#d4a855] text-black'
+                    ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                     : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
                 }`}
               >
@@ -3087,7 +3087,7 @@ function MainApp() {
                     onClick={() => setSelectedCategory(key)}
                     className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
                       selectedCategory === key
-                        ? 'bg-[#d4a855] text-black'
+                        ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                         : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
                     }`}
                   >
@@ -3445,8 +3445,8 @@ function MainApp() {
                 onClick={() => document.getElementById('photo-input-hunt')?.click()}
                 disabled={photoUploading}
                 className={`rounded p-3 flex items-center justify-center gap-2 transition-colors ${
-                  photoUploading 
-                    ? 'bg-[#d4a855] text-black' 
+                  photoUploading
+                    ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
                     : 'bg-[#161616] border border-[#333] hover:border-[#d4a855] text-white'
                 }`}
               >
@@ -3698,7 +3698,7 @@ function MainApp() {
                                   >
                                     <div className="flex items-center justify-between mb-1">
                                       <div className="flex items-center gap-2">
-                                        <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-[#d4a855] text-black'}`}>
+                                        <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'}`}>
                                           {isVP ? 'VP' : 'SLOT'}
                                         </span>
                                         {!isVP && noteMachine && (
@@ -3792,7 +3792,7 @@ function MainApp() {
                                 <div key={`activity-${activity.id}`} className="bg-[#0d0d0d] rounded p-3">
                                   <div className="flex items-start justify-between gap-2 mb-1">
                                     <div className="flex items-center gap-2">
-                                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-[#d4a855] text-black'}`}>
+                                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'}`}>
                                         {isVP ? 'VP' : 'SLOT'}
                                       </span>
                                       <div>
@@ -3827,7 +3827,7 @@ function MainApp() {
                                 <div key={`note-${note.id}`} className="bg-[#0d0d0d] rounded p-3">
                                   <div className="flex items-start justify-between gap-2 mb-1">
                                     <div className="flex items-center gap-2">
-                                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-[#d4a855] text-black'}`}>
+                                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'}`}>
                                         {isVP ? 'VP' : 'SLOT'}
                                       </span>
                                       {!isVP && noteMachine && (
@@ -4046,6 +4046,21 @@ function MainApp() {
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2 md:hidden">
+        {/* SVG gradient definitions for tab icons */}
+        <svg width="0" height="0" className="absolute">
+          <defs>
+            <linearGradient id="nav-tab-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#d4a855" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
+            <linearGradient id="liquid-fill-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="transparent" />
+              <stop offset="45%" stopColor="transparent" />
+              <stop offset="50%" stopColor="#d4a855" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
+          </defs>
+        </svg>
         <div className="flex justify-around items-end max-w-md mx-auto relative">
           {/* FAB spacer - first position if left-handed */}
           {leftHandedMode && (
@@ -4060,7 +4075,7 @@ function MainApp() {
                 }}
                 className="absolute -top-7 left-1/2 -translate-x-1/2"
               >
-                <div className="w-16 h-16 rounded-full bg-[#d4a855] flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#d4a855] to-amber-600 flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
                   <Plus size={32} className="text-black" strokeWidth={2.5} />
                 </div>
               </button>
@@ -4080,16 +4095,18 @@ function MainApp() {
                 setSelectedMachine(null);
                 setSelectedCasino(null);
               }}
-              className={`flex flex-col items-center py-2 px-3 ${
-                activeTab === tab.id ? 'text-[#d4a855]' : 'text-[#aaaaaa]'
-              }`}
+              className="flex flex-col items-center py-2 px-3"
             >
               <tab.icon
                 size={22}
                 className={animatingTab === tab.id ? 'animate-nav-pop' : ''}
                 onAnimationEnd={() => setAnimatingTab(null)}
+                stroke={activeTab === tab.id ? 'url(#nav-tab-gradient)' : '#aaaaaa'}
+                fill={activeTab === tab.id && tab.id === 'bloodies' ? 'url(#liquid-fill-gradient)' : 'none'}
               />
-              <span className="text-xs mt-1 font-medium">{tab.label}</span>
+              <span className={`text-xs mt-1 font-medium ${
+                activeTab === tab.id ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent' : 'text-[#aaaaaa]'
+              }`}>{tab.label}</span>
             </button>
           ))}
 
@@ -4106,7 +4123,7 @@ function MainApp() {
                 }}
                 className="absolute -top-7 left-1/2 -translate-x-1/2"
               >
-                <div className="w-16 h-16 rounded-full bg-[#d4a855] flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#d4a855] to-amber-600 flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
                   <Plus size={32} className="text-black" strokeWidth={2.5} />
                 </div>
               </button>

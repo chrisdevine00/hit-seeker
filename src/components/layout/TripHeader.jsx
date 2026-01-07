@@ -38,7 +38,7 @@ export function TripHeader({ onOpenSettings, onLocationClick, myCheckIn, onLogoL
         >
           <span className="font-bold text-4xl leading-none" style={{ fontFamily: 'Outfit, sans-serif' }}>
             <span className="text-white">H</span>
-            <span style={{ color: '#d4a855' }}>S</span>
+            <span className="bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent">S</span>
           </span>
           <h1 className="font-medium text-white text-sm">{currentTrip.name}</h1>
         </button>

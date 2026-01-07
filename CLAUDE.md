@@ -45,9 +45,15 @@ Hit Seeker is a React application for advantage slot machine scouting, built wit
 - Used for check-ins to track which trip members are at which casinos
 
 **Main App Structure** (`src/App.jsx`):
-- Large single-file component (~57k tokens) containing most UI
-- Uses tab-based navigation (Home, Casinos, Spots, Notes tabs)
-- Contains SpotterForm for logging slot/video poker finds
+- Orchestrates tab navigation and global modals (~545 lines after refactor)
+- Tab components extracted to `src/features/` and `src/components/tabs/`
+- Uses tab-based navigation (Hunt, VP, Trip, Bloodies tabs)
+
+**Badge System** (`src/badges/`):
+- 104 badges across 4 domains: bloody (31), slot (23), VP (27), trip (23)
+- Checker functions compute earned badges from user data
+- BadgeUnlockModal shows celebration effects on unlock
+- HexBadge component for badge display in galleries
 
 ### Data Files
 
@@ -73,35 +79,29 @@ Key tables (inferred from code):
 
 ## Roadmap
 
-### Spotter Badges System
-Add achievement badges for slot and VP spotting (similar to existing Bloody Mary badges):
+### ✅ Spotter Badges System (Completed)
+Achievement badges for slot and VP spotting implemented in `src/badges/`:
 
-**Slot Badges (ideas):**
-- Milestone badges (1, 10, 50, 100 spots)
-- Tier-specific (T1 Specialist, MHB Master)
-- Coverage badges (multi-casino spotting)
-- Documentation badges (adding photos)
+**Implemented:**
+- 23 Slot badges (milestones, tier-specific, coverage, photo documentation)
+- 27 VP badges (milestones, game variety, high-return finds, denomination)
+- 23 Trip badges (trip basics, check-ins, ownership, regions)
+- Unified badge gallery in Trip tab with collapsible sections
+- Celebration effects on unlock (confetti, fire, explosions based on tier)
 
-**VP Badges (ideas):**
-- Milestone badges (1, 10, 50 VP finds)
-- Game variety badges (logging different game types)
-- High-return finds (99%+ pay tables)
-- Denomination badges
+### ✅ User Settings Screen (Completed)
+Unified settings screen in `src/components/features/SettingsScreen.jsx`:
 
-**Open questions:**
-- Separate systems vs unified "Spotter Badges" collection?
-- Display location (Trip tab? Dedicated achievements screen?)
-- Trip-scoped vs lifetime achievements?
-
-### User Settings Screen
-Add a user-level settings section (separate from trip settings):
-
-**Core features:**
-- Account info display (email, profile name)
+**Implemented:**
+- Account info display (avatar, email, profile name)
 - Sign out button
 - Haptics toggle (enable/disable vibration feedback)
-
-**Future considerations:**
-- Sync Bloodies to cloud (currently localStorage only - lost on device switch)
 - Default view mode preference (cards vs list)
+- Left-handed mode toggle
+- Trip settings (share code, members, switch trip)
+
+### Future Considerations
+- Sync Bloodies to cloud (currently localStorage only - lost on device switch)
 - Delete account option (GDPR/privacy compliance)
+- TypeScript migration (optional)
+- Code splitting for bundle size optimization

@@ -20,6 +20,7 @@ import { hapticLight, hapticMedium, hapticSelection, hapticSuccess } from './lib
 // Context imports
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider, useTrip } from './context/TripContext';
+import { UIProvider, useUI } from './context/UIContext';
 
 // Hook imports
 import { useNotes, usePhotos, useCheckIns, useDebounce, useStorage } from './hooks';
@@ -95,36 +96,46 @@ function MainApp() {
   const { checkIns, myCheckIn, checkIn, checkOut, getMembersAtCasino } = useCheckIns();
   const { updateSlotBadges, updateVPBadges, updateTripBadges, unlockQueue, dismissBadge } = useBadges();
 
-  const [activeTab, setActiveTab] = useState(TAB_IDS.HUNT);
-  const [animatingTab, setAnimatingTab] = useState(null); // Track tab animation
-  const [tripSubTab, setTripSubTab] = useState('overview'); // 'overview', 'casinos', 'notes', 'team'
+  // UI Context - navigation, modals, and preferences
+  const {
+    activeTab, setActiveTab,
+    animatingTab, setAnimatingTab,
+    tripSubTab, setTripSubTab,
+    previousTab, setPreviousTab,
+    selectedCasino, setSelectedCasino,
+    showNoteForm, setShowNoteForm,
+    showSpotter, setShowSpotter,
+    spotterData, setSpotterData,
+    showTripSettings, setShowTripSettings,
+    showTierHelp, setShowTierHelp,
+    confirmDelete, setConfirmDelete,
+    viewingPhoto, setViewingPhoto,
+    pendingCheckIn, setPendingCheckIn,
+    showOnboarding, setShowOnboarding,
+    onboardingStep, setOnboardingStep,
+    completeOnboarding,
+    leftHandedMode, setLeftHandedMode,
+    devModeEnabled,
+    toggleDevMode,
+  } = useUI();
+
+  // Slots state (will be moved to SlotsContext in PR 3)
   const [selectedMachine, setSelectedMachine] = useState(null);
-  const [recentMachines, setRecentMachines] = useState([]); // Track recently viewed machines
-  const [recentActivity, setRecentActivity] = useState([]); // Unified activity tracking
-  const [previousTab, setPreviousTab] = useState(null); // Track where we came from
-  const [selectedCasino, setSelectedCasino] = useState(null);
-  const [showNoteForm, setShowNoteForm] = useState(false);
-  const [showSpotter, setShowSpotter] = useState(false); // Unified spotter form
-  const [spotterData, setSpotterData] = useState(null); // { type: 'slot'|'vp', ...prefillData }
-  const [prefillMachine, setPrefillMachine] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
-  const [_editingNote, setEditingNote] = useState(null); // TODO: implement edit modal
-  const [viewingPhoto, setViewingPhoto] = useState(null);
-  const [calcCurrent, setCalcCurrent] = useState('');
-  const [calcCeiling, setCalcCeiling] = useState('');
-  const [showTripSettings, setShowTripSettings] = useState(false);
-  const [hasOnboarded, setHasOnboarded] = useStorage(STORAGE_KEYS.ONBOARDED, false);
-  const [showOnboarding, setShowOnboarding] = useState(!hasOnboarded);
-  const [onboardingStep, setOnboardingStep] = useState(1);
-  const [showTierHelp, setShowTierHelp] = useState(false);
+  const [recentMachines, setRecentMachines] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 300);
-  const [geoStatus, setGeoStatus] = useState('idle');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [machineViewMode, setMachineViewMode] = useStorage(STORAGE_KEYS.VIEW_MODE, VIEW_MODES.CARDS);
-  const [leftHandedMode, setLeftHandedMode] = useStorage(STORAGE_KEYS.LEFT_HANDED, false);
-  const [apOnly, setApOnly] = useState(false); // AP machines only toggle
-  const [releaseYearFilter, setReleaseYearFilter] = useState('all'); // 'all', '2024', '2023', etc.
+  const [apOnly, setApOnly] = useState(false);
+  const [releaseYearFilter, setReleaseYearFilter] = useState('all');
+  const [calcCurrent, setCalcCurrent] = useState('');
+  const [calcCeiling, setCalcCeiling] = useState('');
+
+  // Other local state
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [prefillMachine, setPrefillMachine] = useState(null);
+  const [_editingNote, setEditingNote] = useState(null);
+  const [geoStatus, setGeoStatus] = useState('idle');
 
   // Update slot and VP badges when notes/photos change
   useEffect(() => {
@@ -159,6 +170,7 @@ function MainApp() {
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setters from context are stable
   }, [viewingPhoto, showTierHelp, showTripSettings, showSpotter, showNoteForm, selectedMachine, showOnboarding]);
 
   // Track recently viewed machines
@@ -214,14 +226,11 @@ function MainApp() {
     }
   };
 
-  // Dev mode visibility - persisted in localStorage, toggled via long-press on logo
-  const [devModeEnabled, setDevModeEnabled] = useStorage(STORAGE_KEYS.DEV_MODE, false);
-
-  const toggleDevMode = () => {
-    const newValue = !devModeEnabled;
-    setDevModeEnabled(newValue);
-    if (!newValue) setShowDebugMenu(false); // Close menu when disabling
-    hapticMedium(); // Feedback for toggle
+  // Local wrapper for toggleDevMode that also closes debug menu
+  const handleToggleDevMode = () => {
+    toggleDevMode();
+    if (devModeEnabled) setShowDebugMenu(false); // Close menu when disabling
+    hapticMedium();
   };
 
   const handleCheckIn = (casino) => {
@@ -250,9 +259,6 @@ function MainApp() {
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
-
-  // State for check-in confirmation
-  const [pendingCheckIn, setPendingCheckIn] = useState(null);
 
   // Simulated geolocation for testing
   const simulateGeolocation = (mode) => {
@@ -585,13 +591,13 @@ function MainApp() {
         onTabChange={(id) => { setActiveTab(id); setSelectedMachine(null); setSelectedCasino(null); }}
         animatingTab={animatingTab}
         setAnimatingTab={setAnimatingTab}
-        onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? toggleDevMode : null}
+        onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? handleToggleDevMode : null}
       />
       <TripHeader
         onOpenSettings={() => setShowTripSettings(true)}
         onLocationClick={handleHeaderCheckIn}
         myCheckIn={myCheckIn}
-        onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? toggleDevMode : null}
+        onLogoLongPress={user?.email === APP_CONFIG.DEV_EMAIL ? handleToggleDevMode : null}
       />
 
       {/* Onboarding Modal - 5 Step Walkthrough */}
@@ -875,11 +881,7 @@ function MainApp() {
                 </Button>
               ) : (
                 <Button
-                  onClick={() => {
-                    setHasOnboarded(true);
-                    setShowOnboarding(false);
-                    setOnboardingStep(1);
-                  }}
+                  onClick={completeOnboarding}
                   variant="primary"
                   className="flex-1 py-3 font-bold"
                 >
@@ -891,11 +893,7 @@ function MainApp() {
             {/* Skip button */}
             {onboardingStep < 6 && (
               <button
-                onClick={() => {
-                  setHasOnboarded(true);
-                  setShowOnboarding(false);
-                  setOnboardingStep(1);
-                }}
+                onClick={completeOnboarding}
                 className="w-full mt-3 text-[#aaa] hover:text-[#aaa] text-sm transition-colors"
               >
                 Skip intro
@@ -2251,7 +2249,9 @@ function AppContent() {
   return (
     <TripProvider>
       <BadgeProvider>
-        <TripContent />
+        <UIProvider>
+          <TripContent />
+        </UIProvider>
       </BadgeProvider>
     </TripProvider>
   );

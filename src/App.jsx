@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem, GlassWater, Flame, Sparkles, Star, Lock } from 'lucide-react';
+import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem, GlassWater, Flame, Sparkles, Star, Lock, Plus } from 'lucide-react';
 
 // Badge system imports
 import {
@@ -3443,30 +3443,38 @@ function MainApp() {
             </div>
 
             <div className="space-y-4">
-            {/* Sub-tab navigation */}
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {[
-                { id: 'overview', label: 'Overview', icon: Home },
-                { id: 'casinos', label: 'Casinos', icon: Building2 },
-                { id: 'notes', label: 'Notes', icon: StickyNote }
-              ].map(sub => (
+            {/* Quick Check-in Button - prominent at top */}
+            {!myCheckIn ? (
+              <button
+                onClick={detectCasino}
+                disabled={geoStatus === 'loading'}
+                className="w-full bg-gradient-to-r from-[#d4a855] to-amber-600 text-black py-3.5 rounded-lg flex items-center justify-center gap-2 font-semibold shadow-lg shadow-[#d4a855]/20"
+              >
+                {geoStatus === 'loading' ? <Loader2 className="animate-spin" size={20} /> : <Navigation size={20} />}
+                {geoStatus === 'loading' ? 'Detecting Location...' : 'Check In to a Casino'}
+              </button>
+            ) : (
+              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <MapPin size={20} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-emerald-400 font-medium">Checked in</p>
+                    <p className="text-white text-sm">{myCheckIn.casino_name}</p>
+                  </div>
+                </div>
                 <button
-                  key={sub.id}
-                  onClick={() => setTripSubTab(sub.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all whitespace-nowrap border ${
-                    tripSubTab === sub.id
-                      ? 'bg-[#d4a855] text-black border-[#d4a855]'
-                      : 'bg-[#1a1a1a] text-[#aaa] border-[#333]'
-                  }`}
+                  onClick={checkOut}
+                  className="text-[#888] hover:text-white text-sm px-3 py-1.5 rounded bg-[#1a1a1a] hover:bg-[#252525] transition-colors"
                 >
-                  <sub.icon size={16} />
-                  {sub.label}
+                  Check Out
                 </button>
-              ))}
-            </div>
+              </div>
+            )}
 
-            {/* Overview Sub-tab */}
-            {tripSubTab === 'overview' && (
+            {/* Overview Content (shown when not viewing notes) */}
+            {tripSubTab !== 'notes' && (
               <>
                 {/* DEMO DATA - Remove after testing */}
                 {(() => {
@@ -3761,129 +3769,17 @@ function MainApp() {
               </>
             )}
 
-            {/* Casinos Sub-tab */}
-            {tripSubTab === 'casinos' && (
-              <>
-                {/* Quick Check-in */}
-                {!myCheckIn && (
-                  <button
-                    onClick={detectCasino}
-                    disabled={geoStatus === 'loading'}
-                    className="w-full bg-[#d4a855]/20 border border-[#d4a855] text-[#d4a855] py-3 rounded flex items-center justify-center gap-2"
-                  >
-                    {geoStatus === 'loading' ? <Loader2 className="animate-spin" size={18} /> : <Navigation size={18} />}
-                    {geoStatus === 'loading' ? 'Detecting...' : 'Detect My Location'}
-                  </button>
-                )}
-                
-                {/* Search */}
-                <div className="relative">
-                  <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#666]" />
-                  <input
-                    type="text"
-                    placeholder="Search casinos..."
-                    value={casinoSearch}
-                    onChange={(e) => setCasinoSearch(e.target.value)}
-                    className="w-full bg-[#0d0d0d] border border-[#333] rounded pl-10 pr-10 py-3 text-white placeholder-[#666] focus:border-[#d4a855] focus:outline-none"
-                  />
-                  {casinoSearch && (
-                    <button
-                      onClick={() => setCasinoSearch('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#666] hover:text-white"
-                      aria-label="Clear search"
-                    >
-                      <X size={18} />
-                    </button>
-                  )}
-                </div>
-                
-                {/* Area Filter - horizontal scroll */}
-                <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                  <button
-                    onClick={() => setCasinoAreaFilter('all')}
-                    className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                      casinoAreaFilter === 'all' ? 'bg-[#d4a855] text-black' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
-                    }`}
-                  >
-                    All
-                  </button>
-                  {[...new Set(vegasCasinos.map(c => c.area))].map(area => (
-                    <button
-                      key={area}
-                      onClick={() => setCasinoAreaFilter(area)}
-                      className={`shrink-0 px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-                        casinoAreaFilter === area ? 'bg-[#d4a855] text-black' : 'bg-[#0d0d0d] text-[#aaa] hover:text-white'
-                      }`}
-                    >
-                      {area}
-                    </button>
-                  ))}
-                </div>
-
-                {(() => {
-                  const filteredCasinos = vegasCasinos.filter(casino => {
-                    const matchesSearch = !casinoSearch || 
-                      casino.name.toLowerCase().includes(casinoSearch.toLowerCase()) ||
-                      casino.owner.toLowerCase().includes(casinoSearch.toLowerCase());
-                    const matchesArea = casinoAreaFilter === 'all' || casino.area === casinoAreaFilter;
-                    return matchesSearch && matchesArea;
-                  });
-                  
-                  return (
-                    <>
-                      <p className="text-[#888] text-sm">{filteredCasinos.length} casinos</p>
-                      <div className="space-y-2">
-                        {filteredCasinos.map(casino => {
-                          const membersHere = getMembersAtCasino(casino.id);
-                          const isMyLocation = myCheckIn?.casino_id === casino.id;
-                          return (
-                            <button
-                              key={casino.id}
-                              onClick={() => setSelectedCasino(casino)}
-                              className={`w-full bg-[#161616] border rounded p-4 text-left ${isMyLocation ? 'border-emerald-500' : 'border-[#333]'}`}
-                            >
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <div className="flex items-center gap-2">
-                                    <h3 className="font-semibold text-white">{casino.name}</h3>
-                                    {isMyLocation && <span className="text-emerald-400 text-xs bg-emerald-400/20 px-2 py-0.5 rounded-full">You're here</span>}
-                                  </div>
-                                  <p className="text-sm text-[#aaa]">{casino.owner} • {casino.size} • {casino.slots} slots</p>
-                                </div>
-                                <div className="text-right">
-                                  {membersHere.length > 0 && (
-                                    <div className="flex items-center gap-1 text-[#d4a855] text-sm">
-                                      <Users size={14} /> {membersHere.length}
-                                    </div>
-                                  )}
-                                  <p className="text-[#888] text-xs">{casino.area}</p>
-                                </div>
-                              </div>
-                            </button>
-                          );
-                        })}
-                        {filteredCasinos.length === 0 && (
-                          <div className="bg-[#0d0d0d] border border-dashed border-[#333] rounded p-6 text-center">
-                            <p className="text-[#888]">No casinos match your search</p>
-                            <button 
-                              onClick={() => { setCasinoSearch(''); setCasinoAreaFilter('all'); }}
-                              className="text-[#d4a855] text-sm mt-2 hover:underline"
-                            >
-                              Clear filters
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  );
-                })()}
-              </>
-            )}
-
-            {/* Notes Sub-tab */}
+            {/* Notes View (accessed via FAB) */}
             {tripSubTab === 'notes' && (
               <>
                 <div className="flex items-center justify-between">
+                  <button
+                    onClick={() => setTripSubTab('overview')}
+                    className="flex items-center gap-1 text-[#888] hover:text-white transition-colors"
+                  >
+                    <ChevronLeft size={20} />
+                    <span className="text-sm">Back</span>
+                  </button>
                   <h2 className="text-lg font-bold text-white">Scouting Notes</h2>
                   <div className="flex items-center gap-2">
                     <button onClick={refreshNotes} className="no-animate p-2 text-[#bbbbbb] hover:text-white">
@@ -4060,7 +3956,8 @@ function MainApp() {
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="fixed bottom-0 left-0 right-0 bg-[#0d0d0d] border-t border-[#333] px-4 py-2 md:hidden">
-        <div className="flex justify-around max-w-md mx-auto">
+        <div className="flex justify-around items-end max-w-md mx-auto relative">
+          {/* All nav tabs */}
           {NAV_TABS.map(tab => (
             <button
               key={tab.id}
@@ -4085,6 +3982,27 @@ function MainApp() {
               <span className="text-xs mt-1 font-medium">{tab.label}</span>
             </button>
           ))}
+
+          {/* 5th spot spacer + FAB floating above */}
+          <div className="flex flex-col items-center py-2 px-5 relative">
+            {/* Invisible spacer to reserve space */}
+            <div className="w-[32px] h-[22px]" />
+            <span className="text-xs mt-1 font-medium opacity-0">Add</span>
+
+            {/* FAB positioned above the spacer */}
+            <button
+              onClick={() => {
+                hapticMedium();
+                setSpotterData({ type: 'slot' });
+                setShowSpotter(true);
+              }}
+              className="absolute -top-7 left-1/2 -translate-x-1/2"
+            >
+              <div className="w-16 h-16 rounded-full bg-[#d4a855] flex items-center justify-center shadow-lg shadow-[#d4a855]/30">
+                <Plus size={32} className="text-black" strokeWidth={2.5} />
+              </div>
+            </button>
+          </div>
         </div>
       </nav>
     </div>

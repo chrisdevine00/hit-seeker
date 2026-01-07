@@ -5,7 +5,7 @@ const variants = {
   primary: 'bg-gradient-to-r from-[#d4a855] to-amber-600 hover:from-[#c49745] hover:to-amber-500 text-black font-semibold shadow-lg shadow-[#d4a855]/20',
   secondary: 'bg-[#1a1a1a] hover:bg-[#252525] text-[#aaa] border border-[#333]',
   success: 'bg-emerald-600 hover:bg-emerald-700 text-white font-semibold',
-  danger: 'bg-red-600 hover:bg-red-500 text-white font-semibold',
+  danger: 'bg-gradient-to-r from-red-700 to-red-500 hover:from-red-600 hover:to-red-400 text-white font-semibold shadow-lg shadow-red-600/20',
   'danger-subtle': 'bg-red-600/20 hover:bg-red-600/30 text-red-400',
   ghost: 'text-[#aaa] hover:text-white hover:bg-[#1a1a1a]',
   link: 'text-[#d4a855] hover:text-[#c49745]',

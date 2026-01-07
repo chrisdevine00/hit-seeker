@@ -167,7 +167,7 @@ export function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
           disabled={!location || (location === 'custom' && !customLocation)}
           variant="danger"
           size="lg"
-          className="w-full disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
+          className="w-full disabled:from-[#333] disabled:to-[#222] disabled:text-[#666] disabled:shadow-none disabled:cursor-not-allowed"
         >
           Log It!
         </Button>

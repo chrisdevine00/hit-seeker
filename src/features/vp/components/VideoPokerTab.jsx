@@ -313,7 +313,7 @@ export function VideoPokerTab({ onSpot }) {
         </button>
       ) : (
         /* Expanded Selector */
-        <div className="card-3d-vp p-4 space-y-4">
+        <div className="card-3d p-4 space-y-4">
           {/* Header with collapse button */}
           <div className="flex items-center justify-between">
             <p className="text-white font-semibold">
@@ -331,15 +331,15 @@ export function VideoPokerTab({ onSpot }) {
 
           {/* Selected Game Indicator - show when game selected */}
           {selectedGame && (
-            <div className="flex items-center justify-between bg-[#d4a855]/10 border border-[#d4a855]/30 rounded px-3 py-2">
-              <span className="text-[#d4a855] text-sm font-medium truncate">{game?.name}</span>
+            <div className="flex items-center justify-between bg-gradient-to-r from-[#d4a855] to-amber-600 rounded px-3 py-2">
+              <span className="text-black text-sm font-semibold truncate">{game?.name}</span>
               <button
                 onClick={() => {
                   setSelectedGame(null);
                   setSelectedPayTable(null);
                   setSelectedHand([null, null, null, null, null]);
                 }}
-                className="text-[#d4a855]/60 hover:text-[#d4a855] ml-2"
+                className="text-black/60 hover:text-black ml-2"
               >
                 <X size={16} />
               </button>
@@ -403,10 +403,12 @@ export function VideoPokerTab({ onSpot }) {
                   <button
                     key={g.id}
                     onClick={() => selectVPGame(g.id)}
-                    className={`w-full bg-[#0d0d0d] border rounded p-3 text-left transition-colors ${
+                    className={`w-full p-3 text-left transition-colors ${
                       isSelected
-                        ? 'border-[#d4a855] bg-[#d4a855]/10'
-                        : 'border-[#333] hover:border-[#555]'
+                        ? 'card-3d-slot'
+                        : bestPayTable?.rating === 'HUNT' ? 'card-3d-tier1' :
+                          bestPayTable?.rating === 'OK' ? 'card-3d-tier2' :
+                          'card-3d-tier3'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -467,9 +469,9 @@ export function VideoPokerTab({ onSpot }) {
                     }`}
                   >
                     {/* Card Header */}
-                    <div className="aspect-[3/2] bg-gradient-to-b from-[#1a1a1a] to-[#0d0d0d] relative flex flex-col items-center justify-center p-3">
-                      <span className="text-2xl font-bold text-[#444] mb-1">{g.shortName || g.name.split(' ')[0]}</span>
-                      <span className="text-[10px] text-[#555] uppercase tracking-wider">
+                    <div className="aspect-[3/2] relative flex flex-col items-center justify-center p-3">
+                      <span className="text-2xl font-bold text-[#555] mb-1">{g.shortName || g.name.split(' ')[0]}</span>
+                      <span className="text-[10px] text-[#444] uppercase tracking-wider">
                         {vpCategories[g.category]?.name?.split(' ')[0]}
                       </span>
                       {/* Rating Badge - bottom left */}

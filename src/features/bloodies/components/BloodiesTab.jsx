@@ -152,15 +152,13 @@ export function BloodiesTab() {
                       {formatRelativeTime(bloody.timestamp)}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    {bloody.rating > 0 && (
-                      <span className="text-yellow-400 text-sm">{'★'.repeat(bloody.rating)}</span>
-                    )}
-                    {bloody.spice > 0 && (
-                      <span className="flex text-orange-500">
-                        {[...Array(bloody.spice)].map((_, i) => <Flame key={i} size={14} fill="currentColor" />)}
-                      </span>
-                    )}
+                  <div className="flex items-center gap-3 text-sm">
+                    <span className={`flex items-center gap-1 ${bloody.rating > 0 ? 'text-yellow-400' : 'text-[#444]'}`}>
+                      {bloody.rating || '-'} <span className="text-base">★</span>
+                    </span>
+                    <span className={`flex items-center gap-1 ${bloody.spice > 0 ? 'text-orange-500' : 'text-[#444]'}`}>
+                      {bloody.spice || '-'} <Flame size={14} fill="currentColor" />
+                    </span>
                   </div>
                 </div>
                 {bloody.notes && (

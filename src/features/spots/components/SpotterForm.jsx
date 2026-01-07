@@ -366,9 +366,9 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
       <div className="space-y-2">
         <Button
           onClick={handleSubmit}
-          disabled={isBloody ? !casino : isVP ? !(selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !machine}
+          disabled={isBloody ? !casino : isVP ? !(casino && selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !(casino && machine)}
           variant="primary"
-          className="w-full disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full disabled:from-[#333] disabled:to-[#222] disabled:text-[#666] disabled:shadow-none disabled:cursor-not-allowed"
         >
           Save Spot
         </Button>

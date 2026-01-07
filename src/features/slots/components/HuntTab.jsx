@@ -216,21 +216,23 @@ export function HuntTab() {
                   }`}
                 >
                   {/* Image or Placeholder */}
-                  <div className="aspect-[4/3] bg-[#0d0d0d] relative overflow-hidden">
+                  <div className="aspect-[4/3] relative overflow-hidden">
                     {latestPhoto ? (
-                      <img
-                        src={getPhotoUrl(latestPhoto)}
-                        alt={machine.shortName}
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        <img
+                          src={getPhotoUrl(latestPhoto)}
+                          alt={machine.shortName}
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Gradient overlay for photos */}
+                        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#141414] to-transparent" />
+                      </>
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-[#1a1a1a] to-[#161616]">
-                        <Gem size={28} className="text-[#333] mb-1" />
-                        <span className="text-[#333] text-xs">No photo</span>
+                      <div className="w-full h-full flex flex-col items-center justify-center">
+                        <Gem size={28} className="text-[#444] mb-1" />
+                        <span className="text-[#444] text-xs">No photo</span>
                       </div>
                     )}
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#161616] from-10% via-[#161616]/60 via-40% to-transparent" />
                     {/* Tier Badge */}
                     <span className={`absolute bottom-2 left-2 text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(machine.tier).badgeOutline}`}>
                       Tier {machine.tier}

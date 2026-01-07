@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Calculator, ChevronRight, ChevronDown, ChevronUp, Check, X, AlertTriangle, Info, Home, List, Building2, StickyNote, Trash2, Edit3, Eye, MapPin, Target, ChevronLeft, Navigation, LogOut, CheckCircle2, Camera, ImagePlus, Users, Share2, Copy, RefreshCw, Loader2, Grid, LayoutList, Crosshair, Map, BookOpen, Spade, Heart, Diamond, Club, Gem, GlassWater, Flame, Sparkles, Star, Lock, Plus } from 'lucide-react';
 
 // Badge system imports
@@ -6,7 +6,6 @@ import {
   BADGE_COLORS,
   BADGE_ICONS,
   BLOODY_BADGES,
-  checkBloodyBadges,
   HexBadge,
   BadgeDetailModal,
   BadgeUnlockModal,
@@ -15,9 +14,8 @@ import {
 } from './badges';
 
 // Lib imports
-import { supabase } from './lib/supabase';
-import { theme, injectGlobalStyles } from './lib/theme';
-import { hapticLight, hapticMedium, hapticSelection, hapticSuccess, hapticCelebration } from './lib/haptics';
+import { injectGlobalStyles } from './lib/theme';
+import { hapticLight, hapticMedium, hapticSelection, hapticSuccess } from './lib/haptics';
 
 // Context imports
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -28,26 +26,10 @@ import { useNotes, usePhotos, useCheckIns, useDebounce } from './hooks';
 
 // Data imports
 import { machineCategories, machines } from './data/machines';
-import { vpCategories, vpGames } from './data/vpGames';
-import { 
-  PAY_TABLE_STRATEGIES, 
-  STRATEGY_HIERARCHIES, 
-  WOO_RANK_VALUES, 
-  WOO_HIGH_CARDS,
-  analyzeHandForWoO,
-  getWoOStrategyRecommendation,
-  getDeucesWildWoORecommendation,
-  getJokerPokerWoORecommendation,
-  getBonusDeucesWildWoORecommendation,
-  getLooseDeucesWoORecommendation,
-  getJokerPokerKingsWoORecommendation
-} from './data/vpStrategies';
-import { strategyTestCases, runAllStrategyTests } from './data/vpTestCases';
 import { vegasCasinos } from './data/casinos';
 
 // Utility imports
-import { compressImage, formatRelativeTime } from './utils';
-import { SUITS, RANKS, RANK_VALUES, HIGH_CARDS, evaluateHand, analyzeDraws } from './utils/vpAnalysis';
+import { formatRelativeTime } from './utils';
 
 // Screen imports
 import { LoginScreen, TripSelectionScreen } from './screens';

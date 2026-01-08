@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { SlotsProvider, useSlots } from './SlotsContext';
 
@@ -28,13 +28,10 @@ function TestConsumer({ onContextReady }) {
 }
 
 describe('SlotsContext Fuzzy Search', () => {
-  let contextRef;
-
   const renderWithProvider = () => {
-    contextRef = null;
     return render(
       <SlotsProvider>
-        <TestConsumer onContextReady={(ctx) => { contextRef = ctx; }} />
+        <TestConsumer onContextReady={() => {}} />
       </SlotsProvider>
     );
   };

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { X, Gem, Spade, GlassWater, Flame, CheckCircle2 } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { X, Gem, Spade, GlassWater, Flame, CheckCircle2, Camera, Loader2 } from 'lucide-react';
 import { Button } from '../../../components/ui';
 import { vpGames } from '../../../data/vpGames';
 import { machines } from '../../../data/machines';
 import { vegasCasinos } from '../../../data/casinos';
 import { hapticLight } from '../../../lib/haptics';
+import { compressImage } from '../../../utils/compressImage';
 
 /**
  * SpotterForm - Unified form for logging Slots, VP, and Bloody Mary finds
@@ -38,6 +39,45 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
   const [bloodyRating, setBloodyRating] = useState(0);
   const [bloodySpice, setBloodySpice] = useState(0);
 
+  // Photo state
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handlePhotoSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsCompressing(true);
+    try {
+      // Compress the image before storing
+      const compressed = await compressImage(file, { maxWidth: 1200, quality: 0.8 });
+      setSelectedPhoto(compressed);
+
+      // Create preview URL
+      const previewUrl = URL.createObjectURL(compressed);
+      setPhotoPreview(previewUrl);
+    } catch (err) {
+      console.error('Error compressing photo:', err);
+      // Fall back to original file
+      setSelectedPhoto(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+    setIsCompressing(false);
+  };
+
+  const removePhoto = () => {
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+    }
+    setSelectedPhoto(null);
+    setPhotoPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // vpGames is an object, not array - get the game by key or find by id
   const vpGame = vpGames[selectedVPGame] || Object.values(vpGames).find(g => g.id === selectedVPGame);
 
@@ -70,7 +110,7 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
       noteData.state = state.trim(); // notes
     }
 
-    onSubmit(noteData);
+    onSubmit(noteData, selectedPhoto);
   };
 
   const isVP = activeType === 'vp';
@@ -337,6 +377,56 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
         />
       </div>
 
+      {/* Photo - not for bloody */}
+      {!isBloody && (
+        <div>
+          <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">
+            Photo
+          </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handlePhotoSelect}
+            className="hidden"
+          />
+          {photoPreview ? (
+            <div className="relative inline-block">
+              <img
+                src={photoPreview}
+                alt="Selected photo"
+                className="w-24 h-24 object-cover rounded border border-[#333]"
+              />
+              <button
+                onClick={removePhoto}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center"
+              >
+                <X size={14} className="text-white" />
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isCompressing}
+              className="flex items-center gap-2 px-4 py-3 bg-[#0d0d0d] border border-[#333] rounded text-[#aaa] hover:text-white hover:border-[#555] transition-colors disabled:opacity-50"
+            >
+              {isCompressing ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <Camera size={18} />
+                  <span>Add Photo</span>
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Playable toggle - not for bloody */}
       {!isBloody && (
         <button
@@ -394,7 +484,7 @@ export function NoteForm({ onSubmit, onCancel, prefillMachine, currentCasino }) 
       spotType="slot"
       prefillData={{ machine: prefillMachine }}
       currentCasino={currentCasino}
-      onSubmit={(data) => {
+      onSubmit={(data, photoFile) => {
         // Convert to legacy format
         onSubmit({
           machine: data.machine,
@@ -402,7 +492,7 @@ export function NoteForm({ onSubmit, onCancel, prefillMachine, currentCasino }) 
           location: data.location,
           state: data.state,
           playable: data.playable
-        });
+        }, photoFile);
       }}
       onCancel={onCancel}
     />

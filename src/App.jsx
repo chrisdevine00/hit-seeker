@@ -130,15 +130,15 @@ function MainApp() {
   const [_editingNote, setEditingNote] = useState(null);
   const [geoStatus, setGeoStatus] = useState('idle');
 
-  // Update slot and VP badges when notes/photos change
+  // Update slot and VP badges when notes change
   useEffect(() => {
     if (notes) {
       const slotNotes = notes.filter(n => n.type !== 'vp' && !n.machine?.startsWith('VP:'));
       const vpNotes = notes.filter(n => n.type === 'vp' || n.machine?.startsWith('VP:'));
-      updateSlotBadges(slotNotes, photos);
-      updateVPBadges(vpNotes, photos);
+      updateSlotBadges(slotNotes);
+      updateVPBadges(vpNotes);
     }
-  }, [notes, photos, updateSlotBadges, updateVPBadges]);
+  }, [notes, updateSlotBadges, updateVPBadges]);
 
   // Update trip badges when trip data changes
   useEffect(() => {
@@ -265,7 +265,7 @@ function MainApp() {
   };
 
   // Handle spot submission - creates note AND adds to recent activity
-  const handleSpotSubmit = async (spotData) => {
+  const handleSpotSubmit = async (spotData, photoFile = null) => {
     // Add to recent activity (in-memory, session-based)
     const activityItem = {
       ...spotData,
@@ -288,8 +288,8 @@ function MainApp() {
       vpPayTable: spotData.vpPayTable,
       vpReturn: spotData.vpReturn,
       denomination: spotData.denomination,
-    });
-    
+    }, photoFile);
+
     setShowSpotter(false);
     setSpotterData(null);
   };
@@ -394,11 +394,13 @@ function MainApp() {
         currentTrip={currentTrip}
         myCheckIn={myCheckIn}
         notesCount={notes?.length || 0}
+        notes={notes}
         onForceRefresh={refreshNotes}
         debugGeoMode={debugGeoMode}
         setDebugGeoMode={setDebugGeoMode}
         onShowStrategyValidator={() => setShowStrategyValidator(true)}
         onPreviewBadge={handlePreviewBadge}
+        onForceCheckIn={handleCheckIn}
       />
 
       {/* Badge Preview Modal (for dev testing) */}

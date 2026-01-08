@@ -1,5 +1,5 @@
 // Notes Hook with Realtime
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { useTrip } from '../context/TripContext';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,15 @@ export function useNotes() {
   const { user } = useAuth();
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Get public URL for a note photo
+  const getNotePhotoUrl = useCallback((photoPath) => {
+    if (!photoPath) return null;
+    const { data: { publicUrl } } = supabase.storage
+      .from('note-photos')
+      .getPublicUrl(photoPath);
+    return publicUrl;
+  }, []);
 
   useEffect(() => {
     if (!currentTrip) {
@@ -72,8 +81,27 @@ export function useNotes() {
     };
   }, [currentTrip]);
 
-  const addNote = async (noteData) => {
+  const addNote = async (noteData, photoFile = null) => {
     if (!currentTrip || !user) return;
+
+    let photoPath = null;
+
+    // Upload photo if provided
+    if (photoFile) {
+      const fileExt = photoFile.name.split('.').pop();
+      const fileName = `${user.id}/${currentTrip.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('note-photos')
+        .upload(fileName, photoFile);
+
+      if (uploadError) {
+        console.error('Error uploading note photo:', uploadError);
+        // Continue without photo rather than failing entirely
+      } else {
+        photoPath = fileName;
+      }
+    }
 
     const { data, error } = await supabase
       .from('notes')
@@ -84,7 +112,15 @@ export function useNotes() {
         casino: noteData.casino,
         location: noteData.location,
         state: noteData.state,
-        playable: noteData.playable || false
+        playable: noteData.playable || false,
+        photo_path: photoPath,
+        // Extended VP fields
+        type: noteData.type,
+        vpGame: noteData.vpGame,
+        vpGameName: noteData.vpGameName,
+        vpPayTable: noteData.vpPayTable,
+        vpReturn: noteData.vpReturn,
+        denomination: noteData.denomination,
       })
       .select('*, profiles (display_name, avatar_url)')
       .single();
@@ -134,5 +170,5 @@ export function useNotes() {
     setLoading(false);
   };
 
-  return { notes, loading, addNote, updateNote, deleteNote, refresh };
+  return { notes, loading, addNote, updateNote, deleteNote, refresh, getNotePhotoUrl };
 }

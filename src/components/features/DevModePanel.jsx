@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { X, Info, RefreshCw, LogOut, Trash2, Copy, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Wifi, WifiOff } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Info, RefreshCw, LogOut, Trash2, Copy, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Wifi, WifiOff, MapPin, Download, Key, Award } from 'lucide-react';
 import { subscribeToErrors, clearErrorLog } from '../../lib/errorCapture';
 import { supabase } from '../../lib/supabase';
 import { hapticLight, hapticSuccess, hapticError } from '../../lib/haptics';
+import { vegasCasinos } from '../../data/casinos';
+import { SLOT_BADGES } from '../../badges/definitions/slotBadges';
+import { VP_BADGES } from '../../badges/definitions/vpBadges';
+import { BLOODY_BADGES } from '../../badges/definitions/bloodyBadges';
+import { TRIP_BADGES } from '../../badges/definitions/tripBadges';
 
 // Info tooltip component
 function InfoButton({ title, children }) {
@@ -62,28 +67,66 @@ export function DevModePanel({
   currentTrip,
   myCheckIn,
   notesCount,
+  notes = [],
   onForceRefresh,
   debugGeoMode,
   setDebugGeoMode,
   onShowStrategyValidator,
-  onPreviewBadge
+  onPreviewBadge,
+  onForceCheckIn,
 }) {
   const [errors, setErrors] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
   const [copying, setCopying] = useState(false);
   const [actionStatus, setActionStatus] = useState(null);
   const [connectionStatus, setConnectionStatus] = useState('checking');
+  const [showLocalStorage, setShowLocalStorage] = useState(false);
+  const [localStorageKeys, setLocalStorageKeys] = useState([]);
+  const [selectedBadgeId, setSelectedBadgeId] = useState('');
+
+  // Combined badges for unlock dropdown
+  const allBadges = useMemo(() => [
+    ...SLOT_BADGES.map(b => ({ ...b, domainLabel: 'Slot' })),
+    ...VP_BADGES.map(b => ({ ...b, domainLabel: 'VP' })),
+    ...BLOODY_BADGES.map(b => ({ ...b, domainLabel: 'Bloody' })),
+    ...TRIP_BADGES.map(b => ({ ...b, domainLabel: 'Trip' })),
+  ], []);
 
   // Subscribe to error log
   useEffect(() => {
     return subscribeToErrors(setErrors);
   }, []);
 
-  // Check Supabase connection
+  // Check Supabase connection and refresh localStorage
   useEffect(() => {
     if (!isOpen) return;
     checkConnection();
+    refreshLocalStorage();
   }, [isOpen]);
+
+  const refreshLocalStorage = () => {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key) {
+        const value = localStorage.getItem(key);
+        keys.push({
+          key,
+          value: value?.substring(0, 100) + (value && value.length > 100 ? '...' : ''),
+          size: value?.length || 0,
+        });
+      }
+    }
+    setLocalStorageKeys(keys.sort((a, b) => a.key.localeCompare(b.key)));
+  };
+
+  const deleteLocalStorageKey = (key) => {
+    if (confirm(`Delete "${key}" from localStorage?`)) {
+      localStorage.removeItem(key);
+      refreshLocalStorage();
+      hapticSuccess();
+    }
+  };
 
   const checkConnection = async () => {
     setConnectionStatus('checking');
@@ -204,6 +247,62 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
     }
     setCopying(false);
     setTimeout(() => setActionStatus(null), 3000);
+  };
+
+  const handleExportData = async () => {
+    hapticLight();
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      user: {
+        id: user?.id,
+        email: user?.email,
+      },
+      trip: {
+        id: currentTrip?.id,
+        name: currentTrip?.name,
+      },
+      checkIn: myCheckIn,
+      notes: notes.slice(0, 50), // Limit to recent 50 notes
+      localStorage: localStorageKeys.reduce((acc, { key }) => {
+        acc[key] = localStorage.getItem(key);
+        return acc;
+      }, {}),
+      errors: errors.slice(0, 10),
+    };
+
+    try {
+      const json = JSON.stringify(exportData, null, 2);
+      await navigator.clipboard.writeText(json);
+      hapticSuccess();
+      setActionStatus({ type: 'success', message: 'Data exported to clipboard!' });
+    } catch {
+      hapticError();
+      setActionStatus({ type: 'error', message: 'Failed to export' });
+    }
+    setTimeout(() => setActionStatus(null), 3000);
+  };
+
+  const handleForceCheckInSelect = (e) => {
+    const casinoId = e.target.value;
+    if (!casinoId) return;
+    const casino = vegasCasinos.find(c => c.id === casinoId);
+    if (casino && onForceCheckIn) {
+      hapticSuccess();
+      onForceCheckIn(casino);
+      setActionStatus({ type: 'success', message: `Checked in to ${casino.name}!` });
+      setTimeout(() => setActionStatus(null), 3000);
+    }
+    e.target.value = '';
+  };
+
+  const handleBadgeUnlock = () => {
+    if (!selectedBadgeId) return;
+    const badge = allBadges.find(b => b.id === selectedBadgeId);
+    if (badge && onPreviewBadge) {
+      hapticSuccess();
+      onPreviewBadge(badge.tier); // Trigger the tier-based preview
+      setSelectedBadgeId('');
+    }
   };
 
   if (!isOpen) return null;
@@ -374,6 +473,107 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Force Check-in */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin size={14} className="text-purple-400" />
+              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">Force Check-in</p>
+            </div>
+            <p className="text-[#666] text-xs mb-2">Bypass geolocation and check in directly</p>
+            <select
+              onChange={handleForceCheckInSelect}
+              className="w-full bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-sm text-[#aaa] focus:outline-none focus:border-purple-500"
+            >
+              <option value="">Select a casino...</option>
+              {vegasCasinos.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* LocalStorage Viewer */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <button
+              onClick={() => { setShowLocalStorage(!showLocalStorage); refreshLocalStorage(); }}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Key size={14} className="text-purple-400" />
+                <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">LocalStorage</p>
+                <span className="text-[#666] text-xs">({localStorageKeys.length} keys)</span>
+              </div>
+              {showLocalStorage ? <ChevronUp size={16} className="text-[#666]" /> : <ChevronDown size={16} className="text-[#666]" />}
+            </button>
+
+            {showLocalStorage && (
+              <div className="mt-3 space-y-2 max-h-48 overflow-y-auto">
+                {localStorageKeys.length === 0 ? (
+                  <p className="text-[#666] text-sm">No localStorage data</p>
+                ) : (
+                  localStorageKeys.map(({ key, value, size }) => (
+                    <div key={key} className="bg-[#1a1a1a] p-2 rounded text-xs flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[#aaa] font-medium truncate">{key}</p>
+                        <p className="text-[#666] truncate">{value}</p>
+                        <p className="text-[#555] text-[10px]">{size} chars</p>
+                      </div>
+                      <button
+                        onClick={() => deleteLocalStorageKey(key)}
+                        className="text-red-400 hover:text-red-300 p-1"
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Badge Unlock Test */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-3">
+              <Award size={14} className="text-purple-400" />
+              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">Badge Unlock Test</p>
+            </div>
+            <p className="text-[#666] text-xs mb-2">Preview unlock celebration for any badge</p>
+            <div className="flex gap-2">
+              <select
+                value={selectedBadgeId}
+                onChange={(e) => setSelectedBadgeId(e.target.value)}
+                className="flex-1 bg-[#1a1a1a] border border-[#333] rounded px-3 py-2 text-sm text-[#aaa] focus:outline-none focus:border-purple-500"
+              >
+                <option value="">Select a badge...</option>
+                {allBadges.map(b => (
+                  <option key={b.id} value={b.id}>[{b.domainLabel}] {b.name} ({b.tier})</option>
+                ))}
+              </select>
+              <button
+                onClick={handleBadgeUnlock}
+                disabled={!selectedBadgeId}
+                className="px-3 py-2 bg-purple-600 text-white rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-purple-500"
+              >
+                Test
+              </button>
+            </div>
+          </div>
+
+          {/* Data Export */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-3">
+              <Download size={14} className="text-purple-400" />
+              <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">Data Export</p>
+            </div>
+            <p className="text-[#666] text-xs mb-2">Export all app data as JSON for debugging</p>
+            <button
+              onClick={handleExportData}
+              className="w-full px-3 py-2 bg-[#1a1a1a] text-[#aaa] hover:text-white hover:bg-emerald-900/30 rounded text-sm transition-colors flex items-center justify-center gap-2"
+            >
+              <Download size={14} />
+              Export to Clipboard
+            </button>
           </div>
 
           {/* Badge Preview */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, Flame, Edit3, Trash2 } from 'lucide-react';
+import { ChevronDown, Flame, Edit3, Trash2, X, Camera } from 'lucide-react';
 import { Button } from '../../../components/ui';
 import { formatRelativeTime } from '../../../utils';
 
@@ -10,12 +10,15 @@ import { formatRelativeTime } from '../../../utils';
  * @param {Function} onEdit - Callback when edit is clicked (receives note)
  * @param {Function} onDelete - Callback when delete is clicked (receives note id)
  * @param {boolean} isOwn - Whether the current user owns this note
+ * @param {Function} getPhotoUrl - Function to get public URL for photo_path
  */
-export function NoteCard({ note, onEdit, onDelete, isOwn }) {
+export function NoteCard({ note, onEdit, onDelete, isOwn, getPhotoUrl }) {
   const [expanded, setExpanded] = useState(false);
+  const [showFullPhoto, setShowFullPhoto] = useState(false);
   const isVP = note.type === 'vp';
   const isBloody = note.type === 'bloody';
   const title = isBloody ? 'Bloody Mary' : isVP ? (note.vpGameName || note.vpGame) : note.machine;
+  const photoUrl = note.photo_path && getPhotoUrl ? getPhotoUrl(note.photo_path) : null;
   const subtitle = isVP ? `${note.vpPayTable} • ${note.vpReturn}%` : null;
 
   // Get badge color based on type
@@ -63,6 +66,18 @@ export function NoteCard({ note, onEdit, onDelete, isOwn }) {
             )}
             <p className="text-[#bbb] text-sm">{note.casino || 'Unknown casino'}</p>
             {note.denomination && <p className="text-[#888] text-xs">{note.denomination} denomination</p>}
+            {/* Photo thumbnail */}
+            {photoUrl && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowFullPhoto(true); }}
+                className="mt-2 flex items-center gap-2 text-[#888] hover:text-white transition-colors"
+              >
+                <div className="w-12 h-12 rounded overflow-hidden border border-[#333] relative">
+                  <img src={photoUrl} alt="Note photo" className="w-full h-full object-cover" />
+                </div>
+                <Camera size={14} className="text-[#d4a855]" />
+              </button>
+            )}
             {note.profiles?.display_name && (
               <p className="text-[#888] text-xs mt-1">by {note.profiles.display_name}</p>
             )}
@@ -88,6 +103,30 @@ export function NoteCard({ note, onEdit, onDelete, isOwn }) {
               </Button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Full Photo Modal */}
+      {showFullPhoto && photoUrl && (
+        <div
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
+          onClick={() => setShowFullPhoto(false)}
+        >
+          <button
+            onClick={() => setShowFullPhoto(false)}
+            className="absolute top-4 right-4 text-white p-2 bg-black/50 rounded-full"
+          >
+            <X size={24} />
+          </button>
+          <div className="max-w-full max-h-full">
+            <img
+              src={photoUrl}
+              alt={title}
+              className="max-w-full max-h-[80vh] object-contain rounded"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <p className="text-center text-white mt-2 text-sm">{title} at {note.casino}</p>
+          </div>
         </div>
       )}
     </div>

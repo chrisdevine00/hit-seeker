@@ -13,7 +13,7 @@ function getMachineCategory(machineName) {
 }
 
 // Check which slot badges are earned based on slot notes
-export function checkSlotBadges(slotNotes, photos = {}) {
+export function checkSlotBadges(slotNotes) {
   const earned = new Set();
 
   if (!slotNotes || slotNotes.length === 0) return earned;
@@ -35,20 +35,12 @@ export function checkSlotBadges(slotNotes, photos = {}) {
   const hasLocation = slotNotes.some(n => n.location && n.location.trim().length > 0);
   if (hasLocation) earned.add('detail-oriented');
 
-  // Photo Evidence - check if any slot has photos
-  const notesWithPhotos = slotNotes.filter(n => {
-    const machinePhotos = photos[n.machine] || [];
-    return machinePhotos.length > 0;
-  });
-  if (notesWithPhotos.length >= 1) earned.add('photo-evidence');
-  if (notesWithPhotos.length >= 20) earned.add('photographer');
-
-  // Multi-photo - single spot with 3+ photos
-  const hasMultiPhoto = slotNotes.some(n => {
-    const machinePhotos = photos[n.machine] || [];
-    return machinePhotos.length >= 3;
-  });
-  if (hasMultiPhoto) earned.add('multi-photo');
+  // Photo badges - check note.photo_path (1 photo per note)
+  const notesWithPhotos = slotNotes.filter(n => n.photo_path);
+  if (notesWithPhotos.length >= 1) earned.add('snapshot-scout');
+  if (notesWithPhotos.length >= 10) earned.add('picture-perfect');
+  if (notesWithPhotos.length >= 25) earned.add('lens-master');
+  if (notesWithPhotos.length >= 50) earned.add('full-exposure');
 
   // Quick Scout - 3 in one day
   const notesByDay = {};

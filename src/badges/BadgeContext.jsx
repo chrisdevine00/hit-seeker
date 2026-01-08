@@ -105,14 +105,14 @@ export function BadgeProvider({ children }) {
   }, []);
 
   // Update slot badges from slot notes
-  const updateSlotBadges = useCallback((slotNotes, photos = {}) => {
-    const newEarned = checkSlotBadges(slotNotes, photos);
+  const updateSlotBadges = useCallback((slotNotes) => {
+    const newEarned = checkSlotBadges(slotNotes);
     setEarnedBadges(prev => ({ ...prev, slot: newEarned }));
   }, []);
 
   // Update VP badges from VP notes
-  const updateVPBadges = useCallback((vpNotes, photos = {}) => {
-    const newEarned = checkVPBadges(vpNotes, photos);
+  const updateVPBadges = useCallback((vpNotes) => {
+    const newEarned = checkVPBadges(vpNotes);
     setEarnedBadges(prev => ({ ...prev, vp: newEarned }));
   }, []);
 

@@ -30,7 +30,7 @@ function isWildGame(gameId) {
 }
 
 // Check which VP badges are earned
-export function checkVPBadges(vpNotes, photos = {}) {
+export function checkVPBadges(vpNotes) {
   const earned = new Set();
 
   if (!vpNotes || vpNotes.length === 0) return earned;
@@ -56,12 +56,11 @@ export function checkVPBadges(vpNotes, photos = {}) {
   const hasNotes = vpNotes.some(n => n.state && n.state.trim().length > 0);
   if (hasNotes) earned.add('notes-in-hand');
 
-  // Snap the Table - photo on VP
-  const hasPhoto = vpNotes.some(n => {
-    const machinePhotos = photos[n.vpGame] || photos[n.id] || [];
-    return machinePhotos.length > 0;
-  });
-  if (hasPhoto) earned.add('snap-the-table');
+  // Photo badges - check note.photo_path (1 photo per note)
+  const notesWithPhotos = vpNotes.filter(n => n.photo_path);
+  if (notesWithPhotos.length >= 1) earned.add('snap-the-table');
+  if (notesWithPhotos.length >= 10) earned.add('table-shooter');
+  if (notesWithPhotos.length >= 25) earned.add('paparazzi');
 
   // Casino Debut - VP at any casino
   const hasCasino = vpNotes.some(n => n.casino && n.casino.trim().length > 0);

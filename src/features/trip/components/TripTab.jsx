@@ -33,22 +33,6 @@ import { vegasCasinos } from '../../../data/casinos';
 import { getTierColors, TAB_IDS } from '../../../constants';
 import { formatRelativeTime } from '../../../utils';
 
-// Demo data with relative timestamps - created once at module load
-const DEMO_NOW = Date.now();
-const DEMO_NOTES = [
-  { id: 'demo1', machine: 'Ocean Magic Grand', content: '4 bubbles in rows 1-2, near high limit', casino: 'Flamingo', created_at: new Date(DEMO_NOW).toISOString() },
-  { id: 'demo2', machine: 'Piggy Bankin\'', content: 'Both pigs fat by sports book', casino: 'LINQ', created_at: new Date(DEMO_NOW).toISOString() },
-  { id: 'demo3', machine: 'Wheel of Fortune MHB', content: 'Major at $485/$500 (97%)', casino: 'Caesars Palace', created_at: new Date(DEMO_NOW - 3600000).toISOString() },
-  { id: 'demo4', machine: 'Lucky Wealth Cat', content: '6 orbs stacked low', casino: 'Paris', created_at: new Date(DEMO_NOW - 86400000).toISOString() },
-  { id: 'demo5', machine: 'Buffalo Gold', content: 'Just for fun, hit bonus', casino: 'Harrahs', created_at: new Date(DEMO_NOW - 86400000 * 2).toISOString() },
-];
-
-const DEMO_MEMBERS = [
-  { user_id: 'demo1', display_name: 'You', role: 'owner' },
-  { user_id: 'demo2', display_name: 'Mike', role: 'member' },
-  { user_id: 'demo3', display_name: 'Sarah', role: 'member' },
-];
-
 /**
  * TripTab - Trip overview and management
  * Shows check-in status, team locations, hot opportunities, and recent activity
@@ -74,7 +58,7 @@ export function TripTab({
     setActiveTab,
   } = useUI();
   const { selectMachine } = useSlots();
-  const { notes, loading: notesLoading, addNote, refresh: refreshNotes } = useNotes();
+  const { notes, loading: notesLoading, addNote, refresh: refreshNotes, getNotePhotoUrl } = useNotes();
   const { myCheckIn, checkOut, getMembersAtCasino } = useCheckIns();
   const { earnedBadges } = useBadges();
 
@@ -82,20 +66,15 @@ export function TripTab({
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [expandedBadgeSection, setExpandedBadgeSection] = useState(null);
 
-  const handleAddNote = async (noteData) => {
-    await addNote(noteData);
+  const handleAddNote = async (noteData, photoFile = null) => {
+    await addNote(noteData, photoFile);
     setShowNoteForm(false);
     setPrefillMachine(null);
   };
 
-  // Use demo data when no real data exists
-  const demoNotes = notes.length === 0 ? DEMO_NOTES : notes;
-  const demoMembers = tripMembers.length <= 1 ? DEMO_MEMBERS : tripMembers;
-  const isDemo = notes.length === 0;
-
   // Get hot opportunities for today
   const getHotOpportunities = () => {
-    const todaySlotNotes = demoNotes.filter(n => {
+    const todaySlotNotes = notes.filter(n => {
       const noteDate = new Date(n.created_at).toDateString();
       const today = new Date().toDateString();
       if (noteDate !== today) return false;
@@ -104,7 +83,7 @@ export function TripTab({
       return noteMachine && (noteMachine.tier === 1 || noteMachine.tier === 2);
     });
 
-    const todayVPNotes = demoNotes.filter(n => {
+    const todayVPNotes = notes.filter(n => {
       const noteDate = new Date(n.created_at).toDateString();
       const today = new Date().toDateString();
       if (noteDate !== today) return false;
@@ -168,29 +147,23 @@ export function TripTab({
         {/* Overview Content */}
         {tripSubTab !== 'notes' && (
           <>
-            {isDemo && (
-              <div className="bg-amber-900/20 border border-amber-500/30 rounded p-3 text-center">
-                <p className="text-amber-400 text-sm">Demo Mode - Showing sample data</p>
-              </div>
-            )}
-
             {/* Current Trip Info */}
             <div className="card-3d-trip p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[#aaa] text-xs uppercase tracking-wider mb-1">Current Trip</p>
-                  <h2 className="text-xl font-bold text-white">{currentTrip?.name || 'Vegas January 2025'}</h2>
+                  <h2 className="text-xl font-bold text-white">{currentTrip?.name || 'No Trip'}</h2>
                 </div>
-                {(currentTrip?.share_code || isDemo) && (
+                {currentTrip?.share_code && (
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(currentTrip?.share_code || 'DEMO123');
+                      navigator.clipboard.writeText(currentTrip.share_code);
                     }}
                     className="flex items-center gap-1.5 bg-[#2a2a2a] px-3 py-1.5 rounded text-[#d4a855] text-sm hover:bg-[#333] transition-colors"
                     title="Copy share code"
                   >
                     <Copy size={14} />
-                    {currentTrip?.share_code || 'DEMO123'}
+                    {currentTrip.share_code}
                   </button>
                 )}
               </div>
@@ -198,16 +171,16 @@ export function TripTab({
               {/* Trip Stats */}
               <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#222]">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-white">{demoMembers.length}</p>
+                  <p className="text-2xl font-bold text-white">{tripMembers.length}</p>
                   <p className="text-[#aaa] text-xs">Members</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#d4a855]">{demoNotes.length}</p>
+                  <p className="text-2xl font-bold text-[#d4a855]">{notes.length}</p>
                   <p className="text-[#aaa] text-xs">Notes</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-emerald-400">
-                    {demoNotes.filter(n => {
+                    {notes.filter(n => {
                       const noteDate = new Date(n.created_at).toDateString();
                       const today = new Date().toDateString();
                       return noteDate === today;
@@ -277,20 +250,18 @@ export function TripTab({
             )}
 
             {/* Team Locations */}
-            {demoMembers.length > 1 && (
+            {tripMembers.length > 1 && (
               <div className="card-3d p-4">
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Locations</p>
-                  <span className="text-[#aaa] text-xs">{demoMembers.length} members</span>
+                  <span className="text-[#aaa] text-xs">{tripMembers.length} members</span>
                 </div>
                 <div className="space-y-2">
-                  {demoMembers.map((member, idx) => {
-                    const memberCasino = isDemo
-                      ? (idx === 1 ? vegasCasinos.find(c => c.name === 'Flamingo') : idx === 2 ? vegasCasinos.find(c => c.name === 'LINQ') : null)
-                      : vegasCasinos.find(c => getMembersAtCasino(c.id).some(m => m.user_id === member.user_id));
-                    const isYou = isDemo ? idx === 0 : member.user_id === user?.id;
+                  {tripMembers.map((member) => {
+                    const memberCasino = vegasCasinos.find(c => getMembersAtCasino(c.id).some(m => m.user_id === member.user_id));
+                    const isYou = member.user_id === user?.id;
                     return (
-                      <div key={member.user_id || `demo-member-${idx}`} className="flex items-center gap-3">
+                      <div key={member.user_id} className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
                           isYou ? 'bg-[#d4a855]' : 'bg-[#333]'
                         }`}>
@@ -322,7 +293,7 @@ export function TripTab({
                 <p className="text-[#aaa] text-xs uppercase tracking-wider">Recent Activity</p>
                 <button onClick={() => setTripSubTab('notes')} className="text-[#d4a855] text-xs">View All</button>
               </div>
-              {demoNotes.length === 0 && recentActivity.length === 0 ? (
+              {notes.length === 0 && recentActivity.length === 0 ? (
                 <div className="text-center py-4">
                   <StickyNote size={24} className="mx-auto text-[#444] mb-2" />
                   <p className="text-[#aaa] text-sm">No activity yet</p>
@@ -367,7 +338,7 @@ export function TripTab({
                     );
                   })}
                   {/* If no recent activity, show notes */}
-                  {recentActivity.length === 0 && demoNotes.slice(0, 3).map(note => {
+                  {recentActivity.length === 0 && notes.slice(0, 3).map(note => {
                     const isVP = note.type === 'vp' || note.machine?.startsWith('VP:');
                     const noteMachine = !isVP ? machines.find(m => m?.name === note.machine || m?.shortName === note.machine) : null;
 
@@ -568,6 +539,7 @@ export function TripTab({
                     onEdit={setEditingNote}
                     onDelete={setConfirmDelete}
                     isOwn={note.user_id === user?.id}
+                    getPhotoUrl={getNotePhotoUrl}
                   />
                 ))}
               </div>

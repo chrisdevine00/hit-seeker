@@ -31,4 +31,8 @@ export const VP_BADGES = [
   { id: 'holy-grail', name: 'Holy Grail', description: 'Find a 100%+ return table', category: 'return', domain: 'vp', icon: 'gem', color: 'gold', effect: 'explode', tier: 'epic' },
   { id: 'game-master', name: 'Game Master', description: 'Log finds in 10 different games', category: 'game', domain: 'vp', icon: 'crown', color: 'purple', effect: 'explode', tier: 'epic' },
   { id: 'edge-lord', name: 'Edge Lord', description: 'Find 5 different 100%+ tables', category: 'return', domain: 'vp', icon: 'gem', color: 'gold', effect: 'explode', tier: 'legendary' },
+
+  // Photo Badges (3) - photography puns!
+  { id: 'table-shooter', name: 'Table Shooter', description: 'Add photos to 10 VP finds', category: 'photo', domain: 'vp', icon: 'image', color: 'teal', effect: 'confetti', tier: 'uncommon' },
+  { id: 'paparazzi', name: 'Paparazzi', description: 'Add photos to 25 VP finds', category: 'photo', domain: 'vp', icon: 'aperture', color: 'purple', effect: 'explode', tier: 'rare' },
 ];

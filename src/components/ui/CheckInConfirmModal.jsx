@@ -5,7 +5,6 @@ import { useCheckIns } from '../../hooks';
 import { Button } from './Button';
 import { FilledMapPin } from './FilledMapPin';
 import { hapticSuccess } from '../../lib/haptics';
-import { TAB_IDS } from '../../constants';
 
 /**
  * CheckInConfirmModal - Confirms check-in to a detected casino
@@ -15,8 +14,7 @@ export function CheckInConfirmModal({ onCheckIn }) {
   const {
     pendingCheckIn,
     setPendingCheckIn,
-    setActiveTab,
-    setTripSubTab,
+    setShowCasinoList,
   } = useUI();
   const { myCheckIn } = useCheckIns();
 
@@ -28,10 +26,9 @@ export function CheckInConfirmModal({ onCheckIn }) {
     setPendingCheckIn(null);
   };
 
-  const cancelCheckIn = () => {
+  const chooseDifferent = () => {
     setPendingCheckIn(null);
-    setActiveTab(TAB_IDS.TRIP);
-    setTripSubTab('casinos');
+    setShowCasinoList(true);
   };
 
   return (
@@ -73,7 +70,7 @@ export function CheckInConfirmModal({ onCheckIn }) {
             {myCheckIn ? `Switch to ${pendingCheckIn.name}` : 'Check In'}
           </Button>
           <Button
-            onClick={cancelCheckIn}
+            onClick={chooseDifferent}
             variant="secondary"
             className="w-full"
           >

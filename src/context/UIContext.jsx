@@ -30,12 +30,14 @@ export function UIProvider({ children }) {
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [viewingPhoto, setViewingPhoto] = useState(null);
   const [pendingCheckIn, setPendingCheckIn] = useState(null);
+  const [showCasinoList, setShowCasinoList] = useState(false);
 
   // Onboarding state
   const [hasOnboarded, setHasOnboarded] = useStorage(STORAGE_KEYS.ONBOARDED, false);
   const [showOnboarding, setShowOnboarding] = useState(!hasOnboarded);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [onboardingPaused, setOnboardingPaused] = useState(false);
+  const [triggerCheckIn, setTriggerCheckIn] = useState(false);
 
   // =============================================================================
   // USER PREFERENCES (persisted)
@@ -161,6 +163,8 @@ export function UIProvider({ children }) {
     setViewingPhoto,
     pendingCheckIn,
     setPendingCheckIn,
+    showCasinoList,
+    setShowCasinoList,
 
     // Onboarding
     hasOnboarded,
@@ -173,6 +177,8 @@ export function UIProvider({ children }) {
     onboardingPaused,
     pauseOnboarding,
     resumeOnboarding,
+    triggerCheckIn,
+    setTriggerCheckIn,
 
     // Modal actions
     openSpotter,

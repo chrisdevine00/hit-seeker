@@ -6,3 +6,4 @@ export { Button } from './Button';
 export { PhotoViewer } from './PhotoViewer';
 export { TierHelpModal } from './TierHelpModal';
 export { CheckInConfirmModal } from './CheckInConfirmModal';
+export { CasinoListModal } from './CasinoListModal';

@@ -41,7 +41,7 @@ import { LoginScreen, TripSelectionScreen } from './screens';
 import { TripHeader, DesktopSidebar, BottomNavigation } from './components/layout';
 import { StrategyValidator, DevModePanel, OnboardingModal, SettingsScreen } from './components/features';
 import { initErrorCapture } from './lib/errorCapture';
-import { ConfirmDialog, FilledMapPin, Button, PhotoViewer, TierHelpModal, CheckInConfirmModal } from './components/ui';
+import { ConfirmDialog, FilledMapPin, Button, PhotoViewer, TierHelpModal, CheckInConfirmModal, CasinoListModal } from './components/ui';
 import { Toaster } from 'sonner';
 
 // Feature imports
@@ -102,7 +102,6 @@ function MainApp() {
   const {
     activeTab, setActiveTab,
     animatingTab, setAnimatingTab,
-    setTripSubTab,
     selectedCasino, setSelectedCasino,
     showNoteForm, setShowNoteForm,
     showSpotter, setShowSpotter,
@@ -115,6 +114,8 @@ function MainApp() {
     showOnboarding, setShowOnboarding,
     devModeEnabled,
     resumeOnboarding,
+    triggerCheckIn, setTriggerCheckIn,
+    setShowCasinoList,
   } = useUI();
 
   // Slots Context - machine selection only (filtering moved to HuntTab)
@@ -212,9 +213,9 @@ function MainApp() {
   // Header check-in: try to detect location, ask to confirm, or fall back to casino list
   const handleHeaderCheckIn = () => {
     setGeoStatus('loading');
-    
+
     // Use simulated geolocation if debug mode is set
-    const geoPromise = debugGeoMode 
+    const geoPromise = debugGeoMode
       ? simulateGeolocation(debugGeoMode)
       : new Promise((resolve, reject) => {
           if (!navigator.geolocation) {
@@ -223,7 +224,7 @@ function MainApp() {
           }
           navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
         });
-    
+
     geoPromise
       .then((position) => {
         const { latitude, longitude } = position.coords;
@@ -237,19 +238,26 @@ function MainApp() {
           setPendingCheckIn(closest);
           setGeoStatus('idle');
         } else {
-          // Not near a casino - go to casino list
-          setActiveTab(TAB_IDS.TRIP);
-          setTripSubTab('casinos');
+          // Not near a casino - show casino list
+          setShowCasinoList(true);
           setGeoStatus('idle');
         }
       })
       .catch(() => {
-        // Geolocation error - go to casino list
-        setActiveTab(TAB_IDS.TRIP);
-        setTripSubTab('casinos');
+        // Geolocation error - show casino list
+        setShowCasinoList(true);
         setGeoStatus('idle');
       });
   };
+
+  // Handle triggerCheckIn from onboarding
+  useEffect(() => {
+    if (triggerCheckIn) {
+      setTriggerCheckIn(false);
+      handleHeaderCheckIn();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleHeaderCheckIn is stable within render
+  }, [triggerCheckIn, setTriggerCheckIn]);
 
   const handleDeletePhoto = async (machineId, photoId) => {
     await deletePhoto(machineId, photoId);
@@ -364,6 +372,9 @@ function MainApp() {
 
       {/* Check-in Confirmation Modal - extracted component */}
       <CheckInConfirmModal onCheckIn={handleCheckIn} />
+
+      {/* Casino List Modal - for manual casino selection */}
+      <CasinoListModal onCheckIn={handleCheckIn} />
 
       {/* Dev Mode Button - Only visible to admin when dev mode is enabled */}
       {user?.email === APP_CONFIG.DEV_EMAIL && devModeEnabled && (

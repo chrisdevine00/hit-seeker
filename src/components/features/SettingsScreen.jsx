@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronDown, ChevronUp, Users, Copy, LogOut, Smartphone } from 'lucide-react';
+import { ChevronLeft, ChevronDown, ChevronUp, Users, Copy, LogOut, Smartphone, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../../context/AuthContext';
 import { useTrip } from '../../context/TripContext';
@@ -22,6 +22,8 @@ export function SettingsScreen() {
     setLeftHandedMode,
     hapticsEnabled,
     setHapticsEnabled,
+    resetOnboarding,
+    resumeOnboarding,
   } = useUI();
   const { machineViewMode, updateViewMode } = useSlots();
 
@@ -36,7 +38,10 @@ export function SettingsScreen() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
-            onClick={() => setShowTripSettings(false)}
+            onClick={() => {
+              setShowTripSettings(false);
+              resumeOnboarding();
+            }}
             className="no-animate flex items-center gap-2 text-[#d4a855]"
           >
             <ChevronLeft size={20} /> Back
@@ -129,6 +134,26 @@ export function SettingsScreen() {
               <div className={`absolute top-1 w-5 h-5 rounded-full bg-white transition-transform ${
                 hapticsEnabled ? 'translate-x-6' : 'translate-x-1'
               }`} />
+            </button>
+          </div>
+
+          {/* Reset Onboarding */}
+          <div className="flex items-center justify-between py-3 border-t border-[#222]">
+            <div className="flex items-center gap-2">
+              <RotateCcw size={16} className="text-[#888]" />
+              <div>
+                <p className="text-white text-sm">Reset Onboarding</p>
+                <p className="text-[#666] text-xs">View the intro walkthrough again</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setShowTripSettings(false);
+                resetOnboarding();
+              }}
+              className="px-3 py-1.5 text-sm bg-[#0d0d0d] text-[#888] hover:text-white rounded transition-colors"
+            >
+              Reset
             </button>
           </div>
         </div>

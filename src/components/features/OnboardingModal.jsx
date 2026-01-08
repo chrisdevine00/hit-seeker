@@ -1,22 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  Search,
-  Calculator,
-  Camera,
-  Grid,
-  Target,
-  Users,
-  StickyNote,
-  BookOpen,
   Gem,
   Spade,
+  GlassWater,
+  Calculator,
+  Eye,
+  BookOpen,
+  Users,
+  MapPin,
+  ArrowRight,
+  Check,
 } from 'lucide-react';
 import { useUI } from '../../context/UIContext';
-import { Button, FilledMapPin } from '../ui';
+import { Button } from '../ui';
+import { TAB_IDS } from '../../constants';
 
 /**
- * OnboardingModal - 6-step walkthrough for new users
- * Explains tiers, tabs, and core features
+ * OnboardingModal - 5-step walkthrough for new users
+ * Step 1: Overview (Slots, VP, Bloodies)
+ * Step 2: Slots details
+ * Step 3: Video Poker details
+ * Step 4: Bloodies details
+ * Step 5: Get Started with action buttons
  */
 export function OnboardingModal() {
   const {
@@ -24,308 +29,363 @@ export function OnboardingModal() {
     onboardingStep,
     setOnboardingStep,
     completeOnboarding,
+    pauseOnboarding,
+    setShowTripSettings,
+    setActiveTab,
+    setTripSubTab,
   } = useUI();
+
+  // Track navigation direction for slide animation
+  const [direction, setDirection] = useState('right');
+  // Track completed onboarding actions
+  const [invitedCrew, setInvitedCrew] = useState(false);
+  const [checkedIn, setCheckedIn] = useState(false);
 
   if (!showOnboarding) return null;
 
+  const goNext = () => {
+    setDirection('right');
+    setOnboardingStep(onboardingStep + 1);
+  };
+
+  const goBack = () => {
+    setDirection('left');
+    setOnboardingStep(onboardingStep - 1);
+  };
+
+  const handleInviteCrew = () => {
+    setInvitedCrew(true);
+    pauseOnboarding();
+    setShowTripSettings(true);
+  };
+
+  const handleCheckIn = () => {
+    setCheckedIn(true);
+    pauseOnboarding();
+    setActiveTab(TAB_IDS.TRIP);
+    setTripSubTab('casinos');
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#161616] border border-[#333] rounded max-w-sm w-full p-6 max-h-[90vh] overflow-y-auto">
-
-        {/* Progress Dots */}
-        <div className="flex justify-center gap-2 mb-6">
-          {[1, 2, 3, 4, 5, 6].map(step => (
-            <div
-              key={step}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                step === onboardingStep ? 'bg-gradient-to-r from-[#d4a855] to-amber-600' :
-                step < onboardingStep ? 'bg-[#d4a855]/50' : 'bg-[#333]'
-              }`}
-            />
-          ))}
-        </div>
-
-        {/* Step 1: Welcome + Tiers */}
+    <div className="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4 overflow-hidden">
+      {/* Sliding Card */}
+      <div
+        key={onboardingStep}
+        className={`card-3d max-w-sm w-full p-6 max-h-[80vh] overflow-y-auto ${
+          direction === 'right' ? 'animate-slide-in-right' : 'animate-slide-in-left'
+        }`}
+      >
+        {/* Step 1: Overview */}
         {onboardingStep === 1 && (
           <>
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                <span className="text-white">Welcome to </span>
-                <span className="text-[#d4a855]">Hit</span><span className="bg-gradient-to-r from-[#d4a855] to-amber-600 bg-clip-text text-transparent">S</span><span className="text-[#d4a855]">eeker</span>
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#d4a855]/20 to-amber-600/10 flex items-center justify-center animate-icon-bounce">
+                <Gem size={32} className="text-[#d4a855]" />
+              </div>
+              <h1 className="text-2xl font-bold text-white mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                Welcome to HitSeeker
               </h1>
-              <p className="text-[#aaa] text-sm">Your advantage play companion</p>
+              <p className="text-[#888]">Your advantage play companion</p>
             </div>
 
-            <p className="text-white text-center mb-4 font-medium">Machines are organized into 3 tiers:</p>
-
             <div className="space-y-3 mb-6">
-              <div className="bg-emerald-900/20 border border-emerald-500/30 rounded p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-emerald-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">T1</span>
-                  <span className="text-emerald-400 font-semibold text-sm">Must-Hit-By</span>
+              <div className="card-3d p-4 animate-list-item" style={{ animationDelay: '0.1s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-[#d4a855]/20 flex items-center justify-center shrink-0">
+                    <Gem size={20} className="text-[#d4a855]" />
+                  </div>
+                  <div>
+                    <span className="text-white font-semibold">Slot Machines</span>
+                    <p className="text-[#888] text-sm">Search 777+ machines with advantage play potential</p>
+                  </div>
                 </div>
-                <p className="text-[#bbb] text-xs">Jackpots that MUST hit by a ceiling amount.</p>
               </div>
 
-              <div className="bg-amber-900/20 border border-amber-500/30 rounded p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-amber-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">T2</span>
-                  <span className="text-amber-400 font-semibold text-sm">Persistent State</span>
+              <div className="card-3d-vp p-4 animate-list-item" style={{ animationDelay: '0.2s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0">
+                    <Spade size={20} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <span className="text-white font-semibold">Video Poker</span>
+                    <p className="text-[#888] text-sm">88 games with pay tables and perfect strategy</p>
+                  </div>
                 </div>
-                <p className="text-[#bbb] text-xs">Machines that save progress between players.</p>
               </div>
 
-              <div className="bg-red-900/20 border border-red-500/30 rounded p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold">T3</span>
-                  <span className="text-red-400 font-semibold text-sm">Entertainment</span>
+              <div className="card-3d-bloody p-4 animate-list-item" style={{ animationDelay: '0.3s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0">
+                    <GlassWater size={20} className="text-red-400" />
+                  </div>
+                  <div>
+                    <span className="text-white font-semibold">Bloodies</span>
+                    <p className="text-[#888] text-sm">Track your Bloody Mary adventures with your crew</p>
+                  </div>
                 </div>
-                <p className="text-[#bbb] text-xs">No advantage play. Fun only!</p>
               </div>
             </div>
           </>
         )}
 
-        {/* Step 2: Hunt Tab */}
+        {/* Step 2: Slots Details */}
         {onboardingStep === 2 && (
           <>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-[#d4a855]/20 to-amber-600/10 flex items-center justify-center animate-icon-bounce">
                 <Gem size={32} className="text-[#d4a855]" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Hunt Tab</h2>
-              <p className="text-[#aaa] text-sm">Find your next play</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Slot Machines</h2>
+              <p className="text-[#888]">Organized by advantage tier</p>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Search size={16} className="text-[#d4a855]" />
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Search 777 machines</p>
-                  <p className="text-[#aaa] text-xs">By name, manufacturer, or type</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Target size={16} className="text-emerald-400" />
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Filter by AP Only</p>
-                  <p className="text-[#aaa] text-xs">Show only advantage play machines (T1 & T2)</p>
+            <div className="space-y-3 mb-6">
+              <div className="card-3d-tier1 p-3 animate-list-item" style={{ animationDelay: '0.1s' }}>
+                <div className="flex items-center gap-3">
+                  <span className="bg-emerald-500 text-white text-xs px-2 py-0.5 rounded font-bold shrink-0">T1</span>
+                  <div>
+                    <span className="text-emerald-400 font-semibold">Must-Hit-By</span>
+                    <p className="text-[#888] text-sm">Jackpots guaranteed to hit by a ceiling</p>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Grid size={16} className="text-[#d4a855]" />
+              <div className="card-3d-tier2 p-3 animate-list-item" style={{ animationDelay: '0.2s' }}>
+                <div className="flex items-center gap-3">
+                  <span className="bg-amber-500 text-white text-xs px-2 py-0.5 rounded font-bold shrink-0">T2</span>
+                  <div>
+                    <span className="text-amber-400 font-semibold">Persistent State</span>
+                    <p className="text-[#888] text-sm">Progress carries between players</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Browse by category</p>
-                  <p className="text-[#aaa] text-xs">Must-Hit-By, Persistent State, and more</p>
+              </div>
+
+              <div className="card-3d-tier3 p-3 animate-list-item" style={{ animationDelay: '0.3s' }}>
+                <div className="flex items-center gap-3">
+                  <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded font-bold shrink-0">T3</span>
+                  <div>
+                    <span className="text-red-400 font-semibold">Entertainment</span>
+                    <p className="text-[#888] text-sm">No edge — just for fun</p>
+                  </div>
                 </div>
               </div>
             </div>
           </>
         )}
 
-        {/* Step 3: Machine Details */}
+        {/* Step 3: Video Poker Details */}
         {onboardingStep === 3 && (
           <>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                <Calculator size={32} className="text-[#d4a855]" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center animate-icon-bounce">
+                <Spade size={32} className="text-emerald-400" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Machine Details</h2>
-              <p className="text-[#aaa] text-sm">Everything you need to decide</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Video Poker</h2>
+              <p className="text-[#888]">Play with perfect strategy</p>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="bg-emerald-900/20 border border-emerald-500/30 rounded p-3">
-                <p className="text-emerald-400 font-medium text-sm mb-1">T1: MHB Calculator</p>
-                <p className="text-[#aaa] text-xs">Enter current value and ceiling to see if it's worth playing</p>
-              </div>
-
-              <div className="bg-amber-900/20 border border-amber-500/30 rounded p-3">
-                <p className="text-amber-400 font-medium text-sm mb-1">T2: Visual Cues</p>
-                <p className="text-[#aaa] text-xs">See exactly what to look for on the machine</p>
-              </div>
-
-              <div className="flex items-start gap-3 mt-4">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Camera size={16} className="text-[#d4a855]" />
+            <div className="space-y-3 mb-6">
+              <div className="card-3d-vp p-4 animate-list-item" style={{ animationDelay: '0.1s' }}>
+                <div className="flex items-center gap-3">
+                  <BookOpen size={20} className="text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="text-white font-semibold">88 Game Variants</span>
+                    <p className="text-[#888] text-sm">Jacks or Better, Deuces Wild, and more</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Add photos & notes</p>
-                  <p className="text-[#aaa] text-xs">Remember where you found good machines</p>
+              </div>
+
+              <div className="card-3d-vp p-4 animate-list-item" style={{ animationDelay: '0.2s' }}>
+                <div className="flex items-center gap-3">
+                  <Calculator size={20} className="text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="text-white font-semibold">Pay Table Analysis</span>
+                    <p className="text-[#888] text-sm">See expected return percentages instantly</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card-3d-vp p-4 animate-list-item" style={{ animationDelay: '0.3s' }}>
+                <div className="flex items-center gap-3">
+                  <Eye size={20} className="text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="text-white font-semibold">Hand Checker</span>
+                    <p className="text-[#888] text-sm">Input any hand, see the optimal hold</p>
+                  </div>
                 </div>
               </div>
             </div>
           </>
         )}
 
-        {/* Step 4: Trip Coordination */}
+        {/* Step 4: Bloodies Details */}
         {onboardingStep === 4 && (
           <>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                <Users size={32} className="text-[#d4a855]" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-red-500/20 to-red-600/10 flex items-center justify-center animate-icon-bounce">
+                <GlassWater size={32} className="text-red-400" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Trip Tab</h2>
-              <p className="text-[#aaa] text-sm">Coordinate with your team</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Bloodies</h2>
+              <p className="text-[#888]">Track your Bloody Mary journey</p>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <FilledMapPin size={16} className="text-emerald-400" holeColor="#2a2a2a" />
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Check in to casinos</p>
-                  <p className="text-[#aaa] text-xs">Let teammates know where you are</p>
-                </div>
+            <div className="space-y-3 mb-6">
+              <div className="card-3d-bloody p-4 animate-list-item" style={{ animationDelay: '0.1s' }}>
+                <p className="text-white font-semibold">Log Every Bloody</p>
+                <p className="text-[#888] text-sm">Rate the taste and spice level at every casino</p>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <StickyNote size={16} className="text-[#d4a855]" />
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Share scouting notes</p>
-                  <p className="text-[#aaa] text-xs">Team sees notes in real-time</p>
-                </div>
+              <div className="card-3d-bloody p-4 animate-list-item" style={{ animationDelay: '0.2s' }}>
+                <p className="text-white font-semibold">Earn Badges</p>
+                <p className="text-[#888] text-sm">Unlock 31 badges from First Blood to Capsaicin King</p>
               </div>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Target size={16} className="text-amber-400" />
-                </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Hot Opportunities</p>
-                  <p className="text-[#aaa] text-xs">See today's best finds from the team</p>
-                </div>
+              <div className="card-3d-bloody p-4 animate-list-item" style={{ animationDelay: '0.3s' }}>
+                <p className="text-white font-semibold">Share with Your Crew</p>
+                <p className="text-[#888] text-sm">See what your trip members are drinking in real-time</p>
               </div>
             </div>
           </>
         )}
 
-        {/* Step 5: Video Poker */}
+        {/* Step 5: Get Started */}
         {onboardingStep === 5 && (
           <>
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-full bg-[#d4a855]/20 flex items-center justify-center mx-auto mb-4">
-                <Spade size={32} className="text-[#d4a855]" />
+              <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center animate-icon-bounce">
+                <Users size={32} className="text-blue-400" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Video Poker</h2>
-              <p className="text-[#aaa] text-sm">Find the best pay tables</p>
+              <h2 className="text-2xl font-bold text-white mb-2">Get Started</h2>
+              <p className="text-[#888]">You're all set!</p>
             </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Search size={16} className="text-[#d4a855]" />
+            <div className="space-y-3">
+              {/* Invite Your Crew */}
+              <button
+                onClick={handleInviteCrew}
+                className={`card-3d-trip w-full p-4 text-left animate-list-item transition-all ${
+                  invitedCrew ? 'opacity-60' : 'hover:scale-[1.02]'
+                }`}
+                style={{ animationDelay: '0.1s' }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      invitedCrew ? 'bg-emerald-500/20' : 'bg-blue-500/20'
+                    }`}>
+                      {invitedCrew ? (
+                        <Check size={20} className="text-emerald-400" />
+                      ) : (
+                        <Users size={20} className="text-blue-400" />
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-white font-semibold">Invite Your Crew</span>
+                      <p className="text-[#888] text-sm">Share your trip code with friends</p>
+                    </div>
+                  </div>
+                  {!invitedCrew && <ArrowRight size={18} className="text-[#666]" />}
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">88 Game Variants</p>
-                  <p className="text-[#aaa] text-xs">Jacks or Better, Deuces Wild, Ultimate X, and more</p>
-                </div>
-              </div>
+              </button>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <Calculator size={16} className="text-emerald-400" />
+              {/* Check In */}
+              <button
+                onClick={handleCheckIn}
+                className={`card-3d w-full p-4 text-left animate-list-item transition-all ${
+                  checkedIn ? 'opacity-60' : 'hover:scale-[1.02]'
+                }`}
+                style={{ animationDelay: '0.2s' }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      checkedIn ? 'bg-emerald-500/20' : 'bg-[#d4a855]/20'
+                    }`}>
+                      {checkedIn ? (
+                        <Check size={20} className="text-emerald-400" />
+                      ) : (
+                        <MapPin size={20} className="text-[#d4a855]" />
+                      )}
+                    </div>
+                    <div>
+                      <span className="text-white font-semibold">Check in to a Casino</span>
+                      <p className="text-[#888] text-sm">Let your crew know where you are</p>
+                    </div>
+                  </div>
+                  {!checkedIn && <ArrowRight size={18} className="text-[#666]" />}
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Pay Table Analyzer</p>
-                  <p className="text-[#aaa] text-xs">See return % and find HUNT-worthy machines</p>
-                </div>
-              </div>
+              </button>
 
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#2a2a2a] flex items-center justify-center shrink-0">
-                  <BookOpen size={16} className="text-amber-400" />
+              {/* Just Let Me In */}
+              <button
+                onClick={completeOnboarding}
+                className="card-3d w-full p-4 text-left animate-list-item hover:scale-[1.02] transition-all"
+                style={{ animationDelay: '0.3s' }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-[#333] flex items-center justify-center shrink-0">
+                      <ArrowRight size={20} className="text-[#888]" />
+                    </div>
+                    <div>
+                      <span className="text-white font-semibold">Just let me in</span>
+                      <p className="text-[#888] text-sm">Skip and start exploring</p>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-white font-medium text-sm">Hand Checker</p>
-                  <p className="text-[#aaa] text-xs">Enter your hand, get the optimal play</p>
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
-        {/* Step 6: Get Started */}
-        {onboardingStep === 6 && (
-          <>
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 mx-auto mb-4 bg-[#d4a855]/20 rounded-full flex items-center justify-center">
-                <Gem size={32} className="text-[#d4a855]" />
-              </div>
-              <h2 className="text-xl font-bold text-white mb-2">You're Ready!</h2>
-              <p className="text-[#aaa] text-sm">Time to hit the floor</p>
-            </div>
-
-            <div className="bg-[#1a1a1a] rounded p-4 mb-6">
-              <p className="text-white font-medium text-sm mb-3">Quick start tips:</p>
-              <ul className="space-y-2 text-[#aaa] text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-[#d4a855]">1.</span>
-                  <span>Tap <strong className="text-white">Check In</strong> in the top-right</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#d4a855]">2.</span>
-                  <span>Turn on <strong className="text-white">AP Only</strong> to focus on plays</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-[#d4a855]">3.</span>
-                  <span>Search for machines you see on the floor</span>
-                </li>
-              </ul>
+              </button>
             </div>
           </>
         )}
 
         {/* Navigation Buttons */}
-        <div className="flex gap-3">
-          {onboardingStep > 1 && (
-            <button
-              onClick={() => setOnboardingStep(onboardingStep - 1)}
-              className="flex-1 bg-[#2a2a2a] hover:bg-[#333] text-white font-semibold py-3 rounded transition-colors"
-            >
-              Back
-            </button>
-          )}
+        {onboardingStep < 5 && (
+          <div className="flex gap-3">
+            {onboardingStep > 1 && (
+              <Button
+                onClick={goBack}
+                variant="secondary"
+                className="flex-1 py-3"
+              >
+                Back
+              </Button>
+            )}
 
-          {onboardingStep < 6 ? (
             <Button
-              onClick={() => setOnboardingStep(onboardingStep + 1)}
+              onClick={goNext}
               variant="primary"
               className="flex-1 py-3 font-bold"
             >
               Next
             </Button>
-          ) : (
-            <Button
-              onClick={completeOnboarding}
-              variant="primary"
-              className="flex-1 py-3 font-bold"
-            >
-              Start Hunting
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
 
-        {/* Skip button */}
-        {onboardingStep < 6 && (
+        {/* Skip button (not on final step) */}
+        {onboardingStep < 5 && (
           <button
             onClick={completeOnboarding}
-            className="w-full mt-3 text-[#aaa] hover:text-[#aaa] text-sm transition-colors"
+            className="w-full mt-3 text-[#666] hover:text-[#888] text-sm transition-colors"
           >
             Skip intro
           </button>
         )}
+      </div>
+
+      {/* Progress Dots - Below card */}
+      <div className="flex justify-center gap-2 mt-4">
+        {[1, 2, 3, 4, 5].map(step => (
+          <div
+            key={step}
+            className={`h-1.5 rounded-full transition-all duration-300 ${
+              step === onboardingStep
+                ? 'w-6 bg-gradient-to-r from-[#d4a855] to-amber-500'
+                : step < onboardingStep
+                  ? 'w-1.5 bg-[#d4a855]'
+                  : 'w-1.5 bg-[#333]'
+            }`}
+          />
+        ))}
       </div>
     </div>
   );

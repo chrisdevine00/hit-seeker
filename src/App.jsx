@@ -114,6 +114,7 @@ function MainApp() {
     setPendingCheckIn,
     showOnboarding, setShowOnboarding,
     devModeEnabled,
+    resumeOnboarding,
   } = useUI();
 
   // Slots Context - machine selection only (filtering moved to HuntTab)
@@ -182,6 +183,7 @@ function MainApp() {
 
   const handleCheckIn = (casino) => {
     checkIn(casino.id, casino.name);
+    resumeOnboarding();
   };
 
   const detectCasino = () => {

@@ -35,6 +35,7 @@ export function UIProvider({ children }) {
   const [hasOnboarded, setHasOnboarded] = useStorage(STORAGE_KEYS.ONBOARDED, false);
   const [showOnboarding, setShowOnboarding] = useState(!hasOnboarded);
   const [onboardingStep, setOnboardingStep] = useState(1);
+  const [onboardingPaused, setOnboardingPaused] = useState(false);
 
   // =============================================================================
   // USER PREFERENCES (persisted)
@@ -88,6 +89,25 @@ export function UIProvider({ children }) {
     setShowOnboarding(false);
     setOnboardingStep(1);
   }, [setHasOnboarded]);
+
+  const resetOnboarding = useCallback(() => {
+    setHasOnboarded(false);
+    setOnboardingStep(1);
+    setShowOnboarding(true);
+    setOnboardingPaused(false);
+  }, [setHasOnboarded]);
+
+  const pauseOnboarding = useCallback(() => {
+    setShowOnboarding(false);
+    setOnboardingPaused(true);
+  }, []);
+
+  const resumeOnboarding = useCallback(() => {
+    if (onboardingPaused && !hasOnboarded) {
+      setShowOnboarding(true);
+      setOnboardingPaused(false);
+    }
+  }, [onboardingPaused, hasOnboarded]);
 
   // =============================================================================
   // PREFERENCE ACTIONS
@@ -149,6 +169,10 @@ export function UIProvider({ children }) {
     onboardingStep,
     setOnboardingStep,
     completeOnboarding,
+    resetOnboarding,
+    onboardingPaused,
+    pauseOnboarding,
+    resumeOnboarding,
 
     // Modal actions
     openSpotter,

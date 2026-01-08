@@ -158,15 +158,15 @@ export function VideoPokerTab({ onSpot }) {
     let filtered = vpGamesList;
 
     // Apply fuzzy search if query exists
+    // When searching, ignore category filter to show all matching results
     if (gameSearch && gameSearch.trim().length > 0) {
       const searchResults = vpFuse.search(gameSearch.trim());
-      const matchedIds = new Set(searchResults.map(r => r.item.id));
-      filtered = filtered.filter(g => matchedIds.has(g.id));
-    }
-
-    // Apply category filter
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(g => g.category === selectedCategory);
+      filtered = searchResults.map(r => r.item);
+    } else {
+      // Only apply category filter when NOT searching
+      if (selectedCategory !== 'all') {
+        filtered = filtered.filter(g => g.category === selectedCategory);
+      }
     }
 
     return filtered;

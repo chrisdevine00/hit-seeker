@@ -121,7 +121,6 @@ function MainApp() {
   // Slots Context - machine selection only (filtering moved to HuntTab)
   const {
     selectedMachine, setSelectedMachine,
-    debouncedSearch,
   } = useSlots();
 
   // Other local state
@@ -308,10 +307,6 @@ function MainApp() {
 
   // calcResult, filteredMachines, and apCount are now from SlotsContext
 
-  const filteredNotes = debouncedSearch
-    ? notes.filter(n => n.machine.toLowerCase().includes(debouncedSearch.toLowerCase()) || n.casino?.toLowerCase().includes(debouncedSearch.toLowerCase()))
-    : notes;
-
   // Settings Screen - unified user + trip settings
   if (showTripSettings) {
     return <SettingsScreen />;
@@ -446,7 +441,6 @@ function MainApp() {
             geoStatus={geoStatus}
             detectCasino={detectCasino}
             recentActivity={recentActivity}
-            filteredNotes={filteredNotes}
             prefillMachine={prefillMachine}
             setPrefillMachine={setPrefillMachine}
             currentCasinoInfo={currentCasinoInfo}

@@ -52,7 +52,7 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
     setIsCompressing(true);
     try {
       // Compress the image before storing
-      const compressed = await compressImage(file, { maxWidth: 1200, quality: 0.8 });
+      const compressed = await compressImage(file, 1200);
       setSelectedPhoto(compressed);
 
       // Create preview URL

@@ -1,28 +1,178 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Gem } from 'lucide-react';
 
+// Generate initial sparkles
+const generateSparkles = () => {
+  const sparkles = [];
+  for (let i = 0; i < 20; i++) {
+    sparkles.push({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      size: 8 + Math.random() * 12,
+      duration: 3 + Math.random() * 4,
+      delay: Math.random() * 5,
+    });
+  }
+  return sparkles;
+};
+
 export function LoginScreen() {
   const { signInWithGoogle } = useAuth();
+  const [sparkles, setSparkles] = useState(generateSparkles);
+
+  // Respawn sparkles periodically
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSparkles(prev => prev.map(sparkle => {
+        if (Math.random() < 0.15) {
+          return {
+            ...sparkle,
+            left: Math.random() * 100,
+            top: Math.random() * 100,
+            size: 8 + Math.random() * 12,
+            duration: 3 + Math.random() * 4,
+            delay: 0,
+            key: Date.now() + sparkle.id,
+          };
+        }
+        return sparkle;
+      }));
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-[#0d0d0d] overflow-hidden">
-      {/* Subtle background glow */}
+      {/* Animated background glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#d4a855]/5 rounded-full blur-[120px] animate-pulse-slow" />
+        {/* Primary pulsing glow */}
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(212, 168, 85, 0.15) 0%, rgba(212, 168, 85, 0.05) 40%, transparent 70%)',
+            animation: 'login-glow-pulse 4s ease-in-out infinite',
+          }}
+        />
+        {/* Secondary ambient glow */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
+          style={{
+            background: 'radial-gradient(circle, rgba(212, 168, 85, 0.08) 0%, transparent 60%)',
+            animation: 'login-glow-pulse 6s ease-in-out infinite reverse',
+          }}
+        />
+      </div>
+
+      {/* Floating sparkles */}
+      {sparkles.map((sparkle) => (
+        <div
+          key={sparkle.key || sparkle.id}
+          className="absolute pointer-events-none"
+          style={{
+            left: `${sparkle.left}%`,
+            top: `${sparkle.top}%`,
+            width: `${sparkle.size}px`,
+            height: `${sparkle.size}px`,
+            opacity: 0,
+            animation: `sparkle-float ${sparkle.duration}s ease-in-out infinite`,
+            animationDelay: `${sparkle.delay}s`,
+          }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" style={{ filter: 'drop-shadow(0 0 4px rgba(212, 168, 85, 0.6))' }}>
+            <path
+              d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"
+              fill="#d4a855"
+            />
+          </svg>
+        </div>
+      ))}
+
+      {/* Rotating light rays - centered on page behind logo */}
+      <div
+        className="absolute inset-0 pointer-events-none flex items-center justify-center"
+        style={{
+          transform: 'translateY(-60px)', // Offset to align with icon
+        }}
+      >
+        <div
+          className="relative"
+          style={{
+            width: '150vmax',
+            height: '150vmax',
+            animation: 'spin-rays-slow 45s linear infinite',
+          }}
+        >
+          {[...Array(12)].map((_, i) => {
+            const opacities = [0.4, 0.6, 0.35, 0.55, 0.45, 0.5, 0.38, 0.58, 0.42, 0.52, 0.36, 0.48];
+            return (
+              <div
+                key={i}
+                className="absolute left-1/2 top-1/2 origin-top"
+                style={{
+                  width: '3px',
+                  height: '50%',
+                  background: 'linear-gradient(to bottom, transparent 10%, rgba(212, 168, 85, 0.5) 30%, rgba(255, 215, 0, 0.3) 60%, transparent 100%)',
+                  transform: `translate(-50%, 0) rotate(${i * 30}deg)`,
+                  opacity: opacities[i] * 0.5,
+                  filter: 'blur(1px)',
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
 
       {/* Logo and tagline */}
-      <div className="text-center mb-10 relative animate-fade-in-up">
-        {/* Icon */}
-        <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-[#d4a855]/20 to-amber-600/10 flex items-center justify-center animate-fade-in-scale animation-delay-100">
-          <Gem size={40} className="text-[#d4a855]" />
+      <div className="text-center mb-10 relative animate-fade-in-up z-10">
+        {/* Icon with enhanced glow and shimmer */}
+        <div className="relative w-20 h-20 mx-auto mb-6">
+          {/* Glow ring */}
+          <div
+            className="absolute inset-0 rounded-2xl"
+            style={{
+              background: 'radial-gradient(circle, rgba(212, 168, 85, 0.3) 0%, transparent 70%)',
+              animation: 'icon-glow-pulse 2s ease-in-out infinite',
+              transform: 'scale(1.5)',
+            }}
+          />
+          <div className="relative w-full h-full rounded-2xl bg-gradient-to-br from-[#d4a855]/20 to-amber-600/10 flex items-center justify-center animate-fade-in-scale animation-delay-100 border border-[#d4a855]/20 overflow-hidden">
+            <Gem size={40} className="text-[#d4a855] relative z-10" style={{ filter: 'drop-shadow(0 0 8px rgba(212, 168, 85, 0.5))' }} />
+            {/* Shimmer overlay on icon */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%)',
+                backgroundSize: '200% 100%',
+                animation: 'icon-shimmer 2.5s ease-in-out infinite',
+              }}
+            />
+          </div>
         </div>
 
-        {/* Logo text */}
-        <h1 className="text-5xl font-bold mb-3 animate-fade-in-up animation-delay-200" style={{ fontFamily: 'Outfit, sans-serif' }}>
-          <span className="text-white">Hit</span>
-          <span className="bg-gradient-to-r from-[#d4a855] to-amber-500 bg-clip-text text-transparent">Seeker</span>
+        {/* Logo text with shimmer on full text */}
+        <h1 className="text-5xl font-bold mb-3 animate-fade-in-up animation-delay-200 relative" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <span
+            className="bg-clip-text text-transparent"
+            style={{
+              backgroundImage: 'linear-gradient(90deg, #ffffff, #ffffff, #d4a855, #ffd700, #d4a855, #ffffff, #ffffff)',
+              backgroundSize: '200% 100%',
+              animation: 'text-shimmer 3s ease-in-out infinite',
+            }}
+          >
+            Hit
+          </span>
+          <span
+            className="bg-clip-text text-transparent"
+            style={{
+              backgroundImage: 'linear-gradient(90deg, #d4a855, #d4a855, #ffd700, #ffffff, #ffd700, #d4a855, #d4a855)',
+              backgroundSize: '200% 100%',
+              animation: 'text-shimmer 3s ease-in-out infinite',
+            }}
+          >
+            Seeker
+          </span>
         </h1>
 
         {/* Tagline */}
@@ -32,7 +182,7 @@ export function LoginScreen() {
       </div>
 
       {/* Sign in button */}
-      <div className="w-full max-w-sm animate-fade-in-up animation-delay-400">
+      <div className="w-full max-w-sm animate-fade-in-up animation-delay-400 z-10">
         <button
           onClick={signInWithGoogle}
           className="w-full bg-white hover:bg-gray-100 text-gray-800 font-semibold py-4 px-6 rounded-xl flex items-center justify-center gap-3 shadow-lg shadow-white/10 transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -48,7 +198,7 @@ export function LoginScreen() {
       </div>
 
       {/* Footer text */}
-      <div className="mt-12 text-center animate-fade-in-up animation-delay-500">
+      <div className="mt-12 text-center animate-fade-in-up animation-delay-500 z-10">
         <p className="text-[#666] text-sm">
           Scout advantage plays with your crew
         </p>
@@ -56,6 +206,42 @@ export function LoginScreen() {
           Create a trip • Invite friends • Share finds in real-time
         </p>
       </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes login-glow-pulse {
+          0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        @keyframes sparkle-float {
+          0% { opacity: 0; transform: translateY(0) scale(0.5); }
+          20% { opacity: 0.6; transform: translateY(-10px) scale(0.8); }
+          50% { opacity: 0.4; transform: translateY(-25px) scale(0.6); }
+          80% { opacity: 0.2; transform: translateY(-40px) scale(0.4); }
+          100% { opacity: 0; transform: translateY(-50px) scale(0.3); }
+        }
+
+        @keyframes spin-rays-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        @keyframes icon-glow-pulse {
+          0%, 100% { opacity: 0.5; transform: scale(1.5); }
+          50% { opacity: 0.8; transform: scale(1.8); }
+        }
+
+        @keyframes icon-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+
+        @keyframes text-shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+      `}</style>
     </div>
   );
 }

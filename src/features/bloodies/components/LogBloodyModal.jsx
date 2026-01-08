@@ -39,7 +39,6 @@ export function LogBloodyModal({ isOpen, onClose, onSubmit, casinos }) {
       rating,
       spice,
       notes,
-      timestamp: new Date().toISOString(),
     });
 
     // Reset form

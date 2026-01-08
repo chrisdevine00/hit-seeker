@@ -1,51 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import { GlassWater, Flame } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { GlassWater, Flame, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../../components/ui';
-import { HexBadge, BadgeDetailModal, BadgeUnlockModal, BLOODY_BADGES, checkBloodyBadges } from '../../../badges';
+import { HexBadge, BadgeDetailModal, BadgeUnlockModal, BLOODY_BADGES, checkBloodyBadges, useBadges } from '../../../badges';
 import { vegasCasinos } from '../../../data/casinos';
 import { formatRelativeTime } from '../../../utils';
 import { hapticSuccess, hapticCelebration } from '../../../lib/haptics';
 import { LogBloodyModal } from './LogBloodyModal';
-import { STORAGE_KEYS } from '../../../constants';
+import { useBloodies } from '../../../hooks';
+import { useTrip } from '../../../context/TripContext';
+import { useAuth } from '../../../context/AuthContext';
 
 /**
  * BloodiesTab - Bloody Mary tracking tab with stats, badges, and history
  */
 export function BloodiesTab() {
-  // Load bloodies from localStorage
-  const [bloodies, setBloodies] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.BLOODIES);
-    return saved ? JSON.parse(saved) : [];
-  });
+  const { user } = useAuth();
+  const { currentTrip } = useTrip();
+  const { bloodies, loading, addBloody } = useBloodies();
+  const { updateBloodyBadges } = useBadges();
 
   const [showLogModal, setShowLogModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [newBadges, setNewBadges] = useState([]);
 
-  // Save bloodies to localStorage whenever they change
+  // Filter to current user's bloodies for personal badge calculation
+  const myBloodies = useMemo(
+    () => bloodies.filter(b => b.user_id === user?.id),
+    [bloodies, user?.id]
+  );
+
+  // Update badge context when user's bloodies change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.BLOODIES, JSON.stringify(bloodies));
-  }, [bloodies]);
+    updateBloodyBadges(myBloodies);
+  }, [myBloodies, updateBloodyBadges]);
 
-  // Calculate earned badges
-  const earnedBadges = checkBloodyBadges(bloodies);
+  // Calculate earned badges from personal bloodies
+  const earnedBadges = checkBloodyBadges(myBloodies);
 
-  // Get today's count
+  // Get today's count (personal)
   const today = new Date().toDateString();
-  const todayCount = bloodies.filter(b => new Date(b.timestamp).toDateString() === today).length;
+  const todayCount = myBloodies.filter(b => {
+    const timestamp = b.created_at || b.timestamp;
+    return new Date(timestamp).toDateString() === today;
+  }).length;
 
   // Handle new bloody submission
-  const handleLogBloody = (bloodyData) => {
-    const newBloody = {
-      id: Date.now().toString(),
-      ...bloodyData
-    };
-
+  const handleLogBloody = async (bloodyData) => {
     // Check for new badges before adding
-    const oldEarned = checkBloodyBadges(bloodies);
-    const newBloodies = [...bloodies, newBloody];
-    const newEarned = checkBloodyBadges(newBloodies);
+    const oldEarned = checkBloodyBadges(myBloodies);
+
+    const newBloody = await addBloody(bloodyData);
+
+    if (!newBloody) {
+      toast.error('Failed to log bloody');
+      return;
+    }
+
+    // Check for new badges after adding
+    const updatedBloodies = [...myBloodies, newBloody];
+    const newEarned = checkBloodyBadges(updatedBloodies);
 
     // Find newly earned badges
     const justEarned = [];
@@ -55,7 +69,6 @@ export function BloodiesTab() {
       }
     });
 
-    setBloodies(newBloodies);
     hapticSuccess();
 
     // Build toast message parts
@@ -77,6 +90,38 @@ export function BloodiesTab() {
     }
   };
 
+  // No trip selected state
+  if (!currentTrip) {
+    return (
+      <div className="pb-24">
+        <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
+          <h1 className="text-2xl font-bold text-white">Bloodies</h1>
+          <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
+        </div>
+        <div className="text-center py-12">
+          <GlassWater size={48} className="mx-auto text-[#444] mb-4" />
+          <h2 className="text-white text-xl mb-2">No Trip Selected</h2>
+          <p className="text-gray-500">Join or create a trip to track bloodies with your team</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="pb-24">
+        <div className="px-4 py-2 border-b border-[#333] -mx-4 mb-4">
+          <h1 className="text-2xl font-bold text-white">Bloodies</h1>
+          <p className="text-gray-500 text-sm">Track your Bloody Mary adventures</p>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 size={32} className="animate-spin text-[#d4a855]" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pb-24">
       {/* Header */}
@@ -89,8 +134,8 @@ export function BloodiesTab() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-3">
         <div className="card-3d p-4 text-center">
-          <div className="text-4xl font-bold text-white">{bloodies.length}</div>
-          <div className="text-gray-500 text-sm">Lifetime</div>
+          <div className="text-4xl font-bold text-white">{myBloodies.length}</div>
+          <div className="text-gray-500 text-sm">My Lifetime</div>
         </div>
         <div className="card-3d p-4 text-center">
           <div className="text-4xl font-bold text-[#d4a855]">{todayCount}</div>
@@ -132,7 +177,7 @@ export function BloodiesTab() {
         </div>
       </div>
 
-      {/* Recent Bloodies */}
+      {/* Recent Bloodies (Trip-wide) */}
       <div>
         <h2 className="text-lg font-bold text-white mb-3">Recent</h2>
         {bloodies.length === 0 ? (
@@ -143,27 +188,41 @@ export function BloodiesTab() {
           </div>
         ) : (
           <div className="space-y-2">
-            {bloodies.slice(-5).reverse().map(bloody => (
+            {bloodies.slice(0, 5).map(bloody => (
               <div key={bloody.id} className="card-3d-bloody p-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="text-white font-medium">{bloody.location}</div>
-                    <div className="text-gray-500 text-xs">
-                      {formatRelativeTime(bloody.timestamp)}
+                <div className="flex gap-3">
+                  {/* User Avatar */}
+                  {bloody.profiles?.avatar_url ? (
+                    <img
+                      src={bloody.profiles.avatar_url}
+                      alt=""
+                      className="w-8 h-8 rounded-full shrink-0"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-[#333] shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <div className="min-w-0">
+                        <div className="text-white font-medium truncate">{bloody.location}</div>
+                        <div className="text-gray-500 text-xs">
+                          {bloody.profiles?.display_name || 'Unknown'} • {formatRelativeTime(bloody.created_at || bloody.timestamp)}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 text-sm shrink-0 ml-2">
+                        <span className={`flex items-center gap-1 ${bloody.rating > 0 ? 'text-yellow-400' : 'text-[#444]'}`}>
+                          {bloody.rating || '-'} <span className="text-base">★</span>
+                        </span>
+                        <span className={`flex items-center gap-1 ${bloody.spice > 0 ? 'text-orange-500' : 'text-[#444]'}`}>
+                          {bloody.spice || '-'} <Flame size={14} fill="currentColor" />
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm">
-                    <span className={`flex items-center gap-1 ${bloody.rating > 0 ? 'text-yellow-400' : 'text-[#444]'}`}>
-                      {bloody.rating || '-'} <span className="text-base">★</span>
-                    </span>
-                    <span className={`flex items-center gap-1 ${bloody.spice > 0 ? 'text-orange-500' : 'text-[#444]'}`}>
-                      {bloody.spice || '-'} <Flame size={14} fill="currentColor" />
-                    </span>
+                    {bloody.notes && (
+                      <div className="text-gray-400 text-sm mt-1 italic truncate">"{bloody.notes}"</div>
+                    )}
                   </div>
                 </div>
-                {bloody.notes && (
-                  <div className="text-gray-400 text-sm mt-1 italic">"{bloody.notes}"</div>
-                )}
               </div>
             ))}
           </div>

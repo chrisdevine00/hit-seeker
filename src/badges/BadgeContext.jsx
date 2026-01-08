@@ -7,12 +7,6 @@ import { STORAGE_KEYS } from '../constants';
 const BadgeContext = createContext(null);
 
 export function BadgeProvider({ children }) {
-  // Bloodies state (stored in localStorage)
-  const [bloodies, setBloodies] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEYS.BLOODIES);
-    return saved ? JSON.parse(saved) : [];
-  });
-
   // Load earned badges from localStorage
   const loadEarnedBadges = () => {
     try {
@@ -49,11 +43,6 @@ export function BadgeProvider({ children }) {
   // Track if initial load is complete (skip unlock celebrations on first load)
   const isInitializedRef = useRef(false);
 
-  // Save bloodies to localStorage
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEYS.BLOODIES, JSON.stringify(bloodies));
-  }, [bloodies]);
-
   // Save earned badges to localStorage
   useEffect(() => {
     const toSave = {
@@ -64,13 +53,6 @@ export function BadgeProvider({ children }) {
     };
     localStorage.setItem(STORAGE_KEYS.EARNED_BADGES, JSON.stringify(toSave));
   }, [earnedBadges]);
-
-  // Compute bloody badges when bloodies change
-  useEffect(() => {
-    const newEarned = checkBloodyBadges(bloodies);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- derived state from bloodies
-    setEarnedBadges(prev => ({ ...prev, bloody: newEarned }));
-  }, [bloodies]);
 
   // Detect new badge unlocks for all domains
   useEffect(() => {
@@ -116,15 +98,10 @@ export function BadgeProvider({ children }) {
     prevEarnedRef.current = earnedBadges;
   }, [earnedBadges]);
 
-  // Add a bloody
-  const addBloody = useCallback((bloodyData) => {
-    const newBloody = {
-      id: Date.now().toString(),
-      ...bloodyData,
-      timestamp: bloodyData.timestamp || new Date().toISOString(),
-    };
-    setBloodies(prev => [...prev, newBloody]);
-    return newBloody;
+  // Update bloody badges from bloodies data
+  const updateBloodyBadges = useCallback((bloodies) => {
+    const newEarned = checkBloodyBadges(bloodies);
+    setEarnedBadges(prev => ({ ...prev, bloody: newEarned }));
   }, []);
 
   // Update slot badges from slot notes
@@ -187,11 +164,8 @@ export function BadgeProvider({ children }) {
   }, [getBadgesForDomain]);
 
   const value = {
-    // Bloodies data
-    bloodies,
-    addBloody,
-
     // Badge update methods
+    updateBloodyBadges,
     updateSlotBadges,
     updateVPBadges,
     updateTripBadges,

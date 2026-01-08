@@ -64,7 +64,7 @@ export function checkBloodyBadges(bloodies) {
   // Time-based badges
   const sundayBloodies = [];
   bloodies.forEach(b => {
-    const date = new Date(b.timestamp);
+    const date = new Date((b.created_at || b.timestamp));
     const hour = date.getHours();
     const day = date.getDay(); // 0 = Sunday, 6 = Saturday
 
@@ -76,14 +76,14 @@ export function checkBloodyBadges(bloodies) {
   });
 
   // Weekend Warrior - need both Sat and Sun
-  const hasSaturday = bloodies.some(b => new Date(b.timestamp).getDay() === 6);
-  const hasSunday = bloodies.some(b => new Date(b.timestamp).getDay() === 0);
+  const hasSaturday = bloodies.some(b => new Date((b.created_at || b.timestamp)).getDay() === 6);
+  const hasSunday = bloodies.some(b => new Date((b.created_at || b.timestamp)).getDay() === 0);
   if (hasSaturday && hasSunday) earned.add('weekend-warrior');
 
   // Sunday Funday - 3 bloodies on a single Sunday
   const sundaysByDate = {};
   sundayBloodies.forEach(b => {
-    const dateKey = new Date(b.timestamp).toDateString();
+    const dateKey = new Date((b.created_at || b.timestamp)).toDateString();
     sundaysByDate[dateKey] = (sundaysByDate[dateKey] || 0) + 1;
   });
   if (Object.values(sundaysByDate).some(count => count >= 3)) {
@@ -93,7 +93,7 @@ export function checkBloodyBadges(bloodies) {
   // Frequency badges - group by day
   const byDay = {};
   bloodies.forEach(b => {
-    const dayKey = new Date(b.timestamp).toDateString();
+    const dayKey = new Date((b.created_at || b.timestamp)).toDateString();
     if (!byDay[dayKey]) byDay[dayKey] = [];
     byDay[dayKey].push(b);
   });
@@ -103,7 +103,7 @@ export function checkBloodyBadges(bloodies) {
     if (dayBloodies.length >= 5) earned.add('high-five');
 
     // Back to back - 2 within 30 minutes
-    const sorted = [...dayBloodies].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const sorted = [...dayBloodies].sort((a, b) => new Date(a.timestamp) - new Date((b.created_at || b.timestamp)));
     for (let i = 1; i < sorted.length; i++) {
       const diff = new Date(sorted[i].timestamp) - new Date(sorted[i-1].timestamp);
       if (diff <= 30 * 60 * 1000) { // 30 minutes in ms

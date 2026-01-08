@@ -68,6 +68,7 @@ Key tables (inferred from code):
 - `trips` - Trip metadata
 - `trip_members` - User-trip relationships with roles
 - `check_ins` - Casino check-in tracking
+- `bloodies` - Bloody Mary logs (trip-scoped)
 - Notes and photos attached to trips
 
 ### Mobile-Specific Considerations
@@ -100,8 +101,17 @@ Unified settings screen in `src/components/features/SettingsScreen.jsx`:
 - Left-handed mode toggle
 - Trip settings (share code, members, switch trip)
 
+### ✅ Bloodies Cloud Sync (Completed)
+Bloody Mary tracking synced to Supabase via `src/hooks/useBloodies.js`:
+
+**Implemented:**
+- Trip-scoped bloodies shared with trip members
+- Realtime updates via Supabase subscription
+- User attribution (avatar, display name) on each entry
+- Personal badge calculation (badges earned from your own bloodies)
+- `bloodies` table with RLS policies for trip member access
+
 ### Future Considerations
-- Sync Bloodies to cloud (currently localStorage only - lost on device switch)
 - Delete account option (GDPR/privacy compliance)
 - TypeScript migration (optional)
 - Code splitting for bundle size optimization

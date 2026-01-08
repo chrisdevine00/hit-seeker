@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Info, RefreshCw, LogOut, Trash2, Copy, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Wifi, WifiOff, MapPin, Download, Key, Award } from 'lucide-react';
+import { X, Info, RefreshCw, LogOut, Trash2, Copy, AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, Wifi, WifiOff, MapPin, Download, Key, Award, Play, Globe } from 'lucide-react';
 import { subscribeToErrors, clearErrorLog } from '../../lib/errorCapture';
 import { supabase } from '../../lib/supabase';
 import { hapticLight, hapticSuccess, hapticError } from '../../lib/haptics';
@@ -74,6 +74,10 @@ export function DevModePanel({
   onShowStrategyValidator,
   onPreviewBadge,
   onForceCheckIn,
+  demoModeEnabled,
+  onToggleDemoMode,
+  networkLog = [],
+  onClearNetworkLog,
 }) {
   const [errors, setErrors] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
@@ -83,6 +87,7 @@ export function DevModePanel({
   const [showLocalStorage, setShowLocalStorage] = useState(false);
   const [localStorageKeys, setLocalStorageKeys] = useState([]);
   const [selectedBadgeId, setSelectedBadgeId] = useState('');
+  const [showNetworkLog, setShowNetworkLog] = useState(false);
 
   // Combined badges for unlock dropdown
   const allBadges = useMemo(() => [
@@ -452,6 +457,31 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
             </div>
           </div>
 
+          {/* Demo Mode Toggle */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Play size={14} className="text-purple-400" />
+                <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">Demo Mode</p>
+              </div>
+              <button
+                onClick={() => { onToggleDemoMode?.(); hapticLight(); }}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  demoModeEnabled ? 'bg-purple-600' : 'bg-[#333]'
+                }`}
+              >
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                  demoModeEnabled ? 'translate-x-7' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+            <p className="text-[#666] text-xs mt-2">
+              {demoModeEnabled
+                ? 'Demo mode ON - showing sample data for demonstrations'
+                : 'Show fake data when demoing the app to others'}
+            </p>
+          </div>
+
           {/* Geo Simulator */}
           <div className="bg-[#0d0d0d] rounded-lg p-3">
             <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mb-3">Geolocation Simulator</p>
@@ -527,6 +557,55 @@ ${errors.length === 0 ? 'None' : errors.slice(0, 5).map(e => `[${e.time}] ${e.so
                       </button>
                     </div>
                   ))
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Network Request Log */}
+          <div className="bg-[#0d0d0d] rounded-lg p-3">
+            <button
+              onClick={() => setShowNetworkLog(!showNetworkLog)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div className="flex items-center gap-2">
+                <Globe size={14} className="text-purple-400" />
+                <p className="text-purple-400 text-xs font-bold uppercase tracking-wider">Network Log</p>
+                <span className="text-[#666] text-xs">({networkLog.length} requests)</span>
+              </div>
+              {showNetworkLog ? <ChevronUp size={16} className="text-[#666]" /> : <ChevronDown size={16} className="text-[#666]" />}
+            </button>
+
+            {showNetworkLog && (
+              <div className="mt-3 space-y-2 max-h-48 overflow-y-auto">
+                {networkLog.length === 0 ? (
+                  <p className="text-[#666] text-sm">No network requests logged yet</p>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => { onClearNetworkLog?.(); hapticLight(); }}
+                      className="text-xs text-red-400 hover:text-red-300"
+                    >
+                      Clear All
+                    </button>
+                    {networkLog.map(entry => (
+                      <div key={entry.id} className="bg-[#1a1a1a] p-2 rounded text-xs">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                            entry.status === 'success' ? 'bg-emerald-900/50 text-emerald-400' :
+                            entry.status === 'error' ? 'bg-red-900/50 text-red-400' :
+                            'bg-[#333] text-[#aaa]'
+                          }`}>
+                            {entry.status?.toUpperCase() || 'PENDING'}
+                          </span>
+                          <span className="text-[#555]">{entry.time}</span>
+                        </div>
+                        <p className="text-[#aaa] font-medium truncate">{entry.table || entry.operation}</p>
+                        {entry.error && <p className="text-red-400 truncate mt-1">{entry.error}</p>}
+                        {entry.duration && <p className="text-[#555] text-[10px]">{entry.duration}ms</p>}
+                      </div>
+                    ))}
+                  </>
                 )}
               </div>
             )}

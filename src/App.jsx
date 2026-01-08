@@ -173,6 +173,8 @@ function MainApp() {
   // Debug Context - debug state and actions
   const {
     debugGeoMode, setDebugGeoMode,
+    demoModeEnabled, toggleDemoMode,
+    networkLog, clearNetworkLog,
     showDebugMenu, setShowDebugMenu,
     showStrategyValidator, setShowStrategyValidator,
     previewBadges, setPreviewBadges,
@@ -396,6 +398,10 @@ function MainApp() {
         onShowStrategyValidator={() => setShowStrategyValidator(true)}
         onPreviewBadge={handlePreviewBadge}
         onForceCheckIn={handleCheckIn}
+        demoModeEnabled={demoModeEnabled}
+        onToggleDemoMode={toggleDemoMode}
+        networkLog={networkLog}
+        onClearNetworkLog={clearNetworkLog}
       />
 
       {/* Badge Preview Modal (for dev testing) */}

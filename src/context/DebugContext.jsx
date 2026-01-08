@@ -37,6 +37,12 @@ export function DebugProvider({ children }) {
   // Options: 'near-casino' | 'not-near' | 'error' | null
   const [debugGeoMode, setDebugGeoMode] = useState(null);
 
+  // Demo mode - shows fake data for demoing the app
+  const [demoModeEnabled, setDemoModeEnabled] = useState(false);
+
+  // Network request log for debugging Supabase calls
+  const [networkLog, setNetworkLog] = useState([]);
+
   // Debug menu visibility
   const [showDebugMenu, setShowDebugMenu] = useState(false);
 
@@ -61,6 +67,27 @@ export function DebugProvider({ children }) {
 
   const clearPreviewBadges = useCallback(() => {
     setPreviewBadges([]);
+  }, []);
+
+  // Network logging helpers
+  const logNetworkRequest = useCallback((request) => {
+    const entry = {
+      id: Date.now().toString(),
+      timestamp: new Date().toISOString(),
+      time: new Date().toLocaleTimeString(),
+      ...request,
+    };
+    setNetworkLog(prev => [entry, ...prev].slice(0, 50)); // Keep last 50
+  }, []);
+
+  const clearNetworkLog = useCallback(() => {
+    setNetworkLog([]);
+  }, []);
+
+  // Toggle demo mode
+  const toggleDemoMode = useCallback(() => {
+    setDemoModeEnabled(prev => !prev);
+    hapticMedium();
   }, []);
 
   // Toggle dev mode with haptic feedback and close menu when disabling
@@ -110,6 +137,9 @@ export function DebugProvider({ children }) {
     // State
     debugGeoMode,
     setDebugGeoMode,
+    demoModeEnabled,
+    setDemoModeEnabled,
+    networkLog,
     showDebugMenu,
     setShowDebugMenu,
     showStrategyValidator,
@@ -121,6 +151,9 @@ export function DebugProvider({ children }) {
     handlePreviewBadge,
     clearPreviewBadges,
     handleToggleDevMode,
+    toggleDemoMode,
+    logNetworkRequest,
+    clearNetworkLog,
     openDebugMenu,
     closeDebugMenu,
     openStrategyValidator,

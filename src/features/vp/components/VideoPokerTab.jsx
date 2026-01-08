@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import Fuse from 'fuse.js';
 import { Search, ChevronDown, ChevronUp, X, Check, Grid, LayoutList, BookOpen } from 'lucide-react';
 import { Button, FilledMapPin } from '../../../components/ui';
 import { vpCategories, vpGames } from '../../../data/vpGames';
@@ -135,15 +136,41 @@ export function VideoPokerTab({ onSpot }) {
     'ultimate-x-joker',
   ];
 
-  // Filter games by search and category
-  const filteredGames = Object.values(vpGames).filter(g => {
-    if (!g.category) return false; // Skip non-VP games
-    const matchesSearch = gameSearch === '' ||
-      g.name.toLowerCase().includes(gameSearch.toLowerCase()) ||
-      g.shortName?.toLowerCase().includes(gameSearch.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || g.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  }).sort((a, b) => {
+  // Get all valid VP games as array
+  const vpGamesList = useMemo(() => {
+    return Object.values(vpGames).filter(g => g.category);
+  }, []);
+
+  // Create Fuse instance for fuzzy game search
+  const vpFuse = useMemo(() => {
+    return new Fuse(vpGamesList, {
+      keys: ['name', 'shortName'],
+      threshold: 0.4,
+      distance: 100,
+      minMatchCharLength: 2,
+      ignoreLocation: true,
+    });
+  }, [vpGamesList]);
+
+  // Filter games by search and category (using Fuse.js for fuzzy search)
+  const filteredGames = useMemo(() => {
+    // Start with all valid games
+    let filtered = vpGamesList;
+
+    // Apply fuzzy search if query exists
+    if (gameSearch && gameSearch.trim().length > 0) {
+      const searchResults = vpFuse.search(gameSearch.trim());
+      const matchedIds = new Set(searchResults.map(r => r.item.id));
+      filtered = filtered.filter(g => matchedIds.has(g.id));
+    }
+
+    // Apply category filter
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(g => g.category === selectedCategory);
+    }
+
+    return filtered;
+  }, [vpGamesList, gameSearch, selectedCategory, vpFuse]).sort((a, b) => {
     // Featured games first, then by popularity
     const aFeatured = FEATURED_GAMES.includes(a.id);
     const bFeatured = FEATURED_GAMES.includes(b.id);

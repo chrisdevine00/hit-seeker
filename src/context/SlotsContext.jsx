@@ -4,6 +4,7 @@
  * Handles machine selection, filtering, and view preferences
  */
 import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import Fuse from 'fuse.js';
 import { useStorage, useDebounce } from '../hooks';
 import { STORAGE_KEYS, VIEW_MODES } from '../constants';
 import { machines as machineData } from '../data/machines';
@@ -48,9 +49,21 @@ export function SlotsProvider({ children }) {
     return (!isNaN(c) && !isNaN(ceil) && ceil > 0) ? ((c / ceil) * 100).toFixed(1) : null;
   }, [calcCurrent, calcCeiling]);
 
+  // Create Fuse instance for fuzzy machine search
+  const machineFuse = useMemo(() => {
+    return new Fuse(machineData, {
+      keys: ['name', 'shortName'],
+      threshold: 0.4, // Allows typos - 0 = exact, 1 = match anything
+      distance: 100,
+      minMatchCharLength: 2,
+      ignoreLocation: true,
+    });
+  }, []);
+
   // Filter machines based on search, category, AP toggle, and year
   const filteredMachines = useMemo(() => {
-    return machineData.filter(m => {
+    // First apply non-search filters
+    let filtered = machineData.filter(m => {
       // Safeguard: ensure this is a valid machine entry with required fields
       if (!m.id || !m.tier || !m.name) return false;
 
@@ -63,12 +76,19 @@ export function SlotsProvider({ children }) {
       // Year filter
       if (releaseYearFilter !== 'all' && m.releaseYear !== parseInt(releaseYearFilter)) return false;
 
-      // Search filter
-      if (debouncedSearch && !m.name.toLowerCase().includes(debouncedSearch.toLowerCase())) return false;
-
       return true;
     });
-  }, [debouncedSearch, selectedCategory, apOnly, releaseYearFilter]);
+
+    // Apply fuzzy search if query exists
+    if (debouncedSearch && debouncedSearch.trim().length > 0) {
+      // Use Fuse.js for fuzzy matching
+      const searchResults = machineFuse.search(debouncedSearch.trim());
+      const matchedIds = new Set(searchResults.map(r => r.item.id));
+      filtered = filtered.filter(m => matchedIds.has(m.id));
+    }
+
+    return filtered;
+  }, [debouncedSearch, selectedCategory, apOnly, releaseYearFilter, machineFuse]);
 
   // Count AP machines for toggle label
   const apCount = useMemo(() => {

@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import Fuse from 'fuse.js';
 import { X, Search, MapPin } from 'lucide-react';
 import { useUI } from '../../context/UIContext';
 import { vegasCasinos } from '../../data/casinos';
@@ -12,14 +13,26 @@ export function CasinoListModal({ onCheckIn }) {
   const { showCasinoList, setShowCasinoList } = useUI();
   const [search, setSearch] = useState('');
 
-  // Filter and group casinos by area
+  // Create Fuse instance for fuzzy casino search
+  const casinoFuse = useMemo(() => {
+    return new Fuse(vegasCasinos, {
+      keys: ['name', 'area'],
+      threshold: 0.4,
+      distance: 100,
+      minMatchCharLength: 2,
+      ignoreLocation: true,
+    });
+  }, []);
+
+  // Filter and group casinos by area (using Fuse.js for fuzzy search)
   const groupedCasinos = useMemo(() => {
-    const filtered = search
-      ? vegasCasinos.filter(c =>
-          c.name.toLowerCase().includes(search.toLowerCase()) ||
-          c.area.toLowerCase().includes(search.toLowerCase())
-        )
-      : vegasCasinos;
+    let filtered = vegasCasinos;
+
+    // Apply fuzzy search if query exists
+    if (search && search.trim().length > 0) {
+      const searchResults = casinoFuse.search(search.trim());
+      filtered = searchResults.map(r => r.item);
+    }
 
     // Group by area
     const groups = {};
@@ -31,7 +44,7 @@ export function CasinoListModal({ onCheckIn }) {
     });
 
     return groups;
-  }, [search]);
+  }, [search, casinoFuse]);
 
   if (!showCasinoList) return null;
 

@@ -169,7 +169,7 @@ export function VideoPokerTab({ onSpot }) {
       }
     }
 
-    return filtered;
+    return [...filtered]; // Return a new array to prevent mutation issues
   }, [vpGamesList, gameSearch, selectedCategory, vpFuse]).sort((a, b) => {
     // Featured games first, then by popularity
     const aFeatured = FEATURED_GAMES.includes(a.id);

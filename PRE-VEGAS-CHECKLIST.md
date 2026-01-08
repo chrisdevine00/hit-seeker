@@ -19,16 +19,31 @@ In **Supabase Dashboard > Storage**:
 - Delete all files in `machine-photos` bucket
 - Delete all files in `note-photos` bucket
 
-### 3. Create Fresh Trip
+### 3. Clear Badge History (localStorage)
+Badges are stored locally on your device. To reset:
+
+**Option A: Selective Delete**
+1. Open Dev Mode (triple-tap header)
+2. Expand **LocalStorage** section
+3. Find `earned-badges` key and tap the trash icon
+
+**Option B: Full Reset**
+1. Open Dev Mode
+2. Tap **Clear Cache & Reload**
+3. Sign back in
+
+> Note: Each device stores its own badge history. Repeat on all devices if needed.
+
+### 4. Create Fresh Trip
 - Open https://hitseeker.app
 - Sign in with Google
 - Create your Vegas trip (e.g., "Vegas January 2025")
 
-### 4. Test Google OAuth
+### 5. Test Google OAuth
 - Sign out completely
 - Sign back in to verify login flow works
 
-### 5. Invite Trip Members
+### 6. Invite Trip Members
 - Go to Trip tab > Settings
 - Share the trip code with your crew
 

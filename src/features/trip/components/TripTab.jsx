@@ -12,6 +12,8 @@ import {
   RefreshCw,
   Copy,
   Award,
+  User,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '../../../context/AuthContext';
 import { useTrip } from '../../../context/TripContext';
@@ -31,7 +33,6 @@ import {
 import { machines } from '../../../data/machines';
 import { vegasCasinos } from '../../../data/casinos';
 import { getTierColors, TAB_IDS } from '../../../constants';
-import { formatRelativeTime } from '../../../utils';
 
 /**
  * TripTab - Trip overview and management
@@ -41,7 +42,6 @@ export function TripTab({
   geoStatus,
   detectCasino,
   recentActivity,
-  filteredNotes,
   prefillMachine,
   setPrefillMachine,
   currentCasinoInfo,
@@ -50,8 +50,6 @@ export function TripTab({
   const { user } = useAuth();
   const { currentTrip, tripMembers } = useTrip();
   const {
-    tripSubTab,
-    setTripSubTab,
     showNoteForm,
     setShowNoteForm,
     setConfirmDelete,
@@ -65,6 +63,14 @@ export function TripTab({
   // Local state for badge UI
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [expandedBadgeSection, setExpandedBadgeSection] = useState(null);
+
+  // View mode toggle: 'my' or 'team'
+  const [viewMode, setViewMode] = useState('my');
+
+  // Pagination for notes
+  const [notesPage, setNotesPage] = useState(1);
+  const [teamNotesPage, setTeamNotesPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
 
   const handleAddNote = async (noteData, photoFile = null) => {
     await addNote(noteData, photoFile);
@@ -114,6 +120,32 @@ export function TripTab({
       </div>
 
       <div className="space-y-4">
+        {/* View Mode Toggle */}
+        <div className="flex gap-1 p-1 bg-[#0d0d0d] rounded-lg">
+          <button
+            onClick={() => setViewMode('my')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+              viewMode === 'my'
+                ? 'bg-[#d4a855] text-black'
+                : 'text-[#aaa] hover:text-white'
+            }`}
+          >
+            <User size={16} />
+            Me
+          </button>
+          <button
+            onClick={() => setViewMode('team')}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-md text-sm font-medium transition-colors ${
+              viewMode === 'team'
+                ? 'bg-[#d4a855] text-black'
+                : 'text-[#aaa] hover:text-white'
+            }`}
+          >
+            <Users size={16} />
+            Team
+          </button>
+        </div>
+
         {/* Quick Check-in Button */}
         {!myCheckIn ? (
           <button
@@ -144,8 +176,9 @@ export function TripTab({
           </div>
         )}
 
-        {/* Overview Content */}
-        {tripSubTab !== 'notes' && (
+        {/* Content based on view mode */}
+        {viewMode === 'my' ? (
+          /* MY DATA VIEW */
           <>
             {/* Current Trip Info */}
             <div className="card-3d-trip p-4">
@@ -249,135 +282,11 @@ export function TripTab({
               </div>
             )}
 
-            {/* Team Locations */}
-            {tripMembers.length > 1 && (
-              <div className="card-3d p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Locations</p>
-                  <span className="text-[#aaa] text-xs">{tripMembers.length} members</span>
-                </div>
-                <div className="space-y-2">
-                  {tripMembers.map((member) => {
-                    const memberCasino = vegasCasinos.find(c => getMembersAtCasino(c.id).some(m => m.user_id === member.user_id));
-                    const isYou = member.user_id === user?.id;
-                    return (
-                      <div key={member.user_id} className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-                          isYou ? 'bg-[#d4a855]' : 'bg-[#333]'
-                        }`}>
-                          {member.display_name?.[0]?.toUpperCase() || '?'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm font-medium truncate">
-                            {member.display_name || 'Unknown'}
-                            {isYou && <span className="text-[#aaa] font-normal"> (you)</span>}
-                          </p>
-                        </div>
-                        {memberCasino ? (
-                          <span className="text-emerald-400 text-xs bg-emerald-400/10 px-2 py-1 rounded-full">
-                            {memberCasino.name}
-                          </span>
-                        ) : (
-                          <span className="text-[#aaa] text-xs">Not checked in</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Recent Activity */}
-            <div className="card-3d p-4">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-[#aaa] text-xs uppercase tracking-wider">Recent Activity</p>
-                <button onClick={() => setTripSubTab('notes')} className="text-[#d4a855] text-xs">View All</button>
-              </div>
-              {notes.length === 0 && recentActivity.length === 0 ? (
-                <div className="text-center py-4">
-                  <StickyNote size={24} className="mx-auto text-[#444] mb-2" />
-                  <p className="text-[#aaa] text-sm">No activity yet</p>
-                  <p className="text-[#555] text-xs mt-1">Spot machines or VP pay tables to track them</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Show recent activity first */}
-                  {recentActivity.slice(0, 3).map(activity => {
-                    const isVP = activity.type === 'vp';
-                    const title = isVP ? activity.vpGameName : activity.machine;
-                    const subtitle = isVP ? `${activity.vpPayTable} • ${activity.vpReturn}%` : activity.state;
-
-                    return (
-                      <div key={`activity-${activity.id}`} className="bg-[#0d0d0d] rounded p-3">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'}`}>
-                              {isVP ? 'VP' : 'SLOT'}
-                            </span>
-                            <div>
-                              <p className="text-white text-sm font-medium">{title}</p>
-                              {subtitle && <p className="text-[#d4a855] text-xs">{subtitle}</p>}
-                            </div>
-                          </div>
-                          <span className="text-[#aaa] text-xs whitespace-nowrap">
-                            {formatRelativeTime(activity.timestamp)}
-                          </span>
-                        </div>
-                        {activity.casino && (
-                          <p className="text-[#aaa] text-xs mt-1 flex items-center gap-1">
-                            <FilledMapPin size={10} className="text-[#aaa]" holeColor="#161616" /> {activity.casino}
-                            {activity.location && ` • ${activity.location}`}
-                          </p>
-                        )}
-                        {activity.playable && (
-                          <span className="inline-block mt-2 text-emerald-400 text-xs font-semibold bg-emerald-400/20 px-2 py-0.5 rounded-full">
-                            PLAYABLE
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {/* If no recent activity, show notes */}
-                  {recentActivity.length === 0 && notes.slice(0, 3).map(note => {
-                    const isVP = note.type === 'vp' || note.machine?.startsWith('VP:');
-                    const noteMachine = !isVP ? machines.find(m => m?.name === note.machine || m?.shortName === note.machine) : null;
-
-                    return (
-                      <div key={`note-${note.id}`} className="bg-[#0d0d0d] rounded p-3">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${isVP ? 'bg-blue-600 text-white' : 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'}`}>
-                              {isVP ? 'VP' : 'SLOT'}
-                            </span>
-                            {!isVP && noteMachine && (
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded border font-medium uppercase tracking-wider ${getTierColors(noteMachine.tier).badgeOutline}`}>
-                                Tier {noteMachine.tier}
-                              </span>
-                            )}
-                            <p className="text-white text-sm font-medium">{note.machine}</p>
-                          </div>
-                          <span className="text-[#aaa] text-xs whitespace-nowrap">
-                            {new Date(note.created_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
-                          </span>
-                        </div>
-                        <p className="text-[#bbb] text-sm">{note.content || note.state}</p>
-                        {note.casino && (
-                          <p className="text-[#aaa] text-xs mt-1 flex items-center gap-1">
-                            <FilledMapPin size={10} className="text-[#aaa]" holeColor="#161616" /> {note.casino}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Badges Section */}
+            {/* Badges Section - More Prominent */}
             <div className="card-3d p-4">
               <div className="flex items-center gap-2 mb-3">
                 <Award size={16} className="text-[#d4a855]" />
-                <p className="text-[#aaa] text-xs uppercase tracking-wider">Achievements</p>
+                <p className="text-[#aaa] text-xs uppercase tracking-wider">My Achievements</p>
               </div>
 
               {/* Slot Badges */}
@@ -473,77 +382,190 @@ export function TripTab({
                 )}
               </div>
             </div>
-          </>
-        )}
 
-        {/* Notes View */}
-        {tripSubTab === 'notes' && (
-          <>
-            <div className="flex items-center justify-between">
-              <button
-                onClick={() => setTripSubTab('overview')}
-                className="flex items-center gap-1 text-[#888] hover:text-white transition-colors"
-              >
-                <ChevronLeft size={20} />
-                <span className="text-sm">Back</span>
-              </button>
-              <h2 className="text-lg font-bold text-white">Scouting Notes</h2>
-              <div className="flex items-center gap-2">
-                <button onClick={refreshNotes} className="no-animate p-2 text-[#bbbbbb] hover:text-white">
-                  <RefreshCw size={18} />
-                </button>
+            {/* My Notes - with pagination */}
+            <div className="card-3d p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[#aaa] text-xs uppercase tracking-wider">My Notes</p>
                 <Button onClick={() => setShowNoteForm(true)} variant="primary" size="sm">
                   + Add
                 </Button>
               </div>
+
+              {showNoteForm && (
+                <NoteForm
+                  onSubmit={handleAddNote}
+                  onCancel={() => { setShowNoteForm(false); setPrefillMachine(null); }}
+                  prefillMachine={prefillMachine}
+                  currentCasino={currentCasinoInfo?.name}
+                />
+              )}
+
+              {(() => {
+                const myNotes = notes.filter(n => n.user_id === user?.id);
+                const totalPages = Math.ceil(myNotes.length / ITEMS_PER_PAGE);
+                const paginatedNotes = myNotes.slice((notesPage - 1) * ITEMS_PER_PAGE, notesPage * ITEMS_PER_PAGE);
+
+                if (notesLoading) {
+                  return (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="w-6 h-6 text-[#d4a855] animate-spin" />
+                    </div>
+                  );
+                }
+                if (myNotes.length === 0) {
+                  return (
+                    <div className="text-center py-4">
+                      <StickyNote size={24} className="mx-auto text-[#444] mb-2" />
+                      <p className="text-[#aaa] text-sm">No notes yet</p>
+                    </div>
+                  );
+                }
+                return (
+                  <>
+                    <div className="space-y-3">
+                      {paginatedNotes.map(note => (
+                        <NoteCard
+                          key={note.id}
+                          note={note}
+                          onEdit={setEditingNote}
+                          onDelete={setConfirmDelete}
+                          isOwn={true}
+                          getPhotoUrl={getNotePhotoUrl}
+                        />
+                      ))}
+                    </div>
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-[#222]">
+                        <button
+                          onClick={() => setNotesPage(p => Math.max(1, p - 1))}
+                          disabled={notesPage === 1}
+                          className="p-1.5 rounded bg-[#1a1a1a] text-[#aaa] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronLeft size={16} />
+                        </button>
+                        <span className="text-[#aaa] text-sm">{notesPage} / {totalPages}</span>
+                        <button
+                          onClick={() => setNotesPage(p => Math.min(totalPages, p + 1))}
+                          disabled={notesPage === totalPages}
+                          className="p-1.5 rounded bg-[#1a1a1a] text-[#aaa] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </>
+        ) : (
+          /* TEAM DATA VIEW */
+          <>
+            {/* Team Locations */}
+            <div className="card-3d p-4">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Locations</p>
+                <span className="text-[#aaa] text-xs">{tripMembers.length} members</span>
+              </div>
+              <div className="space-y-2">
+                {tripMembers.map((member) => {
+                  const memberCasino = vegasCasinos.find(c => getMembersAtCasino(c.id).some(m => m.user_id === member.user_id));
+                  const isYou = member.user_id === user?.id;
+                  return (
+                    <div key={member.user_id} className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                        isYou ? 'bg-[#d4a855]' : 'bg-[#333]'
+                      }`}>
+                        {member.display_name?.[0]?.toUpperCase() || '?'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-medium truncate">
+                          {member.display_name || 'Unknown'}
+                          {isYou && <span className="text-[#aaa] font-normal"> (you)</span>}
+                        </p>
+                      </div>
+                      {memberCasino ? (
+                        <span className="text-emerald-400 text-xs bg-emerald-400/10 px-2 py-1 rounded-full">
+                          {memberCasino.name}
+                        </span>
+                      ) : (
+                        <span className="text-[#aaa] text-xs">Not checked in</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
-            {showNoteForm && (
-              <NoteForm
-                onSubmit={handleAddNote}
-                onCancel={() => { setShowNoteForm(false); setPrefillMachine(null); }}
-                prefillMachine={prefillMachine}
-                currentCasino={currentCasinoInfo?.name}
-              />
-            )}
+            {/* All Team Notes - with pagination */}
+            {(() => {
+              const totalPages = Math.ceil(notes.length / ITEMS_PER_PAGE);
+              const paginatedNotes = notes.slice((teamNotesPage - 1) * ITEMS_PER_PAGE, teamNotesPage * ITEMS_PER_PAGE);
 
-            {notesLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="w-8 h-8 text-[#d4a855] animate-spin" />
-              </div>
-            ) : filteredNotes.length === 0 ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-[#1a1a1a] flex items-center justify-center mx-auto mb-4">
-                  <StickyNote size={28} className="text-[#444]" />
+              return (
+                <div className="card-3d p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Notes</p>
+                      {notes.length > 0 && (
+                        <span className="text-[#666] text-xs">{notes.length} total</span>
+                      )}
+                    </div>
+                    <button onClick={refreshNotes} className="no-animate p-1 text-[#666] hover:text-white">
+                      <RefreshCw size={14} />
+                    </button>
+                  </div>
+
+                  {notesLoading ? (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="w-6 h-6 text-[#d4a855] animate-spin" />
+                    </div>
+                  ) : notes.length === 0 ? (
+                    <div className="text-center py-4">
+                      <StickyNote size={24} className="mx-auto text-[#444] mb-2" />
+                      <p className="text-[#aaa] text-sm">No team notes yet</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-3">
+                        {paginatedNotes.map(note => (
+                          <NoteCard
+                            key={note.id}
+                            note={note}
+                            onEdit={setEditingNote}
+                            onDelete={setConfirmDelete}
+                            isOwn={note.user_id === user?.id}
+                            getPhotoUrl={getNotePhotoUrl}
+                          />
+                        ))}
+                      </div>
+                      {/* Pagination */}
+                      {totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-4 pt-3 border-t border-[#222]">
+                          <button
+                            onClick={() => setTeamNotesPage(p => Math.max(1, p - 1))}
+                            disabled={teamNotesPage === 1}
+                            className="p-1.5 rounded bg-[#1a1a1a] text-[#aaa] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          <span className="text-[#aaa] text-sm">{teamNotesPage} / {totalPages}</span>
+                          <button
+                            onClick={() => setTeamNotesPage(p => Math.min(totalPages, p + 1))}
+                            disabled={teamNotesPage === totalPages}
+                            className="p-1.5 rounded bg-[#1a1a1a] text-[#aaa] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
-                <p className="text-white font-medium mb-2">No scouting notes yet</p>
-                <p className="text-[#aaa] text-sm mb-4 max-w-xs mx-auto">
-                  Spot a good machine? Add a note to remember it or share with your team.
-                </p>
-                <Button
-                  onClick={() => setShowNoteForm(true)}
-                  variant="primary"
-                  size="sm"
-                  className="inline-flex items-center gap-2"
-                >
-                  <StickyNote size={16} />
-                  Add Your First Note
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredNotes.map(note => (
-                  <NoteCard
-                    key={note.id}
-                    note={note}
-                    onEdit={setEditingNote}
-                    onDelete={setConfirmDelete}
-                    isOwn={note.user_id === user?.id}
-                    getPhotoUrl={getNotePhotoUrl}
-                  />
-                ))}
-              </div>
-            )}
+              );
+            })()}
           </>
         )}
       </div>

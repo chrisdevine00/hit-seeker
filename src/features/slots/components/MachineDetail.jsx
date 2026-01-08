@@ -124,7 +124,7 @@ export function MachineDetail() {
       </button>
 
       {/* Machine Header */}
-      <div className={`rounded p-4 ${tierColors.gradient}`}>
+      <div className={`p-4 ${selectedMachine.tier === 1 ? 'card-3d-tier1' : selectedMachine.tier === 2 ? 'card-3d-tier2' : 'card-3d-tier3'}`}>
         <div className="flex items-start justify-between mb-3">
           <span className={`text-xs px-3 py-1 rounded border font-semibold ${tierColors.badgeOutline}`}>
             {selectedMachine.tier === 1 ? 'Tier 1 - Must Hit By' :
@@ -136,7 +136,7 @@ export function MachineDetail() {
         <p className="text-[#aaa] text-sm mb-3">{selectedMachine.manufacturer} • {selectedMachine.releaseYear}</p>
 
         {/* Threshold Summary */}
-        <div className={`rounded p-3 ${tierColors.bg}`}>
+        <div className="rounded p-3 bg-[#0d0d0d]/50">
           <p className="text-xs text-[#aaa] uppercase tracking-wider mb-1">Play When</p>
           <p className={`text-lg font-bold ${tierColors.text}`}>
             {selectedMachine.thresholdSummary}
@@ -145,14 +145,14 @@ export function MachineDetail() {
       </div>
 
       {/* Quick ID */}
-      <div className="bg-[#161616] border border-[#333] rounded p-4">
+      <div className="card-3d p-4">
         <p className="text-xs text-[#aaa] uppercase tracking-wider mb-2">Quick ID</p>
         <p className="text-white">{selectedMachine.quickId}</p>
       </div>
 
       {/* MHB Calculator (Tier 1 only) */}
       {selectedMachine.tier === 1 && selectedMachine.category === 'must-hit-by' && (
-        <div className="bg-[#161616] border border-emerald-500/30 rounded p-4">
+        <div className="card-3d-tier1 p-4">
           <h3 className="font-bold text-emerald-400 mb-3 flex items-center gap-2 text-sm">
             <Calculator size={16} /> MHB Calculator
           </h3>
@@ -207,7 +207,7 @@ export function MachineDetail() {
 
       {/* Visual Tips (Tier 2 with visual data) */}
       {selectedMachine.tier === 2 && selectedMachine.visual && (
-        <div className="bg-[#161616] border border-amber-500/30 rounded p-4">
+        <div className="card-3d-tier2 p-4">
           <h3 className="font-bold text-amber-400 mb-3 flex items-center gap-2 text-sm">
             <Eye size={16} /> What to Look For
           </h3>
@@ -223,7 +223,7 @@ export function MachineDetail() {
 
       {/* Tier 3 Warning */}
       {selectedMachine.tier === 3 && (
-        <div className="bg-red-900/20 border border-red-500/30 rounded p-4">
+        <div className="card-3d-tier3 p-4">
           <div className="flex items-start gap-3">
             <AlertTriangle size={20} className="text-red-400 shrink-0 mt-0.5" />
             <div>
@@ -236,7 +236,7 @@ export function MachineDetail() {
 
       {/* Strategy Guide (Tier 1 & 2) */}
       {selectedMachine.threshold && (selectedMachine.tier === 1 || selectedMachine.tier === 2) && (
-        <div className="bg-[#161616] border border-[#333] rounded p-4">
+        <div className="card-3d p-4">
           <p className="text-xs text-[#aaa] uppercase tracking-wider mb-3">Strategy Guide</p>
           <div className="space-y-2">
             {selectedMachine.threshold.conservative && (
@@ -286,7 +286,7 @@ export function MachineDetail() {
           className={`rounded p-3 flex items-center justify-center gap-2 transition-colors ${
             photoUploading
               ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
-              : 'bg-[#161616] border border-[#333] hover:border-[#d4a855] text-white'
+              : 'card-3d text-white hover:opacity-80'
           }`}
         >
           {photoUploading ? (
@@ -316,7 +316,7 @@ export function MachineDetail() {
       </div>
 
       {/* Photos */}
-      <div className="bg-[#161616] border border-[#333] rounded p-4">
+      <div className="card-3d p-4">
         <p className="text-xs text-[#aaa] uppercase tracking-wider mb-3">Your Photos</p>
         {machinePhotos.length === 0 ? (
           <div className="text-center py-4">

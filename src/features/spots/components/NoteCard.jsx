@@ -23,11 +23,20 @@ export function NoteCard({ note, onEdit, onDelete, isOwn, getPhotoUrl }) {
     if (note.vpGameName || note.vpGame) return note.vpGameName || note.vpGame;
     // Legacy format: "VP: Game Name"
     if (note.machine?.startsWith('VP:')) return note.machine.replace('VP:', '').trim();
-    return note.machine;
+    return note.machine || 'Video Poker';
   };
-  const title = isBloody ? 'Bloody Mary' : isVP ? getVPTitle() : note.machine;
+  const title = isBloody ? 'Bloody Mary' : isVP ? getVPTitle() : (note.machine || 'Unknown');
   const photoUrl = note.photo_path && getPhotoUrl ? getPhotoUrl(note.photo_path) : null;
-  const subtitle = isVP ? `${note.vpPayTable} • ${note.vpReturn}%` : null;
+
+  // Build VP subtitle only with available fields
+  const getVPSubtitle = () => {
+    if (!isVP) return null;
+    const parts = [];
+    if (note.vpPayTable) parts.push(note.vpPayTable);
+    if (note.vpReturn) parts.push(`${note.vpReturn}%`);
+    return parts.length > 0 ? parts.join(' • ') : null;
+  };
+  const subtitle = getVPSubtitle();
 
   // Get badge color based on type
   const getBadgeClass = () => {

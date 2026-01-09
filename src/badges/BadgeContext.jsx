@@ -43,6 +43,9 @@ export function BadgeProvider({ children }) {
   // Track if initial load is complete (skip unlock celebrations on first load)
   const isInitializedRef = useRef(false);
 
+  // Track badges that have been queued/celebrated this session (prevents duplicates)
+  const celebratedThisSessionRef = useRef(new Set());
+
   // Save earned badges to localStorage
   useEffect(() => {
     const toSave = {
@@ -57,14 +60,21 @@ export function BadgeProvider({ children }) {
   // Detect new badge unlocks for all domains
   useEffect(() => {
     // Skip unlock celebrations on initial load
+    // Use a counter-based approach: first 2 renders are considered "initialization"
+    // This handles the case where data loads quickly or slowly
     if (!isInitializedRef.current) {
-      // Mark as initialized after a short delay to allow all initial badge computations
-      const timer = setTimeout(() => {
+      // Count how many times this effect has run
+      const runCount = (isInitializedRef.runCount || 0) + 1;
+      isInitializedRef.runCount = runCount;
+
+      // After 2 runs (initial mount + first data load), mark as initialized
+      if (runCount >= 2) {
         isInitializedRef.current = true;
-      }, 1000);
-      // Always update prevEarnedRef to current state (fixes stale closure issue)
+      }
+
+      // Always update prevEarnedRef to current state during initialization
       prevEarnedRef.current = earnedBadges;
-      return () => clearTimeout(timer);
+      return;
     }
 
     const newlyEarned = [];
@@ -81,9 +91,18 @@ export function BadgeProvider({ children }) {
       const currentDomain = earnedBadges[domain] || new Set();
 
       currentDomain.forEach(badgeId => {
+        // Skip if already celebrated this session (prevents duplicates)
+        if (celebratedThisSessionRef.current.has(badgeId)) {
+          return;
+        }
+
         if (!prevDomain.has(badgeId)) {
           const badge = badges.find(b => b.id === badgeId);
-          if (badge) newlyEarned.push(badge);
+          if (badge) {
+            newlyEarned.push(badge);
+            // Mark as celebrated to prevent duplicates
+            celebratedThisSessionRef.current.add(badgeId);
+          }
         }
       });
     });

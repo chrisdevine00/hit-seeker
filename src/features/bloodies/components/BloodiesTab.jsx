@@ -2,10 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { GlassWater, Flame, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../../components/ui';
-import { HexBadge, BadgeDetailModal, BadgeUnlockModal, BLOODY_BADGES, checkBloodyBadges, useBadges } from '../../../badges';
+import { HexBadge, BadgeDetailModal, BLOODY_BADGES, checkBloodyBadges, useBadges } from '../../../badges';
 import { vegasCasinos } from '../../../data/casinos';
 import { formatRelativeTime } from '../../../utils';
-import { hapticSuccess, hapticCelebration } from '../../../lib/haptics';
+import { hapticSuccess } from '../../../lib/haptics';
 import { LogBloodyModal } from './LogBloodyModal';
 import { useBloodies } from '../../../hooks';
 import { useTrip } from '../../../context/TripContext';
@@ -13,6 +13,7 @@ import { useAuth } from '../../../context/AuthContext';
 
 /**
  * BloodiesTab - Bloody Mary tracking tab with stats, badges, and history
+ * Badge unlock celebrations are handled globally by BadgeContext/App.jsx
  */
 export function BloodiesTab() {
   const { user } = useAuth();
@@ -22,7 +23,6 @@ export function BloodiesTab() {
 
   const [showLogModal, setShowLogModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
-  const [newBadges, setNewBadges] = useState([]);
 
   // Filter to current user's bloodies for personal badge calculation
   const myBloodies = useMemo(
@@ -31,11 +31,12 @@ export function BloodiesTab() {
   );
 
   // Update badge context when user's bloodies change
+  // Badge unlock celebrations are handled by the global BadgeContext
   useEffect(() => {
     updateBloodyBadges(myBloodies);
   }, [myBloodies, updateBloodyBadges]);
 
-  // Calculate earned badges from personal bloodies
+  // Calculate earned badges from personal bloodies (for display only)
   const earnedBadges = checkBloodyBadges(myBloodies);
 
   // Get today's count (personal)
@@ -47,27 +48,12 @@ export function BloodiesTab() {
 
   // Handle new bloody submission
   const handleLogBloody = async (bloodyData) => {
-    // Check for new badges before adding
-    const oldEarned = checkBloodyBadges(myBloodies);
-
     const newBloody = await addBloody(bloodyData);
 
     if (!newBloody) {
       toast.error('Failed to log bloody');
       return;
     }
-
-    // Check for new badges after adding
-    const updatedBloodies = [...myBloodies, newBloody];
-    const newEarned = checkBloodyBadges(updatedBloodies);
-
-    // Find newly earned badges
-    const justEarned = [];
-    newEarned.forEach(badgeId => {
-      if (!oldEarned.has(badgeId)) {
-        justEarned.push(BLOODY_BADGES.find(b => b.id === badgeId));
-      }
-    });
 
     hapticSuccess();
 
@@ -81,13 +67,8 @@ export function BloodiesTab() {
       icon: <GlassWater size={18} className="text-red-400" />,
     });
 
-    // Show badge unlock after a short delay
-    if (justEarned.length > 0) {
-      setTimeout(() => {
-        hapticCelebration();
-        setNewBadges(justEarned);
-      }, 1500);
-    }
+    // Badge unlocks are handled automatically by the useEffect above
+    // when myBloodies updates after addBloody completes
   };
 
   // No trip selected state
@@ -243,12 +224,6 @@ export function BloodiesTab() {
         badge={selectedBadge}
         earned={selectedBadge && earnedBadges.has(selectedBadge.id)}
         onClose={() => setSelectedBadge(null)}
-      />
-
-      {/* Badge Unlock Modal */}
-      <BadgeUnlockModal
-        badges={newBadges}
-        onDismiss={() => setNewBadges(prev => prev.slice(1))}
       />
     </div>
   );

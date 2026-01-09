@@ -206,33 +206,19 @@ export function TripTab({
                 )}
               </div>
 
-              {/* Trip Stats */}
-              <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-[#222]">
+              {/* Trip Stats - My stats */}
+              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#222]">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-white">{tripMembers.length}</p>
                   <p className="text-[#aaa] text-xs">Members</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#d4a855]">{notes.length}</p>
-                  <p className="text-[#aaa] text-xs">Notes</p>
+                  <p className="text-2xl font-bold text-[#d4a855]">{notes.filter(n => n.user_id === user?.id).length}</p>
+                  <p className="text-[#aaa] text-xs">My Notes</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-red-400">{bloodies.length}</p>
-                  <p className="text-[#aaa] text-xs">Bloodies</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-emerald-400">
-                    {notes.filter(n => {
-                      const noteDate = new Date(n.created_at).toDateString();
-                      const today = new Date().toDateString();
-                      return noteDate === today;
-                    }).length + bloodies.filter(b => {
-                      const bDate = new Date(b.created_at).toDateString();
-                      const today = new Date().toDateString();
-                      return bDate === today;
-                    }).length}
-                  </p>
-                  <p className="text-[#aaa] text-xs">Today</p>
+                  <p className="text-2xl font-bold text-red-400">{bloodies.filter(b => b.user_id === user?.id).length}</p>
+                  <p className="text-[#aaa] text-xs">My Bloodies</p>
                 </div>
               </div>
             </div>
@@ -508,7 +494,7 @@ export function TripTab({
             {/* Team Stats */}
             <div className="card-3d-trip p-4">
               <p className="text-[#aaa] text-xs uppercase tracking-wider mb-3">Team Stats</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-white">{tripMembers.length}</p>
                   <p className="text-[#aaa] text-xs">Members</p>
@@ -520,20 +506,6 @@ export function TripTab({
                 <div className="text-center">
                   <p className="text-2xl font-bold text-red-400">{bloodies.length}</p>
                   <p className="text-[#aaa] text-xs">Bloodies</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-emerald-400">
-                    {notes.filter(n => {
-                      const noteDate = new Date(n.created_at).toDateString();
-                      const today = new Date().toDateString();
-                      return noteDate === today;
-                    }).length + bloodies.filter(b => {
-                      const bDate = new Date(b.created_at).toDateString();
-                      const today = new Date().toDateString();
-                      return bDate === today;
-                    }).length}
-                  </p>
-                  <p className="text-[#aaa] text-xs">Today</p>
                 </div>
               </div>
             </div>

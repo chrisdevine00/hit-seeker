@@ -463,7 +463,6 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
             ref={fileInputRef}
             type="file"
             accept="image/*"
-            capture="environment"
             onChange={handlePhotoSelect}
             className="hidden"
           />

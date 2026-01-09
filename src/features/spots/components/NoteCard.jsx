@@ -15,9 +15,17 @@ import { formatRelativeTime } from '../../../utils';
 export function NoteCard({ note, onEdit, onDelete, isOwn, getPhotoUrl }) {
   const [expanded, setExpanded] = useState(false);
   const [showFullPhoto, setShowFullPhoto] = useState(false);
-  const isVP = note.type === 'vp';
+  // Check both type field and legacy VP: prefix for backwards compatibility
+  const isVP = note.type === 'vp' || note.machine?.startsWith('VP:');
   const isBloody = note.type === 'bloody';
-  const title = isBloody ? 'Bloody Mary' : isVP ? (note.vpGameName || note.vpGame) : note.machine;
+  // Handle title for VP notes - fall back to parsing machine field for legacy notes
+  const getVPTitle = () => {
+    if (note.vpGameName || note.vpGame) return note.vpGameName || note.vpGame;
+    // Legacy format: "VP: Game Name"
+    if (note.machine?.startsWith('VP:')) return note.machine.replace('VP:', '').trim();
+    return note.machine;
+  };
+  const title = isBloody ? 'Bloody Mary' : isVP ? getVPTitle() : note.machine;
   const photoUrl = note.photo_path && getPhotoUrl ? getPhotoUrl(note.photo_path) : null;
   const subtitle = isVP ? `${note.vpPayTable} • ${note.vpReturn}%` : null;
 

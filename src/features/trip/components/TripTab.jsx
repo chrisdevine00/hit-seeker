@@ -19,7 +19,7 @@ import { useAuth } from '../../../context/AuthContext';
 import { useTrip } from '../../../context/TripContext';
 import { useUI } from '../../../context/UIContext';
 import { useSlots } from '../../../context/SlotsContext';
-import { useNotes, useCheckIns } from '../../../hooks';
+import { useNotes, useCheckIns, useBloodies } from '../../../hooks';
 import { Button, FilledMapPin } from '../../../components/ui';
 import { NoteForm, NoteCard } from '../../spots';
 import {
@@ -28,6 +28,7 @@ import {
   SLOT_BADGES,
   VP_BADGES,
   TRIP_BADGES,
+  BLOODY_BADGES,
   useBadges,
 } from '../../../badges';
 import { machines } from '../../../data/machines';
@@ -58,6 +59,7 @@ export function TripTab({
   const { selectMachine } = useSlots();
   const { notes, loading: notesLoading, addNote, refresh: refreshNotes, getNotePhotoUrl } = useNotes();
   const { myCheckIn, checkOut, getMembersAtCasino } = useCheckIns();
+  const { bloodies } = useBloodies();
   const { earnedBadges } = useBadges();
 
   // Local state for badge UI
@@ -202,7 +204,7 @@ export function TripTab({
               </div>
 
               {/* Trip Stats */}
-              <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#222]">
+              <div className="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-[#222]">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-white">{tripMembers.length}</p>
                   <p className="text-[#aaa] text-xs">Members</p>
@@ -212,11 +214,19 @@ export function TripTab({
                   <p className="text-[#aaa] text-xs">Notes</p>
                 </div>
                 <div className="text-center">
+                  <p className="text-2xl font-bold text-red-400">{bloodies.length}</p>
+                  <p className="text-[#aaa] text-xs">Bloodies</p>
+                </div>
+                <div className="text-center">
                   <p className="text-2xl font-bold text-emerald-400">
                     {notes.filter(n => {
                       const noteDate = new Date(n.created_at).toDateString();
                       const today = new Date().toDateString();
                       return noteDate === today;
+                    }).length + bloodies.filter(b => {
+                      const bDate = new Date(b.created_at).toDateString();
+                      const today = new Date().toDateString();
+                      return bDate === today;
                     }).length}
                   </p>
                   <p className="text-[#aaa] text-xs">Today</p>
@@ -343,6 +353,37 @@ export function TripTab({
                         key={badge.id}
                         badge={badge}
                         earned={earnedBadges.vp?.has(badge.id)}
+                        size="small"
+                        onClick={() => setSelectedBadge(badge)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Bloody Badges */}
+              <div className="border-t border-[#222] mb-2">
+                <button
+                  onClick={() => setExpandedBadgeSection(expandedBadgeSection === 'bloody' ? null : 'bloody')}
+                  className="w-full flex items-center justify-between py-2 text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm font-medium">Bloody Badges</span>
+                    <span className="text-[#666] text-xs">{earnedBadges.bloody?.size || 0}/{BLOODY_BADGES.length}</span>
+                  </div>
+                  {expandedBadgeSection === 'bloody' ? (
+                    <ChevronUp size={18} className="text-[#888]" />
+                  ) : (
+                    <ChevronDown size={18} className="text-[#888]" />
+                  )}
+                </button>
+                {expandedBadgeSection === 'bloody' && (
+                  <div className="grid grid-cols-5 gap-2 pt-2 pb-3">
+                    {BLOODY_BADGES.map(badge => (
+                      <HexBadge
+                        key={badge.id}
+                        badge={badge}
+                        earned={earnedBadges.bloody?.has(badge.id)}
                         size="small"
                         onClick={() => setSelectedBadge(badge)}
                       />

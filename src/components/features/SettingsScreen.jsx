@@ -33,7 +33,10 @@ export function SettingsScreen() {
   if (!showTripSettings || !currentTrip) return null;
 
   return (
-    <div className="min-h-screen bg-[#0d0d0d] p-6">
+    <div
+      className="min-h-screen bg-[#0d0d0d] px-6 pb-6"
+      style={{ paddingTop: 'calc(var(--sat, 0px) + 24px)' }}
+    >
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

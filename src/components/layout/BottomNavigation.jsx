@@ -27,6 +27,7 @@ export function BottomNavigation() {
     leftHandedMode,
     setShowSpotter,
     setSpotterData,
+    setShowBloodyModal,
   } = useUI();
   const { setSelectedMachine } = useSlots();
 
@@ -42,13 +43,9 @@ export function BottomNavigation() {
 
   const handleAddSpot = () => {
     hapticMedium();
-    // Bloodies tab has its own modal - don't use SpotterForm
+    // Bloodies tab - open the bloody modal
     if (activeTab === TAB_IDS.BLOODIES) {
-      // The BloodiesTab component handles its own "Log a Bloody" button
-      // FAB on bloodies tab should do nothing or we can trigger the modal
-      // For now, just switch to showing the spotter for slots
-      setSpotterData({ type: 'slot' });
-      setShowSpotter(true);
+      setShowBloodyModal(true);
       return;
     }
     // Pre-select type based on active tab

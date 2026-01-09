@@ -31,6 +31,7 @@ export function UIProvider({ children }) {
   const [viewingPhoto, setViewingPhoto] = useState(null);
   const [pendingCheckIn, setPendingCheckIn] = useState(null);
   const [showCasinoList, setShowCasinoList] = useState(false);
+  const [showBloodyModal, setShowBloodyModal] = useState(false);
 
   // Onboarding state
   const [hasOnboarded, setHasOnboarded] = useStorage(STORAGE_KEYS.ONBOARDED, false);
@@ -165,6 +166,8 @@ export function UIProvider({ children }) {
     setPendingCheckIn,
     showCasinoList,
     setShowCasinoList,
+    showBloodyModal,
+    setShowBloodyModal,
 
     // Onboarding
     hasOnboarded,

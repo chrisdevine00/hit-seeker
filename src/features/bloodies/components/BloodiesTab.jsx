@@ -10,6 +10,7 @@ import { LogBloodyModal } from './LogBloodyModal';
 import { useBloodies } from '../../../hooks';
 import { useTrip } from '../../../context/TripContext';
 import { useAuth } from '../../../context/AuthContext';
+import { useUI } from '../../../context/UIContext';
 
 /**
  * BloodiesTab - Bloody Mary tracking tab with stats, badges, and history
@@ -20,8 +21,8 @@ export function BloodiesTab() {
   const { currentTrip } = useTrip();
   const { bloodies, loading, addBloody } = useBloodies();
   const { celebrateNewBadges } = useBadges();
+  const { showBloodyModal, setShowBloodyModal } = useUI();
 
-  const [showLogModal, setShowLogModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
 
   // Filter to current user's bloodies for personal badge calculation
@@ -145,7 +146,7 @@ export function BloodiesTab() {
       {/* Log Button */}
       <div>
         <Button
-          onClick={() => setShowLogModal(true)}
+          onClick={() => setShowBloodyModal(true)}
           variant="danger"
           size="xl"
           className="w-full flex items-center justify-center gap-2"
@@ -231,8 +232,8 @@ export function BloodiesTab() {
 
       {/* Log Modal */}
       <LogBloodyModal
-        isOpen={showLogModal}
-        onClose={() => setShowLogModal(false)}
+        isOpen={showBloodyModal}
+        onClose={() => setShowBloodyModal(false)}
         onSubmit={handleLogBloody}
         casinos={vegasCasinos}
       />

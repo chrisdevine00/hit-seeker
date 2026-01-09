@@ -21,7 +21,7 @@ import { useUI } from '../../../context/UIContext';
 import { useSlots } from '../../../context/SlotsContext';
 import { useNotes, useCheckIns, useBloodies } from '../../../hooks';
 import { Button, FilledMapPin } from '../../../components/ui';
-import { NoteForm, NoteCard } from '../../spots';
+import { NoteForm, NoteCard, NoteDetailModal } from '../../spots';
 import {
   HexBadge,
   BadgeDetailModal,
@@ -65,6 +65,9 @@ export function TripTab({
   // Local state for badge UI
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [expandedBadgeSection, setExpandedBadgeSection] = useState(null);
+
+  // Note detail modal
+  const [selectedNote, setSelectedNote] = useState(null);
 
   // View mode toggle: 'my' or 'team'
   const [viewMode, setViewMode] = useState('my');
@@ -469,9 +472,7 @@ export function TripTab({
                         <NoteCard
                           key={note.id}
                           note={note}
-                          onEdit={setEditingNote}
-                          onDelete={setConfirmDelete}
-                          isOwn={true}
+                          onClick={setSelectedNote}
                           getPhotoUrl={getNotePhotoUrl}
                         />
                       ))}
@@ -608,9 +609,7 @@ export function TripTab({
                           <NoteCard
                             key={note.id}
                             note={note}
-                            onEdit={setEditingNote}
-                            onDelete={setConfirmDelete}
-                            isOwn={note.user_id === user?.id}
+                            onClick={setSelectedNote}
                             getPhotoUrl={getNotePhotoUrl}
                           />
                         ))}
@@ -649,6 +648,16 @@ export function TripTab({
         badge={selectedBadge}
         earned={selectedBadge && earnedBadges[selectedBadge.domain]?.has(selectedBadge.id)}
         onClose={() => setSelectedBadge(null)}
+      />
+
+      {/* Note Detail Modal */}
+      <NoteDetailModal
+        note={selectedNote}
+        onClose={() => setSelectedNote(null)}
+        onEdit={setEditingNote}
+        onDelete={setConfirmDelete}
+        isOwn={selectedNote?.user_id === user?.id}
+        getPhotoUrl={getNotePhotoUrl}
       />
     </div>
   );

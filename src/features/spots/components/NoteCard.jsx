@@ -1,42 +1,38 @@
-import React, { useState } from 'react';
-import { ChevronDown, Flame, Edit3, Trash2, X, Camera } from 'lucide-react';
-import { Button } from '../../../components/ui';
+import React from 'react';
 import { formatRelativeTime } from '../../../utils';
 
 /**
- * NoteCard - Displays a spot/note card for Slots, VP, or Bloody Mary
- *
- * @param {Object} note - The note object with type, casino, machine/game info, etc.
- * @param {Function} onEdit - Callback when edit is clicked (receives note)
- * @param {Function} onDelete - Callback when delete is clicked (receives note id)
- * @param {boolean} isOwn - Whether the current user owns this note
- * @param {Function} getPhotoUrl - Function to get public URL for photo_path
+ * NoteCard - Compact card for displaying a note
+ * Photo thumbnail on the right, click to open detail modal
  */
-export function NoteCard({ note, onEdit, onDelete, isOwn, getPhotoUrl }) {
-  const [expanded, setExpanded] = useState(false);
-  const [showFullPhoto, setShowFullPhoto] = useState(false);
+export function NoteCard({ note, onClick, getPhotoUrl }) {
   // Check both type field and legacy VP: prefix for backwards compatibility
   const isVP = note.type === 'vp' || note.machine?.startsWith('VP:');
   const isBloody = note.type === 'bloody';
+
   // Handle title for VP notes - fall back to parsing machine field for legacy notes
-  const getVPTitle = () => {
-    if (note.vpGameName || note.vpGame) return note.vpGameName || note.vpGame;
-    // Legacy format: "VP: Game Name"
-    if (note.machine?.startsWith('VP:')) return note.machine.replace('VP:', '').trim();
-    return note.machine || 'Video Poker';
+  const getTitle = () => {
+    if (isBloody) return 'Bloody Mary';
+    if (isVP) {
+      if (note.vpGameName || note.vpGame) return note.vpGameName || note.vpGame;
+      if (note.machine?.startsWith('VP:')) return note.machine.replace('VP:', '').trim();
+      return note.machine || 'Video Poker';
+    }
+    return note.machine || 'Unknown';
   };
-  const title = isBloody ? 'Bloody Mary' : isVP ? getVPTitle() : (note.machine || 'Unknown');
+
+  const title = getTitle();
   const photoUrl = note.photo_path && getPhotoUrl ? getPhotoUrl(note.photo_path) : null;
 
   // Build VP subtitle only with available fields
-  const getVPSubtitle = () => {
+  const getSubtitle = () => {
     if (!isVP) return null;
     const parts = [];
     if (note.vpPayTable) parts.push(note.vpPayTable);
     if (note.vpReturn) parts.push(`${note.vpReturn}%`);
     return parts.length > 0 ? parts.join(' • ') : null;
   };
-  const subtitle = getVPSubtitle();
+  const subtitle = getSubtitle();
 
   // Get badge color based on type
   const getBadgeClass = () => {
@@ -54,98 +50,50 @@ export function NoteCard({ note, onEdit, onDelete, isOwn, getPhotoUrl }) {
   };
 
   return (
-    <div className={`${getCardClass()} overflow-hidden`}>
-      <button onClick={() => setExpanded(!expanded)} className="w-full p-4 text-left">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getBadgeClass()}`}>
-                {isBloody ? 'BLOODY' : isVP ? 'VP' : 'SLOT'}
-              </span>
-              {note.playable && <span className="text-emerald-400 text-xs font-semibold bg-emerald-400/20 px-2 py-0.5 rounded-full">PLAYABLE</span>}
-              <span className="text-white font-semibold truncate">{title}</span>
-            </div>
-            {subtitle && <p className="text-[#d4a855] text-sm mb-1">{subtitle}</p>}
-            {/* Bloody rating display */}
-            {isBloody && (note.bloodyRating > 0 || note.bloodySpice > 0) && (
-              <div className="flex items-center gap-3 mb-1">
-                {note.bloodyRating > 0 && (
-                  <span className="text-yellow-400 text-sm">
-                    {'★'.repeat(note.bloodyRating)}{'☆'.repeat(5 - note.bloodyRating)}
-                  </span>
-                )}
-                {note.bloodySpice > 0 && (
-                  <span className="text-orange-500 text-sm flex items-center gap-0.5">
-                    {[...Array(note.bloodySpice)].map((_, i) => <Flame key={i} size={14} fill="currentColor" />)}
-                  </span>
-                )}
-              </div>
-            )}
-            <p className="text-[#bbb] text-sm">{note.casino || 'Unknown casino'}</p>
-            {note.denomination && <p className="text-[#888] text-xs">{note.denomination} denomination</p>}
-            {/* Photo thumbnail */}
-            {photoUrl && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setShowFullPhoto(true); }}
-                className="mt-2 flex items-center gap-2 text-[#888] hover:text-white transition-colors"
-              >
-                <div className="w-12 h-12 rounded overflow-hidden border border-[#333] relative">
-                  <img src={photoUrl} alt="Note photo" className="w-full h-full object-cover" />
-                </div>
-                <Camera size={14} className="text-[#d4a855]" />
-              </button>
-            )}
-            {note.profiles?.display_name && (
-              <p className="text-[#888] text-xs mt-1">by {note.profiles.display_name}</p>
-            )}
-          </div>
-          <div className="text-right shrink-0">
-            <p className="text-[#888] text-xs">{formatRelativeTime(note.created_at)}</p>
-            <ChevronDown size={16} className={`text-[#888] mt-1 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-          </div>
-        </div>
-      </button>
-
-      {expanded && (
-        <div className="px-4 pb-4 border-t border-[#222] pt-3">
-          {note.location && <p className="text-sm text-[#ccc] mb-2"><span className="text-[#888]">Location:</span> {note.location}</p>}
-          {note.state && <p className="text-sm text-[#ccc] mb-3"><span className="text-[#888]">{isBloody ? 'Notes:' : isVP ? 'Notes:' : 'State:'}</span> {note.state}</p>}
-          {isOwn && (
-            <div className="flex gap-2">
-              <Button onClick={() => onEdit(note)} variant="secondary" size="sm" className="flex-1 flex items-center justify-center gap-1">
-                <Edit3 size={14} /> Edit
-              </Button>
-              <Button onClick={() => onDelete(note.id)} variant="danger-subtle" size="sm" className="flex items-center gap-1">
-                <Trash2 size={14} /> Delete
-              </Button>
-            </div>
+    <button
+      onClick={() => onClick(note)}
+      className={`${getCardClass()} w-full p-3 text-left flex items-center gap-3`}
+    >
+      {/* Content */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-1 flex-wrap">
+          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${getBadgeClass()}`}>
+            {isBloody ? 'BLOODY' : isVP ? 'VP' : 'SLOT'}
+          </span>
+          {note.playable && (
+            <span className="text-emerald-400 text-xs font-semibold bg-emerald-400/20 px-1.5 py-0.5 rounded-full">
+              PLAYABLE
+            </span>
           )}
         </div>
-      )}
 
-      {/* Full Photo Modal */}
-      {showFullPhoto && photoUrl && (
-        <div
-          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4"
-          onClick={() => setShowFullPhoto(false)}
-        >
-          <button
-            onClick={() => setShowFullPhoto(false)}
-            className="absolute top-4 right-4 text-white p-2 bg-black/50 rounded-full"
-          >
-            <X size={24} />
-          </button>
-          <div className="max-w-full max-h-full">
-            <img
-              src={photoUrl}
-              alt={title}
-              className="max-w-full max-h-[80vh] object-contain rounded"
-              onClick={(e) => e.stopPropagation()}
-            />
-            <p className="text-center text-white mt-2 text-sm">{title} at {note.casino}</p>
-          </div>
+        <p className="text-white font-semibold truncate">{title}</p>
+
+        {subtitle && <p className="text-[#d4a855] text-sm">{subtitle}</p>}
+
+        {/* Bloody rating preview */}
+        {isBloody && note.bloodyRating > 0 && (
+          <span className="text-yellow-400 text-xs">
+            {'★'.repeat(note.bloodyRating)}{'☆'.repeat(5 - note.bloodyRating)}
+          </span>
+        )}
+
+        <p className="text-[#888] text-sm truncate">{note.casino || 'Unknown casino'}</p>
+
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-[#666] text-xs">{formatRelativeTime(note.created_at)}</span>
+          {note.profiles?.display_name && (
+            <span className="text-[#555] text-xs">• {note.profiles.display_name}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Photo thumbnail (right side) */}
+      {photoUrl && (
+        <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#0d0d0d] shrink-0">
+          <img src={photoUrl} alt="" className="w-full h-full object-cover" />
         </div>
       )}
-    </div>
+    </button>
   );
 }

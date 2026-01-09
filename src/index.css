@@ -246,7 +246,10 @@ button:not(.no-animate):active {
 }
 
 .animate-list-item {
-  animation: listItemIn 0.3s ease-out forwards;
+  animation-name: listItemIn;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
 }
 
 /* Onboarding dot pulse */

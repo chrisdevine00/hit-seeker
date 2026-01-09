@@ -76,8 +76,7 @@ export function LoginScreen() {
             width: `${sparkle.size}px`,
             height: `${sparkle.size}px`,
             opacity: 0,
-            animation: `sparkle-float ${sparkle.duration}s ease-in-out infinite`,
-            animationDelay: `${sparkle.delay}s`,
+            animation: `sparkle-float ${sparkle.duration}s ease-in-out ${sparkle.delay}s infinite`,
           }}
         >
           <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" style={{ filter: 'drop-shadow(0 0 4px rgba(212, 168, 85, 0.6))' }}>

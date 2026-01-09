@@ -460,8 +460,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
               zIndex: 60,
               opacity: 0,
               '--sparkle-rotation': `${sparkle.rotation}deg`,
-              animation: `sparkle-lifecycle ${sparkle.duration}s cubic-bezier(0.25, 0.1, 0.25, 1) forwards, sparkle-opacity ${sparkle.duration}s ease-in-out forwards`,
-              animationDelay: `${sparkle.delay}s`,
+              animation: `sparkle-lifecycle ${sparkle.duration}s cubic-bezier(0.25, 0.1, 0.25, 1) ${sparkle.delay}s forwards, sparkle-opacity ${sparkle.duration}s ease-in-out ${sparkle.delay}s forwards`,
             }}
           >
             <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" style={{ filter: `drop-shadow(0 0 3px ${sparkleColor})` }}>
@@ -600,8 +599,7 @@ export function BadgeUnlockModal({ badges, onDismiss }) {
                   style={{
                     background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%)',
                     backgroundSize: '200% 100%',
-                    animation: showBadge ? 'badge-shimmer 2.5s ease-in-out infinite' : 'none',
-                    animationDelay: '0.5s',
+                    animation: showBadge ? 'badge-shimmer 2.5s ease-in-out 0.5s infinite' : 'none',
                   }}
                 />
               </div>

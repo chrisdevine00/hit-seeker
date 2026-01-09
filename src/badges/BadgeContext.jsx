@@ -40,11 +40,18 @@ export function BadgeProvider({ children }) {
   // Previous earned badges for detecting new unlocks - initialize from storage
   const prevEarnedRef = useRef(loadEarnedBadges());
 
-  // Track if initial load is complete (skip unlock celebrations on first load)
-  const isInitializedRef = useRef(false);
+  // Track mount time for initialization window (set on first effect run)
+  const mountTimeRef = useRef(null);
 
   // Track badges that have been queued/celebrated this session (prevents duplicates)
   const celebratedThisSessionRef = useRef(new Set());
+
+  // Set mount time on first render (in effect to avoid impure function in render)
+  useEffect(() => {
+    if (mountTimeRef.current === null) {
+      mountTimeRef.current = Date.now();
+    }
+  }, []);
 
   // Save earned badges to localStorage
   useEffect(() => {
@@ -59,20 +66,21 @@ export function BadgeProvider({ children }) {
 
   // Detect new badge unlocks for all domains
   useEffect(() => {
-    // Skip unlock celebrations on initial load
-    // Use a counter-based approach: first 2 renders are considered "initialization"
-    // This handles the case where data loads quickly or slowly
-    if (!isInitializedRef.current) {
-      // Count how many times this effect has run
-      const runCount = (isInitializedRef.runCount || 0) + 1;
-      isInitializedRef.runCount = runCount;
+    // Skip unlock celebrations during initialization window (3 seconds after mount)
+    // This allows all data sources (notes, trips, bloodies) to load before detecting changes
+    const mountTime = mountTimeRef.current;
 
-      // After 2 runs (initial mount + first data load), mark as initialized
-      if (runCount >= 2) {
-        isInitializedRef.current = true;
-      }
+    // If mountTime not set yet, we're still initializing
+    if (mountTime === null) {
+      prevEarnedRef.current = earnedBadges;
+      return;
+    }
 
-      // Always update prevEarnedRef to current state during initialization
+    const timeSinceMount = Date.now() - mountTime;
+    const isInitializing = timeSinceMount < 3000;
+
+    if (isInitializing) {
+      // During initialization, just keep prevEarnedRef in sync
       prevEarnedRef.current = earnedBadges;
       return;
     }

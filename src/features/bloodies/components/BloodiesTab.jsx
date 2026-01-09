@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { GlassWater, Flame, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../../components/ui';
@@ -19,7 +19,7 @@ export function BloodiesTab() {
   const { user } = useAuth();
   const { currentTrip } = useTrip();
   const { bloodies, loading, addBloody } = useBloodies();
-  const { updateBloodyBadges } = useBadges();
+  const { celebrateNewBadges } = useBadges();
 
   const [showLogModal, setShowLogModal] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
@@ -30,14 +30,10 @@ export function BloodiesTab() {
     [bloodies, user?.id]
   );
 
-  // Update badge context when user's bloodies change
-  // Badge unlock celebrations are handled by the global BadgeContext
-  useEffect(() => {
-    updateBloodyBadges(myBloodies);
-  }, [myBloodies, updateBloodyBadges]);
+  // Badge updates are handled at App.jsx level for proper init timing
 
   // Calculate earned badges from personal bloodies (for display only)
-  const earnedBadges = checkBloodyBadges(myBloodies);
+  const displayedBadges = checkBloodyBadges(myBloodies);
 
   // Get today's count (personal)
   const today = new Date().toDateString();
@@ -48,6 +44,9 @@ export function BloodiesTab() {
 
   // Handle new bloody submission
   const handleLogBloody = async (bloodyData) => {
+    // Snapshot badges BEFORE the action
+    const badgesBefore = checkBloodyBadges(myBloodies);
+
     const newBloody = await addBloody(bloodyData);
 
     if (!newBloody) {
@@ -67,8 +66,27 @@ export function BloodiesTab() {
       icon: <GlassWater size={18} className="text-red-400" />,
     });
 
-    // Badge unlocks are handled automatically by the useEffect above
-    // when myBloodies updates after addBloody completes
+    // Compute badges AFTER the action
+    const updatedBloodies = [...myBloodies, newBloody];
+    const badgesAfter = checkBloodyBadges(updatedBloodies);
+
+    // Find only the NEW badges (in after but not in before)
+    const newlyEarned = new Set();
+    badgesAfter.forEach(id => {
+      if (!badgesBefore.has(id)) {
+        newlyEarned.add(id);
+      }
+    });
+
+    // Only celebrate the newly earned badges from THIS action
+    if (newlyEarned.size > 0) {
+      celebrateNewBadges({
+        bloody: newlyEarned,
+        slot: new Set(), // Don't include other domains
+        vp: new Set(),
+        trip: new Set(),
+      });
+    }
   };
 
   // No trip selected state
@@ -141,7 +159,7 @@ export function BloodiesTab() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-white">Badges</h2>
-          <span className="text-sm text-gray-500">{earnedBadges.size} / {BLOODY_BADGES.length}</span>
+          <span className="text-sm text-gray-500">{displayedBadges.size} / {BLOODY_BADGES.length}</span>
         </div>
 
         {/* Badge Grid */}
@@ -150,7 +168,7 @@ export function BloodiesTab() {
             <HexBadge
               key={badge.id}
               badge={badge}
-              earned={earnedBadges.has(badge.id)}
+              earned={displayedBadges.has(badge.id)}
               size="small"
               onClick={() => setSelectedBadge(badge)}
             />
@@ -222,7 +240,7 @@ export function BloodiesTab() {
       {/* Badge Detail Modal */}
       <BadgeDetailModal
         badge={selectedBadge}
-        earned={selectedBadge && earnedBadges.has(selectedBadge.id)}
+        earned={selectedBadge && displayedBadges.has(selectedBadge.id)}
         onClose={() => setSelectedBadge(null)}
       />
     </div>

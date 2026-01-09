@@ -11,6 +11,8 @@ import {
   BadgeUnlockModal,
   BadgeProvider,
   useBadges,
+  checkSlotBadges,
+  checkVPBadges,
 } from './badges';
 
 // Lib imports
@@ -25,7 +27,7 @@ import { SlotsProvider, useSlots } from './context/SlotsContext';
 import { DebugProvider, useDebug } from './context/DebugContext';
 
 // Hook imports
-import { useNotes, usePhotos, useCheckIns } from './hooks';
+import { useNotes, usePhotos, useCheckIns, useBloodies } from './hooks';
 
 // Data imports
 import { machines } from './data/machines';
@@ -96,7 +98,11 @@ function MainApp() {
   const { notes, addNote, deleteNote, refresh: refreshNotes } = useNotes();
   const { photos, deletePhoto, getPhotoUrl, getMachinePhotos } = usePhotos();
   const { checkIns, myCheckIn, checkIn } = useCheckIns();
-  const { updateSlotBadges, updateVPBadges, updateTripBadges, unlockQueue, dismissBadge } = useBadges();
+  const { bloodies } = useBloodies();
+  const {
+    updateSlotBadges, updateVPBadges, updateTripBadges, updateBloodyBadges,
+    unlockQueue, dismissBadge, celebrateNewBadges,
+  } = useBadges();
 
   // UI Context - navigation, modals, and preferences
   const {
@@ -145,6 +151,14 @@ function MainApp() {
       updateTripBadges(trips, tripMembers, checkIns, user.id);
     }
   }, [trips, tripMembers, checkIns, user, updateTripBadges]);
+
+  // Update bloody badges when bloodies change (computed at app level for init timing)
+  useEffect(() => {
+    if (bloodies && user) {
+      const myBloodies = bloodies.filter(b => b.user_id === user.id);
+      updateBloodyBadges(myBloodies);
+    }
+  }, [bloodies, user, updateBloodyBadges]);
 
   // Escape key to close modals
   useEffect(() => {
@@ -267,6 +281,13 @@ function MainApp() {
 
   // Handle spot submission - creates note AND adds to recent activity
   const handleSpotSubmit = async (spotData, photoFile = null) => {
+    // Snapshot badges BEFORE the action
+    const currentNotes = notes || [];
+    const slotNotesBefore = currentNotes.filter(n => n.type !== 'vp' && !n.machine?.startsWith('VP:'));
+    const vpNotesBefore = currentNotes.filter(n => n.type === 'vp' || n.machine?.startsWith('VP:'));
+    const slotBadgesBefore = checkSlotBadges(slotNotesBefore);
+    const vpBadgesBefore = checkVPBadges(vpNotesBefore);
+
     // Add to recent activity (in-memory, session-based)
     const activityItem = {
       ...spotData,
@@ -276,7 +297,7 @@ function MainApp() {
     setRecentActivity(prev => [activityItem, ...prev].slice(0, 20)); // Keep last 20
 
     // Also add as a note (persisted)
-    await addNote({
+    const newNote = await addNote({
       machine: spotData.type === 'vp' ? `VP: ${spotData.vpGameName}` : spotData.machine,
       casino: spotData.casino,
       location: spotData.location,
@@ -290,6 +311,35 @@ function MainApp() {
       vpReturn: spotData.vpReturn,
       denomination: spotData.denomination,
     }, photoFile);
+
+    // Celebrate only NEWLY earned badges from THIS action
+    if (newNote) {
+      const updatedNotes = [...currentNotes, newNote];
+      const slotNotesAfter = updatedNotes.filter(n => n.type !== 'vp' && !n.machine?.startsWith('VP:'));
+      const vpNotesAfter = updatedNotes.filter(n => n.type === 'vp' || n.machine?.startsWith('VP:'));
+      const slotBadgesAfter = checkSlotBadges(slotNotesAfter);
+      const vpBadgesAfter = checkVPBadges(vpNotesAfter);
+
+      // Find only NEW badges
+      const newSlotBadges = new Set();
+      slotBadgesAfter.forEach(id => {
+        if (!slotBadgesBefore.has(id)) newSlotBadges.add(id);
+      });
+
+      const newVpBadges = new Set();
+      vpBadgesAfter.forEach(id => {
+        if (!vpBadgesBefore.has(id)) newVpBadges.add(id);
+      });
+
+      if (newSlotBadges.size > 0 || newVpBadges.size > 0) {
+        celebrateNewBadges({
+          bloody: new Set(),
+          slot: newSlotBadges,
+          vp: newVpBadges,
+          trip: new Set(),
+        });
+      }
+    }
 
     setShowSpotter(false);
     setSpotterData(null);

@@ -103,25 +103,32 @@ export function useNotes() {
       }
     }
 
+    // Build insert object with only fields that exist in the database
+    const insertData = {
+      trip_id: currentTrip.id,
+      user_id: user.id,
+      machine: noteData.machine,
+      casino: noteData.casino,
+      location: noteData.location,
+      state: noteData.state,
+      playable: noteData.playable || false,
+      photo_path: photoPath,
+    };
+
+    // Store VP-specific data in the returned object for badge checking
+    // (these fields may not be in DB yet, so we don't insert them)
+    const vpMetadata = {
+      type: noteData.type,
+      vpGame: noteData.vpGame,
+      vpGameName: noteData.vpGameName,
+      vpPayTable: noteData.vpPayTable,
+      vpReturn: noteData.vpReturn,
+      denomination: noteData.denomination,
+    };
+
     const { data, error } = await supabase
       .from('notes')
-      .insert({
-        trip_id: currentTrip.id,
-        user_id: user.id,
-        machine: noteData.machine,
-        casino: noteData.casino,
-        location: noteData.location,
-        state: noteData.state,
-        playable: noteData.playable || false,
-        photo_path: photoPath,
-        // Extended VP fields
-        type: noteData.type,
-        vpGame: noteData.vpGame,
-        vpGameName: noteData.vpGameName,
-        vpPayTable: noteData.vpPayTable,
-        vpReturn: noteData.vpReturn,
-        denomination: noteData.denomination,
-      })
+      .insert(insertData)
       .select('*, profiles (display_name, avatar_url)')
       .single();
 
@@ -130,7 +137,9 @@ export function useNotes() {
       return null;
     }
 
-    return data;
+    // Merge VP metadata into returned data for badge checking
+    // (even though these fields aren't in DB, we need them for badge logic)
+    return { ...data, ...vpMetadata };
   };
 
   const updateNote = async (id, updates) => {

@@ -1,160 +1,163 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { BLOODY_BADGES, SLOT_BADGES, VP_BADGES, TRIP_BADGES } from './definitions';
 import { checkBloodyBadges, checkSlotBadges, checkVPBadges, checkTripBadges } from './checkers';
-import { STORAGE_KEYS } from '../constants';
 
 const BadgeContext = createContext(null);
 
-export function BadgeProvider({ children }) {
-  // Load earned badges from localStorage
-  const loadEarnedBadges = () => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.EARNED_BADGES);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          bloody: new Set(parsed.bloody || []),
-          slot: new Set(parsed.slot || []),
-          vp: new Set(parsed.vp || []),
-          trip: new Set(parsed.trip || []),
-        };
-      }
-    } catch (e) {
-      console.error('Failed to load earned badges:', e);
-    }
-    return {
-      bloody: new Set(),
-      slot: new Set(),
-      vp: new Set(),
-      trip: new Set(),
-    };
-  };
+// Storage key for badges that have had their celebration shown
+const CELEBRATED_BADGES_KEY = 'hs_celebrated_badges';
 
-  // Track earned badges for each domain
-  const [earnedBadges, setEarnedBadges] = useState(loadEarnedBadges);
+function loadCelebratedBadges() {
+  try {
+    const saved = localStorage.getItem(CELEBRATED_BADGES_KEY);
+    if (saved) {
+      return new Set(JSON.parse(saved));
+    }
+  } catch (e) {
+    console.error('Failed to load celebrated badges:', e);
+  }
+  return new Set();
+}
+
+function saveCelebratedBadges(celebrated) {
+  try {
+    localStorage.setItem(CELEBRATED_BADGES_KEY, JSON.stringify(Array.from(celebrated)));
+  } catch (e) {
+    console.error('Failed to save celebrated badges:', e);
+  }
+}
+
+// Domains that need initialization
+const BADGE_DOMAINS = ['bloody', 'slot', 'vp', 'trip'];
+
+export function BadgeProvider({ children }) {
+  // Earned badges - computed from actual data
+  const [earnedBadges, setEarnedBadges] = useState({
+    bloody: new Set(),
+    slot: new Set(),
+    vp: new Set(),
+    trip: new Set(),
+  });
+
+  // Celebrated badges - persisted
+  const celebratedBadgesRef = useRef(loadCelebratedBadges());
+
+  // Track which domains have been initialized (first data load)
+  // On first load of each domain, we mark all earned badges as celebrated (silently)
+  const initializedDomainsRef = useRef(new Set());
 
   // Queue of badges to show unlock modal for
   const [unlockQueue, setUnlockQueue] = useState([]);
 
-  // Previous earned badges for detecting new unlocks - initialize from storage
-  const prevEarnedRef = useRef(loadEarnedBadges());
-
-  // Track mount time for initialization window (set on first effect run)
-  const mountTimeRef = useRef(null);
-
-  // Track badges that have been queued/celebrated this session (prevents duplicates)
-  const celebratedThisSessionRef = useRef(new Set());
-
-  // Set mount time on first render (in effect to avoid impure function in render)
-  useEffect(() => {
-    if (mountTimeRef.current === null) {
-      mountTimeRef.current = Date.now();
-    }
+  // Get badge definition by ID
+  const getBadgeById = useCallback((badgeId) => {
+    const allBadges = [...BLOODY_BADGES, ...SLOT_BADGES, ...VP_BADGES, ...TRIP_BADGES];
+    return allBadges.find(b => b.id === badgeId);
   }, []);
 
-  // Save earned badges to localStorage
-  useEffect(() => {
-    const toSave = {
-      bloody: Array.from(earnedBadges.bloody || []),
-      slot: Array.from(earnedBadges.slot || []),
-      vp: Array.from(earnedBadges.vp || []),
-      trip: Array.from(earnedBadges.trip || []),
-    };
-    localStorage.setItem(STORAGE_KEYS.EARNED_BADGES, JSON.stringify(toSave));
-  }, [earnedBadges]);
+  /**
+   * Celebrate new badges - call this AFTER a user action with ONLY the newly earned badges
+   * The caller is responsible for computing before/after diff
+   */
+  const celebrateNewBadges = useCallback((newlyEarnedByDomain) => {
+    const badgesToCelebrate = [];
 
-  // Detect new badge unlocks for all domains
-  useEffect(() => {
-    // Skip unlock celebrations during initialization window (3 seconds after mount)
-    // This allows all data sources (notes, trips, bloodies) to load before detecting changes
-    const mountTime = mountTimeRef.current;
-
-    // If mountTime not set yet, we're still initializing
-    if (mountTime === null) {
-      // Mark all current badges as already celebrated (prevents firing on load)
-      Object.values(earnedBadges).forEach(domainSet => {
-        if (domainSet) domainSet.forEach(id => celebratedThisSessionRef.current.add(id));
-      });
-      prevEarnedRef.current = earnedBadges;
-      return;
-    }
-
-    const timeSinceMount = Date.now() - mountTime;
-    const isInitializing = timeSinceMount < 3000;
-
-    if (isInitializing) {
-      // During initialization, mark all badges as celebrated and sync refs
-      Object.values(earnedBadges).forEach(domainSet => {
-        if (domainSet) domainSet.forEach(id => celebratedThisSessionRef.current.add(id));
-      });
-      prevEarnedRef.current = earnedBadges;
-      return;
-    }
-
-    const newlyEarned = [];
-    const domainBadges = {
-      bloody: BLOODY_BADGES,
-      slot: SLOT_BADGES,
-      vp: VP_BADGES,
-      trip: TRIP_BADGES,
-    };
-
-    // Check all domains for new badges
-    Object.entries(domainBadges).forEach(([domain, badges]) => {
-      const prevDomain = prevEarnedRef.current[domain] || new Set();
-      const currentDomain = earnedBadges[domain] || new Set();
-
-      currentDomain.forEach(badgeId => {
-        // Skip if already celebrated this session (prevents duplicates)
-        if (celebratedThisSessionRef.current.has(badgeId)) {
-          return;
-        }
-
-        if (!prevDomain.has(badgeId)) {
-          const badge = badges.find(b => b.id === badgeId);
+    // Collect all badge objects for the newly earned IDs
+    Object.values(newlyEarnedByDomain).forEach(domainSet => {
+      if (domainSet && domainSet.size > 0) {
+        domainSet.forEach(badgeId => {
+          const badge = getBadgeById(badgeId);
           if (badge) {
-            newlyEarned.push(badge);
-            // Mark as celebrated to prevent duplicates
-            celebratedThisSessionRef.current.add(badgeId);
+            badgesToCelebrate.push(badge);
+            // Mark as celebrated
+            celebratedBadgesRef.current.add(badgeId);
           }
-        }
-      });
+        });
+      }
     });
 
-    // Add newly earned to unlock queue
-    if (newlyEarned.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- queue new badges for celebration
-      setUnlockQueue(prev => [...prev, ...newlyEarned]);
+    if (badgesToCelebrate.length > 0) {
+      saveCelebratedBadges(celebratedBadgesRef.current);
+      setUnlockQueue(prev => [...prev, ...badgesToCelebrate]);
     }
 
-    // Update ref
-    prevEarnedRef.current = earnedBadges;
+    return badgesToCelebrate;
+  }, [getBadgeById]);
+
+  /**
+   * Mark badges as celebrated without showing celebration
+   * Use this on initial load to prevent mass celebrations
+   */
+  const markAsCelebrated = useCallback((badgeIds) => {
+    badgeIds.forEach(id => celebratedBadgesRef.current.add(id));
+    saveCelebratedBadges(celebratedBadgesRef.current);
+  }, []);
+
+  /**
+   * Mark all currently earned badges as celebrated (for initial load)
+   */
+  const markAllEarnedAsCelebrated = useCallback(() => {
+    Object.values(earnedBadges).forEach(domainSet => {
+      if (domainSet) {
+        domainSet.forEach(badgeId => {
+          celebratedBadgesRef.current.add(badgeId);
+        });
+      }
+    });
+    saveCelebratedBadges(celebratedBadgesRef.current);
   }, [earnedBadges]);
 
-  // Update bloody badges from bloodies data
+  // Helper to mark badges as celebrated on first domain load
+  const initializeDomain = useCallback((domain, earnedSet) => {
+    if (!initializedDomainsRef.current.has(domain)) {
+      initializedDomainsRef.current.add(domain);
+      // Mark all currently earned badges as celebrated (silently, no celebration)
+      let changed = false;
+      earnedSet.forEach(badgeId => {
+        if (!celebratedBadgesRef.current.has(badgeId)) {
+          celebratedBadgesRef.current.add(badgeId);
+          changed = true;
+        }
+      });
+      if (changed) {
+        saveCelebratedBadges(celebratedBadgesRef.current);
+      }
+    }
+  }, []);
+
+  // Update bloody badges - returns the new earned set for celebration checking
   const updateBloodyBadges = useCallback((bloodies) => {
     const newEarned = checkBloodyBadges(bloodies);
+    // On first load of this domain, mark all earned as celebrated (no celebration)
+    initializeDomain('bloody', newEarned);
     setEarnedBadges(prev => ({ ...prev, bloody: newEarned }));
-  }, []);
+    return newEarned;
+  }, [initializeDomain]);
 
-  // Update slot badges from slot notes
+  // Update slot badges
   const updateSlotBadges = useCallback((slotNotes) => {
     const newEarned = checkSlotBadges(slotNotes);
+    initializeDomain('slot', newEarned);
     setEarnedBadges(prev => ({ ...prev, slot: newEarned }));
-  }, []);
+    return newEarned;
+  }, [initializeDomain]);
 
-  // Update VP badges from VP notes
+  // Update VP badges
   const updateVPBadges = useCallback((vpNotes) => {
     const newEarned = checkVPBadges(vpNotes);
+    initializeDomain('vp', newEarned);
     setEarnedBadges(prev => ({ ...prev, vp: newEarned }));
-  }, []);
+    return newEarned;
+  }, [initializeDomain]);
 
-  // Update trip badges from trip data
+  // Update trip badges
   const updateTripBadges = useCallback((trips, tripMembers, checkIns, userId) => {
     const newEarned = checkTripBadges(trips, tripMembers, checkIns, userId);
+    initializeDomain('trip', newEarned);
     setEarnedBadges(prev => ({ ...prev, trip: newEarned }));
-  }, []);
+    return newEarned;
+  }, [initializeDomain]);
 
   // Dismiss a badge from unlock queue
   const dismissBadge = useCallback(() => {
@@ -169,16 +172,11 @@ export function BadgeProvider({ children }) {
   // Get all badges for a domain
   const getBadgesForDomain = useCallback((domain) => {
     switch (domain) {
-      case 'bloody':
-        return BLOODY_BADGES;
-      case 'slot':
-        return SLOT_BADGES;
-      case 'vp':
-        return VP_BADGES;
-      case 'trip':
-        return TRIP_BADGES;
-      default:
-        return [];
+      case 'bloody': return BLOODY_BADGES;
+      case 'slot': return SLOT_BADGES;
+      case 'vp': return VP_BADGES;
+      case 'trip': return TRIP_BADGES;
+      default: return [];
     }
   }, []);
 
@@ -198,25 +196,22 @@ export function BadgeProvider({ children }) {
   }, [getBadgesForDomain]);
 
   const value = {
-    // Badge update methods
     updateBloodyBadges,
     updateSlotBadges,
     updateVPBadges,
     updateTripBadges,
-
-    // Earned badges by domain
     earnedBadges,
-
-    // Unlock queue
     unlockQueue,
     dismissBadge,
     clearUnlockQueue,
-
-    // Badge utilities
     getBadgesForDomain,
     isBadgeEarned,
     getEarnedCount,
     getTotalCount,
+    // New methods for explicit celebration control
+    celebrateNewBadges,
+    markAsCelebrated,
+    markAllEarnedAsCelebrated,
   };
 
   return (

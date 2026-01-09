@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, Edit3, Trash2, Flame, MapPin, Clock, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Edit3, Trash2, Flame, MapPin, Clock, User, ZoomIn } from 'lucide-react';
 import { Button } from '../../../components/ui';
 import { formatRelativeTime } from '../../../utils';
 
@@ -8,6 +8,8 @@ import { formatRelativeTime } from '../../../utils';
  * Shows all note information with edit/delete actions
  */
 export function NoteDetailModal({ note, onClose, onEdit, onDelete, isOwn, getPhotoUrl }) {
+  const [showFullPhoto, setShowFullPhoto] = useState(false);
+
   if (!note) return null;
 
   // Check both type field and legacy VP: prefix for backwards compatibility
@@ -77,11 +79,22 @@ export function NoteDetailModal({ note, onClose, onEdit, onDelete, isOwn, getPho
           </button>
         </div>
 
-        {/* Photo (if exists) */}
+        {/* Photo (if exists) - square crop, tap to view full */}
         {photoUrl && (
-          <div className="w-full aspect-video bg-[#0d0d0d]">
-            <img src={photoUrl} alt={title} className="w-full h-full object-contain" />
-          </div>
+          <button
+            onClick={() => setShowFullPhoto(true)}
+            className="w-full aspect-square bg-[#0d0d0d] relative group"
+          >
+            <img src={photoUrl} alt={title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 rounded-full p-3">
+                <ZoomIn size={24} className="text-white" />
+              </div>
+            </div>
+            <div className="absolute bottom-2 right-2 bg-black/60 rounded px-2 py-1 text-xs text-white/80">
+              Tap to view full
+            </div>
+          </button>
         )}
 
         {/* Content */}
@@ -186,6 +199,27 @@ export function NoteDetailModal({ note, onClose, onEdit, onDelete, isOwn, getPho
           )}
         </div>
       </div>
+
+      {/* Full Photo Viewer */}
+      {showFullPhoto && photoUrl && (
+        <div
+          className="fixed inset-0 bg-black z-[60] flex items-center justify-center"
+          onClick={() => setShowFullPhoto(false)}
+        >
+          <button
+            onClick={() => setShowFullPhoto(false)}
+            className="absolute top-4 right-4 text-white p-2 bg-black/50 rounded-full z-10"
+          >
+            <X size={24} />
+          </button>
+          <img
+            src={photoUrl}
+            alt={title}
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

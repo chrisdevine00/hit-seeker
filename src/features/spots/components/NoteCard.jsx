@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronRight } from 'lucide-react';
 import { formatRelativeTime } from '../../../utils';
 
 /**
@@ -94,6 +95,9 @@ export function NoteCard({ note, onClick, getPhotoUrl }) {
           <img src={photoUrl} alt="" className="w-full h-full object-cover" />
         </div>
       )}
+
+      {/* Chevron indicator */}
+      <ChevronRight size={20} className="text-[#555] shrink-0" />
     </button>
   );
 }

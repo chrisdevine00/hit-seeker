@@ -72,6 +72,10 @@ export function BadgeProvider({ children }) {
 
     // If mountTime not set yet, we're still initializing
     if (mountTime === null) {
+      // Mark all current badges as already celebrated (prevents firing on load)
+      Object.values(earnedBadges).forEach(domainSet => {
+        if (domainSet) domainSet.forEach(id => celebratedThisSessionRef.current.add(id));
+      });
       prevEarnedRef.current = earnedBadges;
       return;
     }
@@ -80,7 +84,10 @@ export function BadgeProvider({ children }) {
     const isInitializing = timeSinceMount < 3000;
 
     if (isInitializing) {
-      // During initialization, just keep prevEarnedRef in sync
+      // During initialization, mark all badges as celebrated and sync refs
+      Object.values(earnedBadges).forEach(domainSet => {
+        if (domainSet) domainSet.forEach(id => celebratedThisSessionRef.current.add(id));
+      });
       prevEarnedRef.current = earnedBadges;
       return;
     }

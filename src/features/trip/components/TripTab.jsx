@@ -116,6 +116,26 @@ export function TripTab({
 
   const hotItems = getHotOpportunities();
 
+  // Convert bloodies to note-like objects for unified feed
+  const bloodiesToNotes = (bloodiesArr) => bloodiesArr.map(b => ({
+    id: `bloody-${b.id}`,
+    _bloodyId: b.id, // Keep original ID for detail modal
+    type: 'bloody',
+    casino: b.location,
+    bloodyRating: b.rating,
+    bloodySpice: b.spice,
+    content: b.notes,
+    created_at: b.created_at,
+    user_id: b.user_id,
+    profiles: b.profiles,
+  }));
+
+  // Combined activity feed (notes + bloodies) sorted by date
+  const allActivity = [...notes, ...bloodiesToNotes(bloodies)]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const myActivity = allActivity.filter(item => item.user_id === user?.id);
+
   return (
     <div className="pb-24">
       {/* Header */}
@@ -413,10 +433,10 @@ export function TripTab({
               </div>
             </div>
 
-            {/* My Notes - with pagination */}
+            {/* My Activity - with pagination */}
             <div className="card-3d p-4">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-[#aaa] text-xs uppercase tracking-wider">My Notes</p>
+                <p className="text-[#aaa] text-xs uppercase tracking-wider">My Activity</p>
                 <Button onClick={() => setShowNoteForm(true)} variant="primary" size="sm">
                   + Add
                 </Button>
@@ -432,9 +452,8 @@ export function TripTab({
               )}
 
               {(() => {
-                const myNotes = notes.filter(n => n.user_id === user?.id);
-                const totalPages = Math.ceil(myNotes.length / ITEMS_PER_PAGE);
-                const paginatedNotes = myNotes.slice((notesPage - 1) * ITEMS_PER_PAGE, notesPage * ITEMS_PER_PAGE);
+                const totalPages = Math.ceil(myActivity.length / ITEMS_PER_PAGE);
+                const paginatedItems = myActivity.slice((notesPage - 1) * ITEMS_PER_PAGE, notesPage * ITEMS_PER_PAGE);
 
                 if (notesLoading) {
                   return (
@@ -443,21 +462,21 @@ export function TripTab({
                     </div>
                   );
                 }
-                if (myNotes.length === 0) {
+                if (myActivity.length === 0) {
                   return (
                     <div className="text-center py-4">
                       <StickyNote size={24} className="mx-auto text-[#444] mb-2" />
-                      <p className="text-[#aaa] text-sm">No notes yet</p>
+                      <p className="text-[#aaa] text-sm">No activity yet</p>
                     </div>
                   );
                 }
                 return (
                   <>
                     <div className="space-y-3">
-                      {paginatedNotes.map(note => (
+                      {paginatedItems.map(item => (
                         <NoteCard
-                          key={note.id}
-                          note={note}
+                          key={item.id}
+                          note={item}
                           onClick={setSelectedNote}
                           getPhotoUrl={getNotePhotoUrl}
                         />
@@ -546,18 +565,18 @@ export function TripTab({
               </div>
             </div>
 
-            {/* All Team Notes - with pagination */}
+            {/* All Team Activity - with pagination */}
             {(() => {
-              const totalPages = Math.ceil(notes.length / ITEMS_PER_PAGE);
-              const paginatedNotes = notes.slice((teamNotesPage - 1) * ITEMS_PER_PAGE, teamNotesPage * ITEMS_PER_PAGE);
+              const totalPages = Math.ceil(allActivity.length / ITEMS_PER_PAGE);
+              const paginatedItems = allActivity.slice((teamNotesPage - 1) * ITEMS_PER_PAGE, teamNotesPage * ITEMS_PER_PAGE);
 
               return (
                 <div className="card-3d p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Notes</p>
-                      {notes.length > 0 && (
-                        <span className="text-[#666] text-xs">{notes.length} total</span>
+                      <p className="text-[#aaa] text-xs uppercase tracking-wider">Team Activity</p>
+                      {allActivity.length > 0 && (
+                        <span className="text-[#666] text-xs">{allActivity.length} total</span>
                       )}
                     </div>
                     <button onClick={refreshNotes} className="no-animate p-1 text-[#666] hover:text-white">
@@ -569,18 +588,18 @@ export function TripTab({
                     <div className="flex justify-center py-4">
                       <Loader2 className="w-6 h-6 text-[#d4a855] animate-spin" />
                     </div>
-                  ) : notes.length === 0 ? (
+                  ) : allActivity.length === 0 ? (
                     <div className="text-center py-4">
                       <StickyNote size={24} className="mx-auto text-[#444] mb-2" />
-                      <p className="text-[#aaa] text-sm">No team notes yet</p>
+                      <p className="text-[#aaa] text-sm">No team activity yet</p>
                     </div>
                   ) : (
                     <>
                       <div className="space-y-3">
-                        {paginatedNotes.map(note => (
+                        {paginatedItems.map(item => (
                           <NoteCard
-                            key={note.id}
-                            note={note}
+                            key={item.id}
+                            note={item}
                             onClick={setSelectedNote}
                             getPhotoUrl={getNotePhotoUrl}
                           />

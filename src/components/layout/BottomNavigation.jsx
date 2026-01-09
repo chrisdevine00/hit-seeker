@@ -27,7 +27,6 @@ export function BottomNavigation() {
     leftHandedMode,
     setShowSpotter,
     setSpotterData,
-    setShowBloodyModal,
   } = useUI();
   const { setSelectedMachine } = useSlots();
 
@@ -43,15 +42,11 @@ export function BottomNavigation() {
 
   const handleAddSpot = () => {
     hapticMedium();
-    // Bloodies tab - open the bloody modal
-    if (activeTab === TAB_IDS.BLOODIES) {
-      setShowBloodyModal(true);
-      return;
-    }
     // Pre-select type based on active tab
     const typeMap = {
       [TAB_IDS.HUNT]: 'slot',
       [TAB_IDS.VP]: 'vp',
+      [TAB_IDS.BLOODIES]: 'bloody',
       [TAB_IDS.TRIP]: 'slot',
     };
     setSpotterData({ type: typeMap[activeTab] || 'slot' });

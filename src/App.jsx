@@ -25,6 +25,7 @@ import { TripProvider, useTrip } from './context/TripContext';
 import { UIProvider, useUI } from './context/UIContext';
 import { SlotsProvider, useSlots } from './context/SlotsContext';
 import { DebugProvider, useDebug } from './context/DebugContext';
+import { BloodiesProvider } from './context/BloodiesContext';
 
 // Hook imports
 import { useNotes, usePhotos, useCheckIns, useBloodies } from './hooks';
@@ -578,15 +579,17 @@ function AppContent() {
 
   return (
     <TripProvider>
-      <BadgeProvider>
-        <UIProvider>
-          <SlotsProvider>
-            <DebugProvider>
-              <TripContent />
-            </DebugProvider>
-          </SlotsProvider>
-        </UIProvider>
-      </BadgeProvider>
+      <BloodiesProvider>
+        <BadgeProvider>
+          <UIProvider>
+            <SlotsProvider>
+              <DebugProvider>
+                <TripContent />
+              </DebugProvider>
+            </SlotsProvider>
+          </UIProvider>
+        </BadgeProvider>
+      </BloodiesProvider>
     </TripProvider>
   );
 }

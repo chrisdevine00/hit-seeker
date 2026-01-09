@@ -1,10 +1,16 @@
-// Bloodies Hook with Realtime
-import { useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+/**
+ * BloodiesContext - Centralized bloodies state management
+ * Provides shared bloodies data across all components
+ */
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { useTrip } from '../context/TripContext';
-import { useAuth } from '../context/AuthContext';
+import { useTrip } from './TripContext';
+import { useAuth } from './AuthContext';
 
-export function useBloodies() {
+const BloodiesContext = createContext(null);
+
+export function BloodiesProvider({ children }) {
   const { currentTrip } = useTrip();
   const { user } = useAuth();
   const [bloodies, setBloodies] = useState([]);
@@ -58,7 +64,7 @@ export function useBloodies() {
             .single()
             .then(({ data }) => {
               if (data) {
-                // Add only if not already present (prevents duplicates from local + realtime)
+                // Add only if not already present (prevents duplicates)
                 setBloodies(prev => {
                   if (prev.some(b => b.id === data.id)) return prev;
                   return [data, ...prev];
@@ -78,7 +84,7 @@ export function useBloodies() {
     };
   }, [currentTrip]);
 
-  const addBloody = async (bloodyData) => {
+  const addBloody = useCallback(async (bloodyData) => {
     if (!currentTrip || !user) return null;
 
     const { data, error } = await supabase
@@ -99,15 +105,18 @@ export function useBloodies() {
       return null;
     }
 
-    // Update local state immediately (don't wait for realtime)
+    // Update local state immediately
     if (data) {
-      setBloodies(prev => [data, ...prev]);
+      setBloodies(prev => {
+        if (prev.some(b => b.id === data.id)) return prev;
+        return [data, ...prev];
+      });
     }
 
     return data;
-  };
+  }, [currentTrip, user]);
 
-  const deleteBloody = async (id) => {
+  const deleteBloody = useCallback(async (id) => {
     const { error } = await supabase
       .from('bloodies')
       .delete()
@@ -116,12 +125,11 @@ export function useBloodies() {
     if (error) {
       console.error('Error deleting bloody:', error);
     } else {
-      // Update local state immediately
       setBloodies(prev => prev.filter(b => b.id !== id));
     }
-  };
+  }, []);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!currentTrip) return;
     setLoading(true);
     const { data } = await supabase
@@ -131,7 +139,27 @@ export function useBloodies() {
       .order('created_at', { ascending: false });
     if (data) setBloodies(data);
     setLoading(false);
+  }, [currentTrip]);
+
+  const value = {
+    bloodies,
+    loading,
+    addBloody,
+    deleteBloody,
+    refresh,
   };
 
-  return { bloodies, loading, addBloody, deleteBloody, refresh };
+  return (
+    <BloodiesContext.Provider value={value}>
+      {children}
+    </BloodiesContext.Provider>
+  );
+}
+
+export function useBloodies() {
+  const context = useContext(BloodiesContext);
+  if (!context) {
+    throw new Error('useBloodies must be used within a BloodiesProvider');
+  }
+  return context;
 }

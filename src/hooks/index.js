@@ -4,4 +4,5 @@ export { useNotes } from './useNotes';
 export { usePhotos } from './usePhotos';
 export { useCheckIns } from './useCheckIns';
 export { useStorage } from './useStorage';
-export { useBloodies } from './useBloodies';
+// useBloodies is now a context - re-export for backwards compatibility
+export { useBloodies } from '../context/BloodiesContext';

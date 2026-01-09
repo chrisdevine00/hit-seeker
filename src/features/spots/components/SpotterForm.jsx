@@ -1,11 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { X, Gem, Spade, GlassWater, Flame, CheckCircle2, Camera, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../../../components/ui';
 import { vpGames } from '../../../data/vpGames';
 import { machines } from '../../../data/machines';
 import { vegasCasinos } from '../../../data/casinos';
-import { hapticLight } from '../../../lib/haptics';
+import { hapticLight, hapticSuccess } from '../../../lib/haptics';
 import { compressImage } from '../../../utils/compressImage';
+import { useBloodies } from '../../../hooks';
+import { useAuth } from '../../../context/AuthContext';
+import { checkBloodyBadges, useBadges } from '../../../badges';
 
 /**
  * SpotterForm - Unified form for logging Slots, VP, and Bloody Mary finds
@@ -20,8 +24,19 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
   // spotType: 'slot', 'vp', or 'bloody'
   // prefillData: { machine } for slots, { game, payTable, return } for VP
 
-  // Allow switching type if not prefilled
-  const isTypeLocked = prefillData?.machine || prefillData?.game;
+  const { user } = useAuth();
+  const { bloodies, addBloody } = useBloodies();
+  const { celebrateNewBadges } = useBadges();
+
+  // Filter to current user's bloodies for badge calculation
+  const myBloodies = useMemo(
+    () => bloodies.filter(b => b.user_id === user?.id),
+    [bloodies, user?.id]
+  );
+
+  // Allow switching type if not prefilled with specific machine/game
+  // lockType flag hides toggle (used by Log a Bloody button)
+  const isTypeLocked = prefillData?.machine || prefillData?.game || prefillData?.lockType;
   const [activeType, setActiveType] = useState(initialSpotType || 'slot');
 
   const [casino, setCasino] = useState(currentCasino || '');
@@ -81,10 +96,73 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
   // vpGames is an object, not array - get the game by key or find by id
   const vpGame = vpGames[selectedVPGame] || Object.values(vpGames).find(g => g.id === selectedVPGame);
 
+  // Handle bloody submission separately (uses bloodies table, not notes)
+  const handleBloodySubmit = async () => {
+    if (!casino.trim()) return;
+
+    // Snapshot badges BEFORE the action
+    const badgesBefore = checkBloodyBadges(myBloodies);
+
+    const bloodyData = {
+      location: casino.trim(),
+      rating: bloodyRating,
+      spice: bloodySpice,
+      notes: state.trim(),
+    };
+
+    const newBloody = await addBloody(bloodyData);
+
+    if (!newBloody) {
+      toast.error('Failed to log bloody');
+      return;
+    }
+
+    hapticSuccess();
+
+    // Build toast message parts
+    const parts = [];
+    if (bloodySpice > 0) parts.push(`${bloodySpice}🔥`);
+    if (bloodyRating > 0) parts.push(`${bloodyRating}⭐`);
+    const prefix = parts.length > 0 ? `${parts.join(' ')} ` : '';
+
+    toast.success(`${prefix}Bloody at ${casino.trim()}`, {
+      icon: <GlassWater size={18} className="text-red-400" />,
+    });
+
+    // Compute badges AFTER the action
+    const updatedBloodies = [...myBloodies, newBloody];
+    const badgesAfter = checkBloodyBadges(updatedBloodies);
+
+    // Find only the NEW badges (in after but not in before)
+    const newlyEarned = new Set();
+    badgesAfter.forEach(id => {
+      if (!badgesBefore.has(id)) {
+        newlyEarned.add(id);
+      }
+    });
+
+    // Only celebrate the newly earned badges from THIS action
+    if (newlyEarned.size > 0) {
+      celebrateNewBadges({
+        bloody: newlyEarned,
+        slot: new Set(),
+        vp: new Set(),
+        trip: new Set(),
+      });
+    }
+
+    onCancel(); // Close the form
+  };
+
   const handleSubmit = () => {
+    // Bloody uses its own handler
+    if (activeType === 'bloody') {
+      handleBloodySubmit();
+      return;
+    }
+
     if (activeType === 'slot' && !machine.trim()) return;
     if (activeType === 'vp' && !selectedVPGame) return;
-    if (activeType === 'bloody' && !casino.trim()) return;
 
     const noteData = {
       type: activeType,
@@ -104,10 +182,6 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
       noteData.vpReturn = selectedVPPayTable?.return || prefillData?.return;
       noteData.denomination = denomination.trim();
       noteData.state = state.trim();
-    } else if (activeType === 'bloody') {
-      noteData.bloodyRating = bloodyRating;
-      noteData.bloodySpice = bloodySpice;
-      noteData.state = state.trim(); // notes
     }
 
     onSubmit(noteData, selectedPhoto);
@@ -121,9 +195,9 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
       <div className="flex items-center gap-2">
         {activeType === 'slot' && <Gem size={24} className="text-[#d4a855]" />}
         {activeType === 'vp' && <Spade size={24} className="text-[#d4a855]" />}
-        {activeType === 'bloody' && <GlassWater size={24} className="text-[#d4a855]" />}
+        {activeType === 'bloody' && <GlassWater size={24} className="text-red-400" />}
         <h3 className="font-bold text-white text-lg">
-          {activeType === 'bloody' ? 'Log Bloody' : 'Spot Find'}
+          {isBloody ? 'Log a Bloody' : 'Spot Find'}
         </h3>
       </div>
 
@@ -154,7 +228,7 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
             onClick={() => setActiveType('bloody')}
             className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-colors ${
               activeType === 'bloody'
-                ? 'bg-gradient-to-r from-[#d4a855] to-amber-600 text-black'
+                ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
                 : 'text-[#aaa] hover:text-white'
             }`}
           >
@@ -304,9 +378,11 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
         </div>
       )}
 
-      {/* Casino */}
+      {/* Casino / Location */}
       <div>
-        <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Casino {isBloody && <span className="text-red-500">*</span>}</label>
+        <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">
+          {isBloody ? 'Location' : 'Casino'} {isBloody && <span className="text-red-500">*</span>}
+        </label>
         {casino ? (
           <button
             onClick={() => setCasino('')}
@@ -328,7 +404,7 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
         )}
       </div>
 
-      {/* Location within casino - not needed for bloody */}
+      {/* Location within casino - not for bloody */}
       {!isBloody && (
         <div>
           <label className="text-[#888] text-xs uppercase tracking-wider mb-1 block">Location in Casino</label>
@@ -443,7 +519,7 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
       {/* Validation Message */}
       {(() => {
         const missingField = isBloody
-          ? (!casino && 'casino')
+          ? (!casino && 'location')
           : isVP
             ? (!selectedVPGame ? 'game' : (!selectedVPPayTable && !prefillData?.payTable) ? 'pay table' : null)
             : (!machine && 'machine');
@@ -457,10 +533,10 @@ export function SpotterForm({ onSubmit, onCancel, spotType: initialSpotType, pre
         <Button
           onClick={handleSubmit}
           disabled={isBloody ? !casino : isVP ? !(casino && selectedVPGame && (selectedVPPayTable || prefillData?.payTable)) : !(casino && machine)}
-          variant="primary"
+          variant={isBloody ? "danger" : "primary"}
           className="w-full disabled:from-[#333] disabled:to-[#222] disabled:text-[#666] disabled:shadow-none disabled:cursor-not-allowed"
         >
-          Save Spot
+          {isBloody ? 'Log It!' : 'Save Spot'}
         </Button>
         <Button
           onClick={onCancel}

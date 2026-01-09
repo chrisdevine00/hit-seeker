@@ -1,12 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { GlassWater, Flame, Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
 import { Button } from '../../../components/ui';
-import { HexBadge, BadgeDetailModal, BLOODY_BADGES, checkBloodyBadges, useBadges } from '../../../badges';
-import { vegasCasinos } from '../../../data/casinos';
+import { HexBadge, BadgeDetailModal, BLOODY_BADGES, checkBloodyBadges } from '../../../badges';
 import { formatRelativeTime } from '../../../utils';
-import { hapticSuccess } from '../../../lib/haptics';
-import { LogBloodyModal } from './LogBloodyModal';
 import { useBloodies } from '../../../hooks';
 import { useTrip } from '../../../context/TripContext';
 import { useAuth } from '../../../context/AuthContext';
@@ -19,9 +15,8 @@ import { useUI } from '../../../context/UIContext';
 export function BloodiesTab() {
   const { user } = useAuth();
   const { currentTrip } = useTrip();
-  const { bloodies, loading, addBloody } = useBloodies();
-  const { celebrateNewBadges } = useBadges();
-  const { showBloodyModal, setShowBloodyModal } = useUI();
+  const { bloodies, loading } = useBloodies();
+  const { setShowSpotter, setSpotterData } = useUI();
 
   const [selectedBadge, setSelectedBadge] = useState(null);
 
@@ -30,8 +25,6 @@ export function BloodiesTab() {
     () => bloodies.filter(b => b.user_id === user?.id),
     [bloodies, user?.id]
   );
-
-  // Badge updates are handled at App.jsx level for proper init timing
 
   // Calculate earned badges from personal bloodies (for display only)
   const displayedBadges = checkBloodyBadges(myBloodies);
@@ -43,51 +36,10 @@ export function BloodiesTab() {
     return new Date(timestamp).toDateString() === today;
   }).length;
 
-  // Handle new bloody submission
-  const handleLogBloody = async (bloodyData) => {
-    // Snapshot badges BEFORE the action
-    const badgesBefore = checkBloodyBadges(myBloodies);
-
-    const newBloody = await addBloody(bloodyData);
-
-    if (!newBloody) {
-      toast.error('Failed to log bloody');
-      return;
-    }
-
-    hapticSuccess();
-
-    // Build toast message parts
-    const parts = [];
-    if (bloodyData.spice > 0) parts.push(`${bloodyData.spice}🔥`);
-    if (bloodyData.rating > 0) parts.push(`${bloodyData.rating}⭐`);
-    const prefix = parts.length > 0 ? `${parts.join(' ')} ` : '';
-
-    toast.success(`${prefix}Bloody at ${bloodyData.location}`, {
-      icon: <GlassWater size={18} className="text-red-400" />,
-    });
-
-    // Compute badges AFTER the action
-    const updatedBloodies = [...myBloodies, newBloody];
-    const badgesAfter = checkBloodyBadges(updatedBloodies);
-
-    // Find only the NEW badges (in after but not in before)
-    const newlyEarned = new Set();
-    badgesAfter.forEach(id => {
-      if (!badgesBefore.has(id)) {
-        newlyEarned.add(id);
-      }
-    });
-
-    // Only celebrate the newly earned badges from THIS action
-    if (newlyEarned.size > 0) {
-      celebrateNewBadges({
-        bloody: newlyEarned,
-        slot: new Set(), // Don't include other domains
-        vp: new Set(),
-        trip: new Set(),
-      });
-    }
+  // Open the spotter form in bloody mode (locked - no type toggle)
+  const handleLogBloody = () => {
+    setSpotterData({ type: 'bloody', lockType: true });
+    setShowSpotter(true);
   };
 
   // No trip selected state
@@ -146,7 +98,7 @@ export function BloodiesTab() {
       {/* Log Button */}
       <div>
         <Button
-          onClick={() => setShowBloodyModal(true)}
+          onClick={handleLogBloody}
           variant="danger"
           size="xl"
           className="w-full flex items-center justify-center gap-2"
@@ -229,14 +181,6 @@ export function BloodiesTab() {
         )}
       </div>
       </div>
-
-      {/* Log Modal */}
-      <LogBloodyModal
-        isOpen={showBloodyModal}
-        onClose={() => setShowBloodyModal(false)}
-        onSubmit={handleLogBloody}
-        casinos={vegasCasinos}
-      />
 
       {/* Badge Detail Modal */}
       <BadgeDetailModal

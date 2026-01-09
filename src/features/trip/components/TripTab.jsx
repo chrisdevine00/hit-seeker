@@ -504,6 +504,39 @@ export function TripTab({
         ) : (
           /* TEAM DATA VIEW */
           <>
+            {/* Team Stats */}
+            <div className="card-3d-trip p-4">
+              <p className="text-[#aaa] text-xs uppercase tracking-wider mb-3">Team Stats</p>
+              <div className="grid grid-cols-4 gap-2">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-white">{tripMembers.length}</p>
+                  <p className="text-[#aaa] text-xs">Members</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-[#d4a855]">{notes.length}</p>
+                  <p className="text-[#aaa] text-xs">Notes</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-red-400">{bloodies.length}</p>
+                  <p className="text-[#aaa] text-xs">Bloodies</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-emerald-400">
+                    {notes.filter(n => {
+                      const noteDate = new Date(n.created_at).toDateString();
+                      const today = new Date().toDateString();
+                      return noteDate === today;
+                    }).length + bloodies.filter(b => {
+                      const bDate = new Date(b.created_at).toDateString();
+                      const today = new Date().toDateString();
+                      return bDate === today;
+                    }).length}
+                  </p>
+                  <p className="text-[#aaa] text-xs">Today</p>
+                </div>
+              </div>
+            </div>
+
             {/* Team Locations */}
             <div className="card-3d p-4">
               <div className="flex items-center justify-between mb-3">

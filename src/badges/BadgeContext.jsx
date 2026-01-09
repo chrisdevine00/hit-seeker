@@ -59,19 +59,24 @@ export function BadgeProvider({ children }) {
   /**
    * Celebrate new badges - call this AFTER a user action with ONLY the newly earned badges
    * The caller is responsible for computing before/after diff
+   * Also checks celebratedBadgesRef to prevent re-celebrating
    */
   const celebrateNewBadges = useCallback((newlyEarnedByDomain) => {
     const badgesToCelebrate = [];
 
     // Collect all badge objects for the newly earned IDs
+    // Skip badges that have already been celebrated
     Object.values(newlyEarnedByDomain).forEach(domainSet => {
       if (domainSet && domainSet.size > 0) {
         domainSet.forEach(badgeId => {
-          const badge = getBadgeById(badgeId);
-          if (badge) {
-            badgesToCelebrate.push(badge);
-            // Mark as celebrated
-            celebratedBadgesRef.current.add(badgeId);
+          // Only celebrate if not already celebrated
+          if (!celebratedBadgesRef.current.has(badgeId)) {
+            const badge = getBadgeById(badgeId);
+            if (badge) {
+              badgesToCelebrate.push(badge);
+              // Mark as celebrated
+              celebratedBadgesRef.current.add(badgeId);
+            }
           }
         });
       }

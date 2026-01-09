@@ -42,11 +42,19 @@ export function BottomNavigation() {
 
   const handleAddSpot = () => {
     hapticMedium();
+    // Bloodies tab has its own modal - don't use SpotterForm
+    if (activeTab === TAB_IDS.BLOODIES) {
+      // The BloodiesTab component handles its own "Log a Bloody" button
+      // FAB on bloodies tab should do nothing or we can trigger the modal
+      // For now, just switch to showing the spotter for slots
+      setSpotterData({ type: 'slot' });
+      setShowSpotter(true);
+      return;
+    }
     // Pre-select type based on active tab
     const typeMap = {
       [TAB_IDS.HUNT]: 'slot',
       [TAB_IDS.VP]: 'vp',
-      [TAB_IDS.BLOODIES]: 'bloody',
       [TAB_IDS.TRIP]: 'slot',
     };
     setSpotterData({ type: typeMap[activeTab] || 'slot' });

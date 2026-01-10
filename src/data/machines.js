@@ -13385,6 +13385,53 @@ const machines = [
     thresholdSummary: 'NO ADVANTAGE PLAY',
     notes: 'Revolutionary cabinet merging traditional stepper gameplay with video slot visuals via transmissive screen.',
     hasCalculator: false
+  },
+
+  // WEREWOLF/MONSTER GAMES
+  {
+    id: 'werewolf-fury',
+    name: 'Werewolf Fury',
+    shortName: 'Werewolf Fury',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'AGS',
+    releaseYear: 2024,
+    quickId: 'Werewolf transformation + Hold & Spin with multiplier reels',
+    visual: {
+      location: 'Man transforms into werewolf during features',
+      appearance: [
+        { label: 'Transformation', text: 'Man becomes wild werewolf, K/Q/J convert to bonus symbols' },
+        { label: 'Free Spins', text: 'Object symbols award 5, 8, or 12 free spins' },
+        { label: 'Werewolf Spins', text: 'Unlock wilds with 5, 8, or 12 Werewolf Spins' },
+        { label: 'Multiplier Reel', text: 'Hit 12 prizes for multiplier reel spin up to 2x Grand' }
+      ],
+      colors: 'Dark gothic werewolf theme'
+    },
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    thresholdDetail: 'AGS game - not recommended for advantage play. AGS machines typically have unfavorable mechanics for AP.',
+    notes: 'Hold & Spin game by AGS. Popular in 2024. Note: AGS games generally not good for AP (see River Dragons warning).',
+    hasCalculator: false
+  },
+  {
+    id: 'werewolf-wild',
+    name: 'Werewolf Wild',
+    shortName: 'Werewolf Wild',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2014,
+    quickId: 'Classic Aristocrat werewolf theme with stacked wilds',
+    visual: {
+      location: 'Werewolf symbols stack on reels',
+      appearance: [
+        { label: 'Wilds', text: 'Stacked werewolf wilds on all reels' },
+        { label: 'Free Games', text: 'Scatter triggers free spins feature' }
+      ],
+      colors: 'Dark moonlit forest theme'
+    },
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Classic Aristocrat werewolf slot. Part of the Reel Power series.',
+    hasCalculator: false
   }
 ];
 

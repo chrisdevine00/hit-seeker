@@ -13059,6 +13059,332 @@ const machines = [
     thresholdSummary: 'NO ADVANTAGE PLAY',
     notes: 'Parisian-themed Aristocrat slot.',
     hasCalculator: false
+  },
+
+  // =============================================
+  // NEW MACHINES 2023-2026
+  // =============================================
+
+  // SUPER LIT VEGAS - ADVANTAGE PLAY (Ainsworth)
+  {
+    id: 'super-lit-vegas',
+    name: 'Super Lit Vegas',
+    shortName: 'Super Lit Vegas',
+    category: 'cycle-bonus',
+    tier: 2,
+    manufacturer: 'Ainsworth',
+    releaseYear: 2020,
+    quickId: '7-spin cycle with gold borders - complete cycle when 5+ borders lit',
+    visual: {
+      location: 'Gold borders around reel positions + spin counter',
+      appearance: [
+        { label: 'Spin Counter', text: 'Shows "X of 7" spins - starts new cycle at 7 of 7', highlight: true },
+        { label: 'Gold Borders', text: 'Lit borders turn WILD on spin 7', highlight: true },
+        { label: 'Wheel Spin', text: '8+ borders guarantees wheel spin with multipliers' },
+        { label: 'Reels', text: '5×4 reel set, 40 paylines, 60¢ bet steps' }
+      ],
+      colors: 'Vegas neon theme with gold/purple accents'
+    },
+    thresholdSummary: '5+ gold borders with 5-6 spins remaining',
+    thresholdDetail: 'Check spin counter (X of 7). If NOT 7 of 7, count gold borders. 8+ borders = guaranteed wheel spin. 5-7 borders on spins 5-6 of 7 = worth completing. More borders on LEFT reels = better.',
+    threshold: {
+      conservative: '8+ gold borders (guaranteed wheel)',
+      aggressive: '5+ borders at spin 5+ of 7',
+      skip: '7 of 7 (new cycle) or <5 borders'
+    },
+    notes: 'Quick Spin series game. Similar to Scarab mechanic but with 7-spin cycle. Borders on left columns more valuable.',
+    hasCalculator: false
+  },
+
+  // HUFF N' EVEN MORE PUFF - PERSISTENT STATE
+  {
+    id: 'huff-n-even-more-puff',
+    name: "Huff N' Even More Puff",
+    shortName: "Huff N' Even More Puff",
+    category: 'persistent-state',
+    tier: 2,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'Latest Huff sequel - Golden Buzzsaw upgrades wheel + persisting hats',
+    visual: {
+      location: 'Hard hats above reels + buzzsaw symbols',
+      appearance: [
+        { label: 'Hard Hats', text: 'Hats persist and carry over between sessions', highlight: true },
+        { label: 'Golden Buzzsaw', text: 'Reel 5 golden buzzsaw triggers Super Wheel upgrade', highlight: true },
+        { label: 'Wolf Help', text: 'Wolf can randomly award missing buzzsaws' },
+        { label: 'Reels', text: '3×5, 243 ways, 100 credit increments' }
+      ],
+      colors: 'Cartoon pig theme with construction elements'
+    },
+    thresholdSummary: 'Multiple hats showing + buzzsaw progress',
+    thresholdDetail: 'Look for persisting hard hats above reels. More hats = better starting position for free games. Golden buzzsaw on reel 5 with regular buzzsaws triggers upgraded Super Wheel.',
+    threshold: {
+      conservative: '4+ hats visible',
+      aggressive: '2+ hats with buzzsaw progress'
+    },
+    notes: 'Third in the Huff series. FanDuel exclusive online but widely available in Vegas casinos. Enhanced features over Huff N\' More Puff.',
+    hasCalculator: false
+  },
+
+  // MO' MUMMY SERIES (Aristocrat) - Very Popular Entertainment
+  {
+    id: 'mo-mummy',
+    name: "Mo' Mummy",
+    shortName: "Mo' Mummy",
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2023,
+    quickId: 'Egyptian mummy theme - Cash Collect feature with expanding zone',
+    visual: {
+      location: 'Mummy symbols on reels + Cash Collect prizes',
+      appearance: [
+        { label: 'Reels', text: '3×5 grid, 20 paylines' },
+        { label: 'Cash Collect', text: 'Mummy on reel 1 + gems triggers 5×5 bonus grid' },
+        { label: 'Mummy Zone', text: 'Starts 2×2, expands to collect coin prizes' },
+        { label: 'Jackpots', text: 'Grand (2000x), Major (200x), Maxi (100x), Minor (60x), Mini (20x)' }
+      ],
+      colors: 'Gold/purple Egyptian theme'
+    },
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    thresholdDetail: 'Pure entertainment slot - one of the most popular games on casino floors in 2024-2025.',
+    notes: 'A-tier land slot that became extremely popular. High volatility - base game can drain bankroll but bonus features pay well. Multiple variants available.',
+    hasCalculator: false
+  },
+  {
+    id: 'mo-mo-mo-mummy',
+    name: "Mo' Mo' Mo' Mummy",
+    shortName: "Mo' Mo' Mo' Mummy",
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2024,
+    quickId: 'Mo Mummy sequel - 3 bonus options: Mo Spins, Mo Symbols, Mo Rows',
+    visual: {
+      location: 'Enhanced Cash Collect with triple bonus selection',
+      appearance: [
+        { label: 'Triple Bonus', text: 'Choose Mo Spins, Mo Symbols, or Mo Rows', highlight: true },
+        { label: 'Combined', text: 'Can trigger multiple bonuses together' },
+        { label: 'Reels', text: 'Same 3×5 base as original' }
+      ],
+      colors: 'Gold/purple Egyptian theme'
+    },
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    thresholdDetail: 'Enhanced sequel with more bonus variety. Very popular in 2024-2025.',
+    notes: 'Sequel to Mo\' Mummy with expanded bonus options. Some players report it hits less frequently than original.',
+    hasCalculator: false
+  },
+  {
+    id: 'mo-mummy-mighty-pyramid',
+    name: "Mo' Mummy: Mighty Pyramid",
+    shortName: "Mo' Mummy Pyramid",
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2024,
+    quickId: 'Mo Mummy variant with pyramid bonus theme',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Pyramid-themed variant of the popular Mo\' Mummy series.',
+    hasCalculator: false
+  },
+  {
+    id: 'mo-mummy-valley-of-riches',
+    name: "Mo' Mummy: Valley of Riches",
+    shortName: "Mo' Mummy Valley",
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2024,
+    quickId: 'Mo Mummy variant with valley/treasure theme',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Valley-themed variant of Mo\' Mummy series.',
+    hasCalculator: false
+  },
+  {
+    id: 'spooky-link-mummy',
+    name: 'Spooky Link Mummy',
+    shortName: 'Spooky Link Mummy',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2024,
+    quickId: 'Mummy-themed Spooky Link variant',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Combines Spooky Link mechanics with Mummy theme.',
+    hasCalculator: false
+  },
+
+  // G2E 2024 NEW RELEASES
+  {
+    id: 'bang-bam-boom',
+    name: 'Bang! Bam! Boom!',
+    shortName: 'Bang Bam Boom',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'G2E 2024 debut - explosive bonus features',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'New Light & Wonder title debuted at G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'huff-n-xtra-puff',
+    name: "Huff N' X-Tra Puff",
+    shortName: "Huff N' X-Tra Puff",
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'Huff variant shown at G2E 2024',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Another entry in the popular Huff N\' Puff series.',
+    hasCalculator: false
+  },
+  {
+    id: 'super-88-fortunes',
+    name: 'Super 88 Fortunes',
+    shortName: 'Super 88 Fortunes',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'Enhanced 88 Fortunes from G2E 2024',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Upgraded version of the classic 88 Fortunes.',
+    hasCalculator: false
+  },
+  {
+    id: 'quick-hit-blitz-fever',
+    name: 'Quick Hit Blitz Fever',
+    shortName: 'QH Blitz Fever',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'Quick Hit series fever variant',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Latest in the Quick Hit family from G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'buffalo-gold-cash-collection',
+    name: 'Buffalo Gold Cash Collection',
+    shortName: 'Buffalo Gold CC',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2024,
+    quickId: 'Buffalo Gold on The Baron cabinet with Cash Collection',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Premium Buffalo variant on Aristocrat\'s new Baron cabinet from G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'whitney-houston',
+    name: 'Whitney Houston: I Wanna Dance',
+    shortName: 'Whitney Houston',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'IGT',
+    releaseYear: 2024,
+    quickId: 'Whitney Houston music theme with iconic songs and videos',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'IGT licensed slot featuring Whitney Houston music, photos, and videos. G2E 2024 debut.',
+    hasCalculator: false
+  },
+  {
+    id: 'tiger-and-dragon',
+    name: 'Tiger and Dragon',
+    shortName: 'Tiger and Dragon',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'IGT',
+    releaseYear: 2024,
+    quickId: 'IGT chart-topping Asian theme on PeakCurve cabinet',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'One of IGT\'s top performers on the new PeakCurve 49 cabinet.',
+    hasCalculator: false
+  },
+  {
+    id: 'tiger-and-dragon-super-bonus',
+    name: 'Tiger and Dragon Super Bonus',
+    shortName: 'Tiger Dragon Super',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'IGT',
+    releaseYear: 2024,
+    quickId: 'Enhanced Tiger and Dragon with Super Bonus feature',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Upgraded Tiger and Dragon variant from G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'wheel-of-fortune-cash-link',
+    name: 'Wheel of Fortune Cash Link',
+    shortName: 'WoF Cash Link',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'IGT',
+    releaseYear: 2024,
+    quickId: 'New Wheel of Fortune with Cash Link mechanic on Trio cabinet',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'One of 11 new Wheel of Fortune games debuted at G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'wof-cash-link-big-money',
+    name: 'Wheel of Fortune Cash Link Big Money',
+    shortName: 'WoF Big Money',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'IGT',
+    releaseYear: 2024,
+    quickId: 'Cash Link WoF variant on Wheel of Fortune Trio cabinet',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Premium Wheel of Fortune variant from G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'monopoly-2024',
+    name: 'Monopoly (Aristocrat 2024)',
+    shortName: 'Monopoly 2024',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Aristocrat',
+    releaseYear: 2024,
+    quickId: 'Reimagined Monopoly board game slot from Aristocrat',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Aristocrat\'s reimagined take on the classic Monopoly board game, announced at G2E 2024.',
+    hasCalculator: false
+  },
+  {
+    id: 'dracula-2024',
+    name: 'Dracula (Light & Wonder 2024)',
+    shortName: 'Dracula 2024',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'Monster theme companion to Frankenstein slot',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'New monster theme from Light & Wonder joining Frankenstein series at G2E 2024.',
+    hasCalculator: false
+  },
+
+  // LANDMARK 7000 TRANSPARENT GAMES (Light & Wonder)
+  {
+    id: 'landmark-transparent',
+    name: 'Landmark 7000 Transparent Games',
+    shortName: 'Landmark Transparent',
+    category: 'entertainment',
+    tier: 3,
+    manufacturer: 'Light & Wonder',
+    releaseYear: 2024,
+    quickId: 'Traditional stepper meets video slots - see-through reel panel',
+    thresholdSummary: 'NO ADVANTAGE PLAY',
+    notes: 'Revolutionary cabinet merging traditional stepper gameplay with video slot visuals via transmissive screen.',
+    hasCalculator: false
   }
 ];
 

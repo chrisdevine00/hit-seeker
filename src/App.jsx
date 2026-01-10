@@ -98,7 +98,7 @@ function MainApp() {
   const { trips, currentTrip, tripMembers } = useTrip();
   const { notes, addNote, deleteNote, refresh: refreshNotes } = useNotes();
   const { photos, deletePhoto, getPhotoUrl, getMachinePhotos } = usePhotos();
-  const { checkIns, myCheckIn, checkIn } = useCheckIns();
+  const { checkIns, myCheckIn, checkIn, checkOut } = useCheckIns();
   const { bloodies } = useBloodies();
   const {
     updateSlotBadges, updateVPBadges, updateTripBadges, updateBloodyBadges,

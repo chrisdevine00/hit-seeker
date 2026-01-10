@@ -228,6 +228,13 @@ function MainApp() {
 
   // Header check-in: try to detect location, ask to confirm, or fall back to casino list
   const handleHeaderCheckIn = () => {
+    // If already checked in, skip geolocation and go straight to casino list
+    // This lets users easily switch casinos without fighting GPS
+    if (myCheckIn) {
+      setShowCasinoList(true);
+      return;
+    }
+
     setGeoStatus('loading');
 
     // Use simulated geolocation if debug mode is set
@@ -250,7 +257,7 @@ function MainApp() {
           if (dist < minDist) { minDist = dist; closest = casino; }
         });
         if (closest && minDist < 0.005) {
-          // Found nearby casino - ask user to confirm (even if already checked in elsewhere)
+          // Found nearby casino - ask user to confirm
           setPendingCheckIn(closest);
           setGeoStatus('idle');
         } else {
@@ -422,7 +429,7 @@ function MainApp() {
       <CheckInConfirmModal onCheckIn={handleCheckIn} />
 
       {/* Casino List Modal - for manual casino selection */}
-      <CasinoListModal onCheckIn={handleCheckIn} />
+      <CasinoListModal onCheckIn={handleCheckIn} myCheckIn={myCheckIn} onCheckOut={checkOut} />
 
       {/* Dev Mode Button - Only visible to admin when dev mode is enabled */}
       {user?.email === APP_CONFIG.DEV_EMAIL && devModeEnabled && (

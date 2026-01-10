@@ -1,15 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import Fuse from 'fuse.js';
-import { X, Search, MapPin } from 'lucide-react';
+import { X, Search, MapPin, LogOut } from 'lucide-react';
 import { useUI } from '../../context/UIContext';
 import { vegasCasinos } from '../../data/casinos';
-import { hapticLight } from '../../lib/haptics';
+import { hapticLight, hapticSuccess } from '../../lib/haptics';
+import { FilledMapPin } from './FilledMapPin';
 
 /**
  * CasinoListModal - Full list of casinos for manual check-in
  * Shows when location detection fails or user wants to pick manually
  */
-export function CasinoListModal({ onCheckIn }) {
+export function CasinoListModal({ onCheckIn, myCheckIn, onCheckOut }) {
   const { showCasinoList, setShowCasinoList } = useUI();
   const [search, setSearch] = useState('');
 
@@ -63,7 +64,10 @@ export function CasinoListModal({ onCheckIn }) {
   return (
     <div className="fixed inset-0 bg-black/90 z-50 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-[#333]">
+      <div
+        className="flex items-center justify-between px-4 pb-4 border-b border-[#333]"
+        style={{ paddingTop: 'calc(var(--sat, 0px) + 16px)' }}
+      >
         <h2 className="text-lg font-bold text-white">Choose Casino</h2>
         <button
           onClick={handleClose}
@@ -72,6 +76,35 @@ export function CasinoListModal({ onCheckIn }) {
           <X size={24} />
         </button>
       </div>
+
+      {/* Current Check-in Status */}
+      {myCheckIn && (
+        <div className="p-4 border-b border-[#333] bg-[#0d0d0d]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                <FilledMapPin size={18} className="text-emerald-400" holeColor="#0d0d0d" />
+              </div>
+              <div>
+                <p className="text-[#888] text-xs uppercase">Currently at</p>
+                <p className="text-white font-medium">{myCheckIn.casino_name}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                hapticSuccess();
+                onCheckOut();
+                setShowCasinoList(false);
+                setSearch('');
+              }}
+              className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded text-red-400 text-sm hover:bg-red-500/20 transition-colors"
+            >
+              <LogOut size={16} />
+              Check Out
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Search */}
       <div className="p-4 border-b border-[#333]">

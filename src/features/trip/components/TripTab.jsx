@@ -85,7 +85,7 @@ export function TripTab({
 
   // Get hot opportunities for today
   const getHotOpportunities = () => {
-    const todaySlotNotes = notes.filter(n => {
+    const todaySlotNotes = (notes || []).filter(n => {
       const noteDate = new Date(n.created_at).toDateString();
       const today = new Date().toDateString();
       if (noteDate !== today) return false;
@@ -94,7 +94,7 @@ export function TripTab({
       return noteMachine && (noteMachine.tier === 1 || noteMachine.tier === 2);
     });
 
-    const todayVPNotes = notes.filter(n => {
+    const todayVPNotes = (notes || []).filter(n => {
       const noteDate = new Date(n.created_at).toDateString();
       const today = new Date().toDateString();
       if (noteDate !== today) return false;
@@ -117,7 +117,7 @@ export function TripTab({
   const hotItems = getHotOpportunities();
 
   // Convert bloodies to note-like objects for unified feed
-  const bloodiesToNotes = (bloodiesArr) => bloodiesArr.map(b => ({
+  const bloodiesToNotes = (bloodiesArr) => (bloodiesArr || []).map(b => ({
     id: `bloody-${b.id}`,
     _bloodyId: b.id, // Keep original ID for detail modal
     type: 'bloody',
@@ -131,7 +131,7 @@ export function TripTab({
   }));
 
   // Combined activity feed (notes + bloodies) sorted by date
-  const allActivity = [...notes, ...bloodiesToNotes(bloodies)]
+  const allActivity = [...(notes || []), ...bloodiesToNotes(bloodies)]
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const myActivity = allActivity.filter(item => item.user_id === user?.id);
